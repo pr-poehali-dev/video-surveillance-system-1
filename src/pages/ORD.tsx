@@ -67,9 +67,7 @@ const ORD = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-border/50">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Лица и люди (24ч)
-              </CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Лица (24ч)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
