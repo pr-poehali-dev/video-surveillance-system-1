@@ -278,20 +278,21 @@ const AccessManagement = () => {
                   </ScrollArea>
                 </DialogContent>
               </Dialog>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <Input
-                  placeholder="Поиск по ФИО, логину, предприятию, роли..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full"
-                />
               </div>
-              <Button variant="outline">
-                <Icon name="Search" size={16} className="mr-2" />
-                Поиск
-              </Button>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Поиск по ФИО, логину, предприятию, роли..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <Button variant="outline">
+                  <Icon name="Search" size={16} className="mr-2" />
+                  Поиск
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
