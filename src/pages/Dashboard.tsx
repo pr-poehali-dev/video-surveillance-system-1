@@ -28,13 +28,14 @@ const Dashboard = () => {
 
   return (
     <div className="bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Главная панель</h2>
-          <p className="text-muted-foreground">Общая статистика системы видеонаблюдения</p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Главная</h1>
+        <p className="text-sm text-muted-foreground">
+          Обзор системы видеонаблюдения Пермского края
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <Card className="border-border/50 hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -98,9 +99,9 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -184,9 +185,9 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+      </div>
 
-        <Card className="border-border/50">
+      <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Icon name="BarChart3" size={20} />
@@ -209,7 +210,6 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 };

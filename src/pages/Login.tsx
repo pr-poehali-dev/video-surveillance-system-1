@@ -11,21 +11,37 @@ const Login = () => {
   const navigate = useNavigate();
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const supportEmail = 'support@esvs-perm.ru';
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(supportEmail);
+    toast.success('Email скопирован в буфер обмена');
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!login || !password) {
+      toast.error('Введите логин и пароль');
+      return;
+    }
+
     setLoading(true);
 
     setTimeout(() => {
       if (login === 'admin' && password === 'admin') {
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userLogin', login);
         toast.success('Вход выполнен успешно');
-        navigate('/dashboard');
+        navigate('/');
       } else {
         toast.error('Неверный логин или пароль');
       }
       setLoading(false);
-    }, 800);
+    }, 1000);
   };
 
   return (
@@ -62,14 +78,25 @@ const Login = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="password">Пароль</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Введите пароль"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Введите пароль"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={18} />
+                  </Button>
+                </div>
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>
@@ -88,20 +115,18 @@ const Login = () => {
             </form>
 
             <div className="mt-6 pt-6 border-t border-border">
-              <div className="text-sm text-muted-foreground space-y-2">
-                <div className="flex items-center gap-2">
+              <div className="text-center space-y-3">
+                <p className="text-sm text-muted-foreground">Техническая поддержка:</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyEmail}
+                  className="gap-2"
+                >
                   <Icon name="Mail" size={16} />
-                  <span>Техподдержка:</span>
-                  <a href="mailto:support@esvs.perm.ru" className="text-primary hover:underline">
-                    support@esvs.perm.ru
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Icon name="FileText" size={16} />
-                  <a href="#" className="text-primary hover:underline">
-                    Руководство пользователя
-                  </a>
-                </div>
+                  {supportEmail}
+                  <Icon name="Copy" size={14} />
+                </Button>
               </div>
             </div>
           </CardContent>
