@@ -234,10 +234,7 @@ const ORD = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Activity" size={20} />
-                  Активные поиски
-                </CardTitle>
+                <CardTitle className="flex items-center gap-2">Активные листы мониторинга</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground text-center py-8">
