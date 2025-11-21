@@ -51,6 +51,7 @@ const PhotoArchive = () => {
     startDate: '',
     endDate: '',
     interval: '300',
+    dailyHour: '14',
     selectedCameras: [] as string[],
   });
 
@@ -106,7 +107,7 @@ const PhotoArchive = () => {
 
     setTasks([...tasks, task]);
     setIsCreateDialogOpen(false);
-    setNewTask({ name: '', startDate: '', endDate: '', interval: '300', selectedCameras: [] });
+    setNewTask({ name: '', startDate: '', endDate: '', interval: '300', dailyHour: '14', selectedCameras: [] });
     toast.success('Задание создано');
   };
 
@@ -180,7 +181,7 @@ const PhotoArchive = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="interval">Интервал скриншотов (секунды)</Label>
+                  <Label htmlFor="interval">Интервал скриншотов</Label>
                   <Select value={newTask.interval} onValueChange={(value) => setNewTask({ ...newTask, interval: value })}>
                     <SelectTrigger id="interval">
                       <SelectValue />
@@ -191,9 +192,28 @@ const PhotoArchive = () => {
                       <SelectItem value="600">Каждые 10 минут (600 сек)</SelectItem>
                       <SelectItem value="1800">Каждые 30 минут (1800 сек)</SelectItem>
                       <SelectItem value="3600">Каждый час (3600 сек)</SelectItem>
+                      <SelectItem value="daily">Каждый день в указанный час</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {newTask.interval === 'daily' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="daily-hour">Время выполнения скриншота</Label>
+                    <Select value={newTask.dailyHour || '14'} onValueChange={(value) => setNewTask({ ...newTask, dailyHour: value })}>
+                      <SelectTrigger id="daily-hour">
+                        <SelectValue placeholder="Выберите час" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 24 }, (_, i) => (
+                          <SelectItem key={i} value={i.toString()}>
+                            {i.toString().padStart(2, '0')}:00
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label>Выберите камеры</Label>

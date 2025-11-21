@@ -30,6 +30,7 @@ const AccessManagement = () => {
       role: 'Администратор',
       isOnline: true,
       note: '',
+      documents: [],
     },
     {
       id: 2,
@@ -42,8 +43,14 @@ const AccessManagement = () => {
       role: 'Оператор',
       isOnline: false,
       note: '',
+      documents: [],
     },
   ]);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
 
   const [sessions, setSessions] = useState([
     {
@@ -131,6 +138,21 @@ const AccessManagement = () => {
                 </DialogContent>
               </Dialog>
             </div>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Input
+                  placeholder="Поиск по ФИО, логину, предприятию, роли..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <Button variant="outline">
+                <Icon name="Search" size={16} className="mr-2" />
+                Поиск
+              </Button>
+            </div>
+          </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -170,18 +192,19 @@ const AccessManagement = () => {
       <TabsContent value="users">
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Users" size={20} />
-                Пользователи системы
-              </CardTitle>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Icon name="UserPlus" size={18} className="mr-2" />
-                    Добавить пользователя
-                  </Button>
-                </DialogTrigger>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Users" size={20} />
+                  Пользователи системы
+                </CardTitle>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Icon name="UserPlus" size={18} className="mr-2" />
+                      Добавить пользователя
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>Новый пользователь</DialogTitle>
@@ -257,11 +280,36 @@ const AccessManagement = () => {
                 </DialogContent>
               </Dialog>
             </div>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Input
+                  placeholder="Поиск по ФИО, логину, предприятию, роли..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <Button variant="outline">
+                <Icon name="Search" size={16} className="mr-2" />
+                Поиск
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[600px]">
               <div className="space-y-3">
-                {users.map((user) => (
+                {users
+                  .filter((user) => {
+                    if (!searchQuery) return true;
+                    const query = searchQuery.toLowerCase();
+                    return (
+                      user.fio.toLowerCase().includes(query) ||
+                      user.login.toLowerCase().includes(query) ||
+                      user.company.toLowerCase().includes(query) ||
+                      user.role.toLowerCase().includes(query)
+                    );
+                  })
+                  .map((user) => (
                   <Card key={user.id} className="border-border/50">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
@@ -283,11 +331,28 @@ const AccessManagement = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setEditForm(user);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
                             <Icon name="Edit" size={14} className="mr-1" />
-                            Изменить
+                            Редактировать
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              if (confirm(`Вы уверены, что хотите удалить пользователя ${user.fio}?`)) {
+                                setUsers(users.filter((u) => u.id !== user.id));
+                                toast.success('Пользователь удален');
+                              }
+                            }}
+                          >
                             <Icon name="Trash2" size={14} />
                           </Button>
                         </div>
@@ -321,6 +386,150 @@ const AccessManagement = () => {
             </ScrollArea>
           </CardContent>
         </Card>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Редактирование пользователя</DialogTitle>
+            </DialogHeader>
+            <ScrollArea className="max-h-[600px]">
+              <div className="space-y-4 py-4 pr-4">
+                <div className="space-y-2">
+                  <Label>ФИО</Label>
+                  <Input
+                    value={editForm.fio || ''}
+                    onChange={(e) => setEditForm({ ...editForm, fio: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Предприятие</Label>
+                  <Input
+                    value={editForm.company || ''}
+                    onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input
+                      type="email"
+                      value={editForm.email || ''}
+                      onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Логин</Label>
+                    <Input
+                      value={editForm.login || ''}
+                      onChange={(e) => setEditForm({ ...editForm, login: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Рабочий телефон</Label>
+                    <Input
+                      value={editForm.workPhone || ''}
+                      onChange={(e) => setEditForm({ ...editForm, workPhone: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Мобильный телефон</Label>
+                    <Input
+                      value={editForm.mobilePhone || ''}
+                      onChange={(e) => setEditForm({ ...editForm, mobilePhone: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Роль</Label>
+                  <Select
+                    value={editForm.role || ''}
+                    onValueChange={(value) => setEditForm({ ...editForm, role: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Администратор">Администратор</SelectItem>
+                      <SelectItem value="Оператор">Оператор</SelectItem>
+                      <SelectItem value="Наблюдатель">Наблюдатель</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Примечание</Label>
+                  <Input
+                    value={editForm.note || ''}
+                    onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Документы пользователя</Label>
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors">
+                    <input
+                      type="file"
+                      multiple
+                      className="hidden"
+                      id="user-documents"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          const files = Array.from(e.target.files);
+                          setEditForm({
+                            ...editForm,
+                            documents: [...(editForm.documents || []), ...files.map((f) => f.name)],
+                          });
+                          toast.success(`Загружено ${files.length} файлов`);
+                        }
+                      }}
+                    />
+                    <label htmlFor="user-documents" className="cursor-pointer">
+                      <Icon name="Upload" size={24} className="mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Загрузить документы</p>
+                    </label>
+                  </div>
+                  {editForm.documents && editForm.documents.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Загруженные документы:</p>
+                      <div className="space-y-1">
+                        {editForm.documents.map((doc: string, index: number) => (
+                          <div key={index} className="flex items-center justify-between p-2 border rounded">
+                            <div className="flex items-center gap-2">
+                              <Icon name="FileText" size={16} />
+                              <span className="text-sm">{doc}</span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setEditForm({
+                                  ...editForm,
+                                  documents: editForm.documents.filter((_: any, i: number) => i !== index),
+                                });
+                              }}
+                            >
+                              <Icon name="X" size={14} />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setUsers(users.map((u) => (u.id === editForm.id ? editForm : u)));
+                    setIsEditDialogOpen(false);
+                    toast.success('Данные пользователя обновлены');
+                  }}
+                >
+                  Сохранить изменения
+                </Button>
+              </div>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
       </TabsContent>
 
       <TabsContent value="groups">
