@@ -364,10 +364,7 @@ const ORD = () => {
           <TabsContent value="history-plate" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Clock" size={20} />
-                  Исторический поиск ГРЗ и транспорта
-                </CardTitle>
+                <CardTitle className="flex items-center gap-2">Исторический поиск ГРЗ</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
