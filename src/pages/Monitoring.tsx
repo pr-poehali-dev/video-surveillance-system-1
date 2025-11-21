@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,20 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import YandexMap from '@/components/YandexMap';
-
-interface Camera {
-  id: number;
-  name: string;
-  address: string;
-  status: 'active' | 'inactive' | 'problem';
-  owner: string;
-  group: string;
-  lat: number;
-  lng: number;
-  resolution: string;
-  fps: number;
-  traffic: number;
-}
+import { api, Camera, CameraStats } from '@/lib/api';
 
 const Monitoring = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,15 +30,30 @@ const Monitoring = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
   const [showVideoDialog, setShowVideoDialog] = useState(false);
+  const [cameras, setCameras] = useState<Camera[]>([]);
+  const [stats, setStats] = useState<CameraStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const cameras: Camera[] = [
-    { id: 1, name: 'Камера-001', address: 'г. Пермь, ул. Ленина, 50', status: 'active', owner: 'МВД', group: 'Центр города', lat: 58.010455, lng: 56.229443, resolution: '1920x1080', fps: 25, traffic: 4.2 },
-    { id: 2, name: 'Камера-002', address: 'г. Пермь, ул. Монастырская, 12', status: 'active', owner: 'МВД', group: 'Центр города', lat: 58.011455, lng: 56.230443, resolution: '1920x1080', fps: 25, traffic: 3.8 },
-    { id: 3, name: 'Камера-003', address: 'г. Пермь, ул. Сибирская, 27', status: 'problem', owner: 'МВД', group: 'Центр города', lat: 58.009455, lng: 56.228443, resolution: '1280x720', fps: 15, traffic: 2.1 },
-    { id: 4, name: 'Камера-004', address: 'г. Пермь, Комсомольский пр., 68', status: 'active', owner: 'Администрация', group: 'Транспорт', lat: 58.012455, lng: 56.231443, resolution: '1920x1080', fps: 30, traffic: 5.1 },
-    { id: 5, name: 'Камера-005', address: 'г. Пермь, ул. Петропавловская, 35', status: 'inactive', owner: 'МВД', group: 'Центр города', lat: 58.010955, lng: 56.229943, resolution: '1920x1080', fps: 0, traffic: 0 },
-    { id: 6, name: 'Камера-006', address: 'г. Пермь, ул. Куйбышева, 95', status: 'active', owner: 'Администрация', group: 'Транспорт', lat: 58.013455, lng: 56.232443, resolution: '1920x1080', fps: 25, traffic: 4.5 },
-  ];
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [camerasData, statsData] = await Promise.all([
+        api.getCameras(),
+        api.getStats()
+      ]);
+      setCameras(camerasData);
+      setStats(statsData);
+    } catch (error) {
+      toast.error('Ошибка загрузки данных');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -97,12 +99,16 @@ const Monitoring = () => {
     return matchesSearch && matchesStatus && matchesOwner;
   });
 
-  const stats = {
-    total: cameras.length,
-    active: cameras.filter((c) => c.status === 'active').length,
-    inactive: cameras.filter((c) => c.status === 'inactive').length,
-    problem: cameras.filter((c) => c.status === 'problem').length,
-  };
+  if (loading) {
+    return (
+      <div className="bg-background flex items-center justify-center h-96">
+        <div className="text-center">
+          <Icon name="Loader2" size={48} className="animate-spin text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">Загрузка данных...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background">
@@ -119,7 +125,7 @@ const Monitoring = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Всего</p>
-                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-2xl font-bold">{stats?.total || 0}</p>
               </div>
               <Icon name="Video" className="text-blue-600" size={24} />
             </div>
@@ -130,7 +136,7 @@ const Monitoring = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Активные</p>
-                <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                <p className="text-2xl font-bold text-green-600">{stats?.active || 0}</p>
               </div>
               <Icon name="CheckCircle2" className="text-green-600" size={24} />
             </div>
@@ -141,7 +147,7 @@ const Monitoring = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Неактивные</p>
-                <p className="text-2xl font-bold text-red-600">{stats.inactive}</p>
+                <p className="text-2xl font-bold text-red-600">{stats?.inactive || 0}</p>
               </div>
               <Icon name="XCircle" className="text-red-600" size={24} />
             </div>
@@ -152,7 +158,7 @@ const Monitoring = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Проблемные</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.problem}</p>
+                <p className="text-2xl font-bold text-yellow-600">{stats?.problem || 0}</p>
               </div>
               <Icon name="AlertTriangle" className="text-yellow-600" size={24} />
             </div>
