@@ -136,10 +136,7 @@ const ORD = () => {
               <Icon name="History" size={16} className="mr-2" />
               История поиска лиц
             </TabsTrigger>
-            <TabsTrigger value="history-plate">
-              <Icon name="Clock" size={16} className="mr-2" />
-              История ГРЗ
-            </TabsTrigger>
+            <TabsTrigger value="history-plate">Исторический поиск ГРЗ</TabsTrigger>
           </TabsList>
 
           <TabsContent value="online-face" className="space-y-6">
