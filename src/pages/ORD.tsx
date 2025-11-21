@@ -105,9 +105,7 @@ const ORD = () => {
 
           <Card className="border-border/50">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                ГРЗ (24ч)
-              </CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Обнаружено ГРЗ (24ч)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
