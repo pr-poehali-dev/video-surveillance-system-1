@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import YandexMap from '@/components/YandexMap';
 
 interface Camera {
   id: number;
@@ -197,19 +198,7 @@ const Monitoring = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="relative bg-muted rounded-lg overflow-hidden" style={{ height: '600px' }}>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <Icon name="Map" size={48} className="text-muted-foreground mx-auto mb-2" />
-                    <p className="text-muted-foreground">
-                      Карта Пермского края с камерами
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Интеграция с картографическим сервисом
-                    </p>
-                  </div>
-                </div>
-
+              <div className="relative rounded-lg overflow-hidden" style={{ height: '600px' }}>
                 <div className="absolute top-4 left-4 right-4 z-10">
                   <div className="relative">
                     <Icon
@@ -221,26 +210,20 @@ const Monitoring = () => {
                       placeholder="Поиск по адресу или названию камеры..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 bg-background"
+                      className="pl-10 bg-background shadow-lg"
                     />
                   </div>
                 </div>
 
-                {filteredCameras.map((camera) => (
-                  <button
-                    key={camera.id}
-                    onClick={() => { setSelectedCamera(camera); setShowVideoDialog(true); }}
-                    className="absolute w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                    style={{
-                      left: `${20 + camera.id * 12}%`,
-                      top: `${30 + camera.id * 8}%`,
-                    }}
-                  >
-                    <div className={`w-8 h-8 ${getStatusColor(camera.status)} rounded-full flex items-center justify-center border-2 border-white`}>
-                      <Icon name="Video" size={16} className="text-white" />
-                    </div>
-                  </button>
-                ))}
+                <YandexMap
+                  cameras={filteredCameras}
+                  onCameraClick={(camera) => {
+                    setSelectedCamera(camera);
+                    setShowVideoDialog(true);
+                  }}
+                  height="600px"
+                  clusteringEnabled={clusteringEnabled}
+                />
               </div>
             </CardContent>
           </Card>
