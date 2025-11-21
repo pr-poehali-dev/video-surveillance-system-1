@@ -215,10 +215,7 @@ const ORD = () => {
           <TabsContent value="online-plate" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Search" size={20} />
-                  Поиск государственных регистрационных знаков
-                </CardTitle>
+                <CardTitle className="flex items-center gap-2">Создать лист мониторинга государственных регистрационных знаков</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
