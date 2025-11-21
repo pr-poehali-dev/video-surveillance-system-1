@@ -53,30 +53,7 @@ const Monitoring = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
-              <Icon name="ArrowLeft" size={20} />
-            </Button>
-            <div>
-              <h1 className="text-lg font-bold">Мониторинг</h1>
-              <p className="text-xs text-muted-foreground">Карта камер видеонаблюдения</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Icon name="Maximize" size={20} />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Icon name="MapPin" size={20} />
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-background">
       <div className="flex h-[calc(100vh-73px)]">
         <aside className="w-80 border-r border-border bg-card flex flex-col">
           <div className="p-4 border-b border-border">

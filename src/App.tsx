@@ -9,6 +9,9 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Monitoring from "./pages/Monitoring";
+import ORD from "./pages/ORD";
+import Layouts from "./pages/Layouts";
+import AppLayout from "./components/AppLayout";
 
 const queryClient = new QueryClient();
 
@@ -20,8 +23,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/monitoring" element={<Monitoring />} />
+          <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+          <Route path="/monitoring" element={<AppLayout><Monitoring /></AppLayout>} />
+          <Route path="/ord" element={<AppLayout><ORD /></AppLayout>} />
+          <Route path="/layouts" element={<AppLayout><Layouts /></AppLayout>} />
           <Route path="/old" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

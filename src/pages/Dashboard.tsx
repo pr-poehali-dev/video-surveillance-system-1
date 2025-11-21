@@ -27,46 +27,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Icon name="Video" className="text-primary-foreground" size={20} />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold">Единая система видеонаблюдения</h1>
-              <p className="text-xs text-muted-foreground">Пермский край</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Button onClick={() => navigate('/monitoring')} className="hidden md:flex">
-              <Icon name="Map" size={18} className="mr-2" />
-              Мониторинг
-            </Button>
-            <div className="text-sm text-muted-foreground hidden md:block">
-              {currentTime.toLocaleDateString('ru-RU', { 
-                day: '2-digit', 
-                month: 'long', 
-                year: 'numeric' 
-              })}
-              {' '}
-              <span className="font-mono font-semibold text-foreground">
-                {currentTime.toLocaleTimeString('ru-RU')}
-              </span>
-            </div>
-            <Button variant="ghost" size="icon">
-              <Icon name="Bell" size={20} />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Icon name="User" size={20} />
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
+    <div className="bg-background">
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Главная панель</h2>
           <p className="text-muted-foreground">Общая статистика системы видеонаблюдения</p>
@@ -247,7 +209,7 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </main>
+      </div>
     </div>
   );
 };
