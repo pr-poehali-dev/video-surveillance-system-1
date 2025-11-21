@@ -152,7 +152,6 @@ const AccessManagement = () => {
                 Поиск
               </Button>
             </div>
-          </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
