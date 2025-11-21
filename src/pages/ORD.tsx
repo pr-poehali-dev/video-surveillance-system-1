@@ -132,10 +132,7 @@ const ORD = () => {
               <Icon name="Search" size={16} className="mr-2" />
               Онлайн поиск ГРЗ
             </TabsTrigger>
-            <TabsTrigger value="history-face">
-              <Icon name="History" size={16} className="mr-2" />
-              История поиска лиц
-            </TabsTrigger>
+            <TabsTrigger value="history-face">Исторический поиск лиц</TabsTrigger>
             <TabsTrigger value="history-plate">Исторический поиск ГРЗ</TabsTrigger>
           </TabsList>
 
