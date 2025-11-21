@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { StatsCards } from '@/components/ord/StatsCards';
+import { ImageUploadZone } from '@/components/ord/ImageUploadZone';
+import { SearchResults } from '@/components/ord/SearchResults';
 
 const ORD = () => {
   const [plateSearch, setPlateSearch] = useState('');
@@ -67,7 +68,7 @@ const ORD = () => {
   const mockResults = [
     {
       id: 1,
-      type: 'face',
+      type: 'face' as const,
       match: 94.5,
       time: '2024-11-21 14:32:15',
       camera: 'Камера-001',
@@ -75,7 +76,7 @@ const ORD = () => {
     },
     {
       id: 2,
-      type: 'plate',
+      type: 'plate' as const,
       match: 98.2,
       time: '2024-11-21 14:28:43',
       camera: 'Камера-003',
@@ -84,7 +85,7 @@ const ORD = () => {
     },
     {
       id: 3,
-      type: 'face',
+      type: 'face' as const,
       match: 87.3,
       time: '2024-11-21 14:15:22',
       camera: 'Камера-006',
@@ -95,57 +96,7 @@ const ORD = () => {
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Обнаружено лиц (24ч)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold">{stats.faces24h.toLocaleString('ru-RU')}</div>
-                <Icon name="User" className="text-secondary" size={24} />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Обнаружено людей (24ч)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold">{stats.people24h.toLocaleString('ru-RU')}</div>
-                <Icon name="Users" className="text-secondary" size={24} />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Обнаружено транспортных средств (24ч)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold">{stats.vehicles24h.toLocaleString('ru-RU')}</div>
-                <Icon name="CarFront" className="text-primary" size={24} />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Обнаружено ГРЗ (24ч)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold">{stats.plates24h.toLocaleString('ru-RU')}</div>
-                <Icon name="Hash" className="text-primary" size={24} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <StatsCards stats={stats} />
 
         <Tabs defaultValue="online-face" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
@@ -180,134 +131,56 @@ const ORD = () => {
                   <Input id="face-description" placeholder="Краткое описание задачи" />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Загрузить изображения</Label>
-                  <div 
-                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-                      isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'
-                    }`}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                  >
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="face-upload"
-                    />
-                    <label htmlFor="face-upload" className="cursor-pointer">
-                      <Icon name="Upload" size={32} className="mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        Наиме для загрузки или перетащите изображения сюда
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        JPG, PNG до 10MB, можно загрузить несколько файлов
-                      </p>
-                    </label>
-                  </div>
-                  {selectedImages.length > 0 && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Загружено изображений: {selectedImages.length}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => setSelectedImages([])}
-                        >
-                          <Icon name="X" size={16} className="mr-1" />
-                          Очистить все
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                        {selectedImages.map((file, index) => (
-                          <div 
-                            key={index} 
-                            className="flex items-center gap-2 p-3 bg-muted rounded-lg group"
-                          >
-                            <Icon name="Image" className="text-primary" size={20} />
-                            <span className="text-sm flex-1 truncate">{file.name}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeImage(index)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <Icon name="X" size={16} />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <ImageUploadZone
+                  selectedImages={selectedImages}
+                  isDragging={isDragging}
+                  onImageUpload={handleImageUpload}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  removeImage={removeImage}
+                  clearImages={() => setSelectedImages([])}
+                />
 
                 <Button className="w-full">
                   <Icon name="Play" size={16} className="mr-2" />
-                  Начать мониторинг
+                  Запустить поиск
                 </Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="List" size={20} />
-                  Активные листы мониторинга
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  Нет активных листов мониторинга
-                </p>
-              </CardContent>
-            </Card>
+            <SearchResults results={mockResults} />
           </TabsContent>
 
           <TabsContent value="online-plate" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">Создать лист мониторинга государственных регистрационных знаков</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Search" size={20} />
+                  Онлайн поиск по ГРЗ
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="plate-name">Наименование</Label>
-                  <Input id="plate-name" placeholder="Введите название задачи" />
+                  <Label htmlFor="plate-search">Государственный регистрационный знак</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="plate-search"
+                      placeholder="Например: А123ВС159"
+                      value={plateSearch}
+                      onChange={(e) => setPlateSearch(e.target.value)}
+                      className="font-mono"
+                    />
+                    <Button onClick={handlePlateSearch}>
+                      <Icon name="Search" size={16} className="mr-2" />
+                      Найти
+                    </Button>
+                  </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="plate-number">Номер ГРЗ</Label>
-                  <Input
-                    id="plate-number"
-                    placeholder="А123ВС159"
-                    value={plateSearch}
-                    onChange={(e) => setPlateSearch(e.target.value.toUpperCase())}
-                    className="font-mono text-lg"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Можно использовать * для поиска по части номера, например: А*ВС159
-                  </p>
-                </div>
-
-                <Button className="w-full" onClick={handlePlateSearch}>
-                  <Icon name="Search" size={16} className="mr-2" />
-                  Начать поиск ГРЗ
-                </Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">Активные листы мониторинга</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  Нет активных поисков
-                </p>
-              </CardContent>
-            </Card>
+            <SearchResults results={mockResults.filter((r) => r.type === 'plate')} />
           </TabsContent>
 
           <TabsContent value="history-face" className="space-y-6">
@@ -320,186 +193,81 @@ const ORD = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Загрузить изображение для поиска</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      id="history-face-upload"
-                      onChange={handleImageUpload}
-                    />
-                    <label htmlFor="history-face-upload" className="cursor-pointer">
-                      <Icon name="Upload" size={32} className="mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        Загрузите изображение лица для поиска в архиве
-                      </p>
-                    </label>
-                  </div>
+                  <Label htmlFor="history-face-name">Наименование</Label>
+                  <Input id="history-face-name" placeholder="Введите название поиска" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Дата начала</Label>
-                    <Input type="datetime-local" />
+                    <Label htmlFor="date-from">Период от</Label>
+                    <Input id="date-from" type="datetime-local" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Дата окончания</Label>
-                    <Input type="datetime-local" />
+                    <Label htmlFor="date-to">Период до</Label>
+                    <Input id="date-to" type="datetime-local" />
                   </div>
                 </div>
 
+                <ImageUploadZone
+                  selectedImages={selectedImages}
+                  isDragging={isDragging}
+                  onImageUpload={handleImageUpload}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  removeImage={removeImage}
+                  clearImages={() => setSelectedImages([])}
+                />
+
                 <Button className="w-full">
-                  <Icon name="Search" size={16} className="mr-2" />
-                  Найти в архиве
+                  <Icon name="Play" size={16} className="mr-2" />
+                  Запустить исторический поиск
                 </Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Результаты поиска</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-96">
-                  <div className="space-y-3">
-                    {mockResults
-                      .filter((r) => r.type === 'face')
-                      .map((result) => (
-                        <Card key={result.id} className="border-border/50">
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-4">
-                              <div className="w-24 h-24 bg-muted rounded-lg flex items-center justify-center">
-                                <Icon name="User" size={32} className="text-muted-foreground" />
-                              </div>
-                              <div className="flex-1 space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <Badge
-                                    variant={result.match > 90 ? 'default' : 'secondary'}
-                                    className="text-sm"
-                                  >
-                                    Совпадение {result.match}%
-                                  </Badge>
-                                  <span className="text-xs text-muted-foreground">
-                                    {result.time}
-                                  </span>
-                                </div>
-                                <div className="space-y-1">
-                                  <p className="text-sm font-medium">{result.camera}</p>
-                                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <Icon name="MapPin" size={12} />
-                                    {result.address}
-                                  </p>
-                                </div>
-                                <div className="flex gap-2">
-                                  <Button variant="outline" size="sm">
-                                    <Icon name="Play" size={14} className="mr-1" />
-                                    Видео
-                                  </Button>
-                                  <Button variant="outline" size="sm">
-                                    <Icon name="Download" size={14} className="mr-1" />
-                                    Скачать
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+            <SearchResults results={mockResults} />
           </TabsContent>
 
           <TabsContent value="history-plate" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">Исторический поиск ГРЗ</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="History" size={20} />
+                  Исторический поиск по ГРЗ
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>ГРЗ для поиска</Label>
+                  <Label htmlFor="history-plate-search">Государственный регистрационный знак</Label>
                   <Input
-                    placeholder="А123ВС159 или А*ВС159"
-                    className="font-mono text-lg"
+                    id="history-plate-search"
+                    placeholder="Например: А123ВС159"
+                    value={plateSearch}
+                    onChange={(e) => setPlateSearch(e.target.value)}
+                    className="font-mono"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Дата начала</Label>
-                    <Input type="datetime-local" />
+                    <Label htmlFor="history-date-from">Период от</Label>
+                    <Input id="history-date-from" type="datetime-local" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Дата окончания</Label>
-                    <Input type="datetime-local" />
+                    <Label htmlFor="history-date-to">Период до</Label>
+                    <Input id="history-date-to" type="datetime-local" />
                   </div>
                 </div>
 
-                <Button className="w-full">
+                <Button className="w-full" onClick={handlePlateSearch}>
                   <Icon name="Search" size={16} className="mr-2" />
-                  Найти в архиве
+                  Найти в истории
                 </Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Результаты поиска</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-96">
-                  <div className="space-y-3">
-                    {mockResults
-                      .filter((r) => r.type === 'plate')
-                      .map((result) => (
-                        <Card key={result.id} className="border-border/50">
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-4">
-                              <div className="w-32 h-24 bg-muted rounded-lg flex items-center justify-center">
-                                <div className="text-center">
-                                  <Icon name="CarFront" size={24} className="text-muted-foreground mx-auto mb-1" />
-                                  <div className="text-xs font-mono font-bold">
-                                    {result.plate}
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex-1 space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <Badge variant="default" className="text-sm">
-                                    Совпадение {result.match}%
-                                  </Badge>
-                                  <span className="text-xs text-muted-foreground">
-                                    {result.time}
-                                  </span>
-                                </div>
-                                <div className="space-y-1">
-                                  <p className="text-sm font-medium">{result.camera}</p>
-                                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <Icon name="MapPin" size={12} />
-                                    {result.address}
-                                  </p>
-                                </div>
-                                <div className="flex gap-2">
-                                  <Button variant="outline" size="sm">
-                                    <Icon name="Play" size={14} className="mr-1" />
-                                    Видео
-                                  </Button>
-                                  <Button variant="outline" size="sm">
-                                    <Icon name="Download" size={14} className="mr-1" />
-                                    Скачать
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+            <SearchResults results={mockResults.filter((r) => r.type === 'plate')} />
           </TabsContent>
         </Tabs>
       </div>
