@@ -11,13 +11,44 @@ import { toast } from 'sonner';
 
 const ORD = () => {
   const [plateSearch, setPlateSearch] = useState('');
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedImage(e.target.files[0]);
-      toast.success('Изображение загружено');
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setSelectedImages(prev => [...prev, ...files]);
+      toast.success(`Загружено ${files.length} изображений`);
     }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const files = Array.from(e.dataTransfer.files).filter(file => 
+      file.type.startsWith('image/')
+    );
+    
+    if (files.length > 0) {
+      setSelectedImages(prev => [...prev, ...files]);
+      toast.success(`Загружено ${files.length} изображений`);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    toast.info('Изображение удалено');
   };
 
   const handlePlateSearch = () => {
@@ -151,7 +182,14 @@ const ORD = () => {
 
                 <div className="space-y-2">
                   <Label>Загрузить изображения</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                      isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
                     <input
                       type="file"
                       accept="image/*"
@@ -163,17 +201,45 @@ const ORD = () => {
                     <label htmlFor="face-upload" className="cursor-pointer">
                       <Icon name="Upload" size={32} className="mx-auto mb-2 text-muted-foreground" />
                       <p className="text-sm text-muted-foreground">
-                        Нажмите для загрузки изображений лиц
+                        Наиме для загрузки или перетащите изображения сюда
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        JPG, PNG до 10MB
+                        JPG, PNG до 10MB, можно загрузить несколько файлов
                       </p>
                     </label>
                   </div>
-                  {selectedImage && (
-                    <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <Icon name="CheckCircle" className="text-green-600" size={20} />
-                      <span className="text-sm">{selectedImage.name}</span>
+                  {selectedImages.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Загружено изображений: {selectedImages.length}</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setSelectedImages([])}
+                        >
+                          <Icon name="X" size={16} className="mr-1" />
+                          Очистить все
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                        {selectedImages.map((file, index) => (
+                          <div 
+                            key={index} 
+                            className="flex items-center gap-2 p-3 bg-muted rounded-lg group"
+                          >
+                            <Icon name="Image" className="text-primary" size={20} />
+                            <span className="text-sm flex-1 truncate">{file.name}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeImage(index)}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Icon name="X" size={16} />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

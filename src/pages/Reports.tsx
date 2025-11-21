@@ -25,6 +25,9 @@ const Reports = () => {
     peopleDetected: 1389243,
     vehiclesDetected: 456782,
     platesDetected: 423891,
+    totalCameras: 1247,
+    faceRecognition: 856,
+    plateRecognition: 723,
   };
 
   const cameraActivity = [
@@ -73,6 +76,56 @@ const Reports = () => {
           </div>
         </div>
       </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="Scan" size={20} />
+            Возможности распознавания
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Icon name="User" size={18} className="text-secondary" />
+                  <span className="text-sm font-medium">Распознавание лиц</span>
+                </div>
+                <span className="text-2xl font-bold">{stats.faceRecognition}</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-3">
+                <div 
+                  className="bg-secondary h-3 rounded-full transition-all"
+                  style={{ width: `${(stats.faceRecognition / stats.totalCameras) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {((stats.faceRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа камер
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Icon name="CarFront" size={18} className="text-primary" />
+                  <span className="text-sm font-medium">Распознавание ГРЗ</span>
+                </div>
+                <span className="text-2xl font-bold">{stats.plateRecognition}</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-3">
+                <div 
+                  className="bg-primary h-3 rounded-full transition-all"
+                  style={{ width: `${(stats.plateRecognition / stats.totalCameras) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {((stats.plateRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа камер
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         <Card>

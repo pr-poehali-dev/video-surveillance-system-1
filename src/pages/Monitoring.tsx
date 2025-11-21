@@ -205,22 +205,6 @@ const Monitoring = () => {
             </CardHeader>
             <CardContent>
               <div className="relative rounded-lg overflow-hidden" style={{ height: '600px' }}>
-                <div className="absolute top-4 left-4 right-4 z-10">
-                  <div className="relative">
-                    <Icon
-                      name="Search"
-                      size={18}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                    />
-                    <Input
-                      placeholder="Поиск по адресу или названию камеры..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 bg-background shadow-lg"
-                    />
-                  </div>
-                </div>
-
                 <YandexMap
                   cameras={filteredCameras}
                   onCameraClick={(camera) => {
@@ -245,6 +229,20 @@ const Monitoring = () => {
             </CardHeader>
             <CardContent className="p-0">
               <div className="p-4 space-y-3 border-b">
+                <div className="relative">
+                  <Icon
+                    name="Search"
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <Input
+                    placeholder="Поиск по адресу или названию камеры..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Фильтр по статусу" />

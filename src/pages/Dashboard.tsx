@@ -101,91 +101,39 @@ const Dashboard = () => {
           </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="TrendingUp" size={20} />
-                Новые подключения
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div>
-                    <p className="text-sm text-muted-foreground">За последние 24 часа</p>
-                    <p className="text-2xl font-bold">{stats.new24h}</p>
-                  </div>
-                  <Badge variant="secondary" className="text-lg">+{stats.new24h}</Badge>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div>
-                    <p className="text-sm text-muted-foreground">За последние 7 дней</p>
-                    <p className="text-2xl font-bold">{stats.new7d}</p>
-                  </div>
-                  <Badge variant="secondary" className="text-lg">+{stats.new7d}</Badge>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div>
-                    <p className="text-sm text-muted-foreground">За последние 30 дней</p>
-                    <p className="text-2xl font-bold">{stats.new30d}</p>
-                  </div>
-                  <Badge variant="secondary" className="text-lg">+{stats.new30d}</Badge>
-                </div>
+      <Card className="border-border/50 mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="TrendingUp" size={20} />
+            Новые подключения
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+              <div>
+                <p className="text-sm text-muted-foreground">За последние 24 часа</p>
+                <p className="text-2xl font-bold">{stats.new24h}</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Scan" size={20} />
-                Возможности распознавания
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Icon name="User" size={18} className="text-secondary" />
-                      <span className="text-sm font-medium">Распознавание лиц</span>
-                    </div>
-                    <span className="text-2xl font-bold">{stats.faceRecognition}</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-3">
-                    <div 
-                      className="bg-secondary h-3 rounded-full transition-all"
-                      style={{ width: `${(stats.faceRecognition / stats.totalCameras) * 100}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {((stats.faceRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа
-                  </p>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Icon name="CarFront" size={18} className="text-primary" />
-                      <span className="text-sm font-medium">Распознавание ГРЗ</span>
-                    </div>
-                    <span className="text-2xl font-bold">{stats.plateRecognition}</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-3">
-                    <div 
-                      className="bg-primary h-3 rounded-full transition-all"
-                      style={{ width: `${(stats.plateRecognition / stats.totalCameras) * 100}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {((stats.plateRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа
-                  </p>
-                </div>
+              <Badge variant="secondary" className="text-lg">+{stats.new24h}</Badge>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+              <div>
+                <p className="text-sm text-muted-foreground">За последние 7 дней</p>
+                <p className="text-2xl font-bold">{stats.new7d}</p>
               </div>
-            </CardContent>
-          </Card>
-      </div>
+              <Badge variant="secondary" className="text-lg">+{stats.new7d}</Badge>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+              <div>
+                <p className="text-sm text-muted-foreground">За последние 30 дней</p>
+                <p className="text-2xl font-bold">{stats.new30d}</p>
+              </div>
+              <Badge variant="secondary" className="text-lg">+{stats.new30d}</Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-border/50">
           <CardHeader>
