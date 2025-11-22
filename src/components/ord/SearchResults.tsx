@@ -21,10 +21,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Icon name="Search" size={20} />
-          Результаты поиска
-        </CardTitle>
+        <CardTitle className="flex items-center gap-2">Результаты мониторинга лиц</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
