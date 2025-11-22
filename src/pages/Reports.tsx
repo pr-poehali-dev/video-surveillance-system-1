@@ -248,36 +248,24 @@ const Reports = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
-                    <Icon name="User" size={24} className="text-secondary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Обнаружено лиц</p>
-                    <p className="text-2xl font-bold">{stats.facesDetected.toLocaleString('ru-RU')}</p>
-                  </div>
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
+                  <Icon name="User" size={24} className="text-secondary" />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => handleExport('faces-csv')}>
-                  <Icon name="Download" size={14} className="mr-1" />
-                  CSV
-                </Button>
+                <div>
+                  <p className="text-sm text-muted-foreground">Обнаружено лиц</p>
+                  <p className="text-2xl font-bold">{stats.facesDetected.toLocaleString('ru-RU')}</p>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
-                    <Icon name="Users" size={24} className="text-secondary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Обнаружено людей</p>
-                    <p className="text-2xl font-bold">{stats.peopleDetected.toLocaleString('ru-RU')}</p>
-                  </div>
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
+                  <Icon name="Users" size={24} className="text-secondary" />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => handleExport('people-csv')}>
-                  <Icon name="Download" size={14} className="mr-1" />
-                  CSV
-                </Button>
+                <div>
+                  <p className="text-sm text-muted-foreground">Обнаружено людей</p>
+                  <p className="text-2xl font-bold">{stats.peopleDetected.toLocaleString('ru-RU')}</p>
+                </div>
               </div>
 
               <div className="pt-4 border-t">
@@ -301,36 +289,24 @@ const Reports = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                    <Icon name="Hash" size={24} className="text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Обнаружено ГРЗ</p>
-                    <p className="text-2xl font-bold">{stats.platesDetected.toLocaleString('ru-RU')}</p>
-                  </div>
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Icon name="Hash" size={24} className="text-primary" />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => handleExport('plates-csv')}>
-                  <Icon name="Download" size={14} className="mr-1" />
-                  CSV
-                </Button>
+                <div>
+                  <p className="text-sm text-muted-foreground">Обнаружено ГРЗ</p>
+                  <p className="text-2xl font-bold">{stats.platesDetected.toLocaleString('ru-RU')}</p>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                    <Icon name="CarFront" size={24} className="text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Обнаружено ТС</p>
-                    <p className="text-2xl font-bold">{stats.vehiclesDetected.toLocaleString('ru-RU')}</p>
-                  </div>
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Icon name="CarFront" size={24} className="text-primary" />
                 </div>
-                <Button variant="outline" size="sm" onClick={() => handleExport('vehicles-csv')}>
-                  <Icon name="Download" size={14} className="mr-1" />
-                  CSV
-                </Button>
+                <div>
+                  <p className="text-sm text-muted-foreground">Обнаружено ТС</p>
+                  <p className="text-2xl font-bold">{stats.vehiclesDetected.toLocaleString('ru-RU')}</p>
+                </div>
               </div>
 
               <div className="pt-4 border-t">
