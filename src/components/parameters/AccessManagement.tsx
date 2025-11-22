@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 
 const AccessManagement = () => {
+  const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState([
     { id: 1, name: 'Администратор', users: 3, permissions: ['all'] },
     { id: 2, name: 'Оператор', users: 12, permissions: ['view', 'search'] },
@@ -236,9 +237,14 @@ const AccessManagement = () => {
                       <div className="space-y-2">
                         <Label>Пароль *</Label>
                         <div className="flex gap-2">
-                          <Input type="password" placeholder="••••••••" />
-                          <Button variant="outline" size="icon">
-                            <Icon name="Key" size={16} />
+                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" />
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            onClick={() => setShowPassword(!showPassword)}
+                            type="button"
+                          >
+                            <Icon name={showPassword ? "EyeOff" : "Eye"} size={16} />
                           </Button>
                         </div>
                       </div>
