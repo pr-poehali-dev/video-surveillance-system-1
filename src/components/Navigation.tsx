@@ -14,7 +14,6 @@ const Navigation = () => {
   const navItems: NavItem[] = [
     { path: '/', label: 'Главная', icon: 'Home' },
     { path: '/monitoring', label: 'Мониторинг', icon: 'Map' },
-    { path: '/camera-registry', label: 'Реестр камер', icon: 'Camera' },
     { path: '/ord', label: 'ОРД', icon: 'Search' },
     { path: '/layouts', label: 'Раскладки', icon: 'Grid3x3' },
     { path: '/reports', label: 'Отчеты', icon: 'BarChart3' },
