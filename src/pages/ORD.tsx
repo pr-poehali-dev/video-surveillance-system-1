@@ -113,17 +113,6 @@ const ORD = () => {
           </TabsList>
 
           <TabsContent value="online-face" className="space-y-6">
-            <ImageUploadZone
-              selectedImages={selectedImages}
-              isDragging={isDragging}
-              onImageUpload={handleImageUpload}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              removeImage={removeImage}
-              clearImages={() => setSelectedImages([])}
-            />
-
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -141,6 +130,17 @@ const ORD = () => {
                   <Label htmlFor="face-description">Описание</Label>
                   <Input id="face-description" placeholder="Описание листа мониторинга" />
                 </div>
+
+                <ImageUploadZone
+                  selectedImages={selectedImages}
+                  isDragging={isDragging}
+                  onImageUpload={handleImageUpload}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  removeImage={removeImage}
+                  clearImages={() => setSelectedImages([])}
+                />
 
                 <Button className="w-full">
                   <Icon name="Play" size={16} className="mr-2" />
