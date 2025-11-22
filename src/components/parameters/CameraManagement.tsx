@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 
 const CameraManagement = () => {
   const [testingStream, setTestingStream] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const cameras = [
     {
@@ -21,10 +22,30 @@ const CameraManagement = () => {
       rtspUrl: 'rtsp://admin:pass@192.168.1.10:554/stream',
       model: 'Hikvision DS-2CD2143G0-I',
       address: 'г. Пермь, ул. Ленина, 50',
+      owner: 'МВД',
+      status: 'active',
+      archiveDepth: 30,
+    },
+    {
+      id: 2,
+      name: 'Камера-002',
+      rtspUrl: 'rtsp://admin:pass@192.168.1.11:554/stream',
+      model: 'Dahua IPC-HFW5231E-Z',
+      address: 'г. Пермь, ул. Мира, 15',
+      owner: 'Полиция',
       status: 'active',
       archiveDepth: 30,
     },
   ];
+
+  const filteredCameras = cameras.filter(camera => {
+    const query = searchQuery.toLowerCase();
+    return (
+      camera.name.toLowerCase().includes(query) ||
+      camera.address.toLowerCase().includes(query) ||
+      camera.owner.toLowerCase().includes(query)
+    );
+  });
 
   const handleTestStream = () => {
     setTestingStream(true);
@@ -52,7 +73,17 @@ const CameraManagement = () => {
                 <Icon name="Video" size={20} />
                 Реестр камер видеонаблюдения
               </CardTitle>
-              <Dialog>
+              <div className="flex gap-2">
+                <div className="relative w-80">
+                  <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Поиск по наименованию, улице, собственнику..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Dialog>
                 <DialogTrigger asChild>
                   <Button>
                     <Icon name="Plus" size={18} className="mr-2" />
@@ -237,7 +268,7 @@ const CameraManagement = () => {
           <CardContent>
             <ScrollArea className="h-[600px]">
               <div className="space-y-3">
-                {cameras.map((camera) => (
+                {filteredCameras.map((camera) => (
                   <Card key={camera.id} className="border-border/50">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
