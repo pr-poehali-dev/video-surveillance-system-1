@@ -1,0 +1,113 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import Icon from '@/components/ui/icon';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+
+interface RolesTabProps {
+  roles: any[];
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+}
+
+const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="Shield" size={20} />
+            Роли системы
+          </CardTitle>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Icon name="Plus" size={18} className="mr-2" />
+                Создать роль
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Новая роль</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Название роли</Label>
+                  <Input placeholder="Введите название роли" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Описание</Label>
+                  <Input placeholder="Описание роли" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Права доступа</Label>
+                  <div className="space-y-2 border rounded-lg p-3">
+                    {['Просмотр камер', 'Управление камерами', 'ОРД поиск', 'Отчеты', 'Управление пользователями'].map((perm) => (
+                      <div key={perm} className="flex items-center gap-2">
+                        <input type="checkbox" id={perm} className="w-4 h-4" />
+                        <Label htmlFor={perm} className="cursor-pointer">{perm}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Button className="w-full" onClick={() => toast.success('Роль создана')}>
+                  Создать
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <Input
+              placeholder="Поиск по ФИО, логину, предприятию, роли..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full"
+            />
+          </div>
+          <Button variant="outline">
+            <Icon name="Search" size={16} className="mr-2" />
+            Поиск
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {roles.map((role) => (
+            <Card key={role.id} className="border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Icon name="Shield" size={20} className="text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">{role.name}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Пользователей: {role.users}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      <Icon name="Edit" size={14} className="mr-1" />
+                      Изменить
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Icon name="Trash2" size={14} />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default RolesTab;
