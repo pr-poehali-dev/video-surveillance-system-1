@@ -128,7 +128,7 @@ const ORD = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="face-description">Описание</Label>
-                  <Input id="face-description" placeholder="Краткое описание задачи" />
+                  <Input id="face-description" placeholder="Описание листа мониторинга" />
                 </div>
 
                 <ImageUploadZone
