@@ -251,7 +251,15 @@ const AccessManagement = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Рабочий телефон</Label>
-                          <Input placeholder="+7 (___) ___-__-__" />
+                          <Input 
+                            placeholder="+7 (___) ___-__-__" 
+                            type="tel"
+                            onKeyPress={(e) => {
+                              if (!/[0-9+\-() ]/.test(e.key)) {
+                                e.preventDefault();
+                              }
+                            }}
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label>Сотовый телефон</Label>
