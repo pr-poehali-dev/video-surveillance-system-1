@@ -46,6 +46,8 @@ const PhotoArchive = () => {
   ]);
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<ScreenshotTask | null>(null);
   const [newTask, setNewTask] = useState({
     name: '',
     startDate: '',
@@ -54,6 +56,15 @@ const PhotoArchive = () => {
     dailyHour: '14',
     selectedCameras: [] as string[],
   });
+
+  const mockScreenshots = [
+    { id: 1, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+1', timestamp: '2024-11-20 22:05', camera: 'Камера-001' },
+    { id: 2, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+2', timestamp: '2024-11-20 22:10', camera: 'Камера-001' },
+    { id: 3, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+3', timestamp: '2024-11-20 22:15', camera: 'Камера-002' },
+    { id: 4, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+4', timestamp: '2024-11-20 22:20', camera: 'Камера-002' },
+    { id: 5, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+5', timestamp: '2024-11-20 22:25', camera: 'Камера-001' },
+    { id: 6, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+6', timestamp: '2024-11-20 22:30', camera: 'Камера-002' },
+  ];
 
   const cameras = [
     { id: '1', name: 'Камера-001' },
@@ -389,7 +400,14 @@ const PhotoArchive = () => {
                     </div>
 
                     <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedTask(task);
+                          setIsArchiveDialogOpen(true);
+                        }}
+                      >
                         <Icon name="FolderOpen" size={14} className="mr-1" />
                         Просмотреть архив
                       </Button>
@@ -419,6 +437,66 @@ const PhotoArchive = () => {
           </ScrollArea>
         </CardContent>
       </Card>
+
+      <Dialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="FolderOpen" size={20} />
+              Архив скриншотов: {selectedTask?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[70vh]">
+            <div className="space-y-4 pr-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-sm text-muted-foreground">
+                  Всего скриншотов: {selectedTask?.totalScreenshots}
+                </div>
+                <Button variant="outline" size="sm">
+                  <Icon name="Download" size={14} className="mr-1" />
+                  Скачать все
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {mockScreenshots.map((screenshot) => (
+                  <Card key={screenshot.id} className="overflow-hidden">
+                    <div className="aspect-video bg-muted relative group">
+                      <img 
+                        src={screenshot.url} 
+                        alt={`Screenshot ${screenshot.id}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <Button size="sm" variant="secondary">
+                          <Icon name="Eye" size={16} className="mr-1" />
+                          Открыть
+                        </Button>
+                        <Button size="sm" variant="secondary">
+                          <Icon name="Download" size={16} className="mr-1" />
+                          Скачать
+                        </Button>
+                      </div>
+                    </div>
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between text-xs">
+                        <Badge variant="outline">
+                          <Icon name="Video" size={10} className="mr-1" />
+                          {screenshot.camera}
+                        </Badge>
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Icon name="Clock" size={10} />
+                          {screenshot.timestamp}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
