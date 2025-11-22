@@ -119,52 +119,7 @@ const Monitoring = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Всего</p>
-                <p className="text-2xl font-bold">{stats?.total || 0}</p>
-              </div>
-              <Icon name="Video" className="text-blue-600" size={24} />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Активные</p>
-                <p className="text-2xl font-bold text-green-600">{stats?.active || 0}</p>
-              </div>
-              <Icon name="CheckCircle2" className="text-green-600" size={24} />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Неактивные</p>
-                <p className="text-2xl font-bold text-red-600">{stats?.inactive || 0}</p>
-              </div>
-              <Icon name="XCircle" className="text-red-600" size={24} />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Проблемные</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats?.problem || 0}</p>
-              </div>
-              <Icon name="AlertTriangle" className="text-yellow-600" size={24} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
