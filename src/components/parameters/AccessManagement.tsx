@@ -83,7 +83,7 @@ const AccessManagement = () => {
       <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="roles">Роли</TabsTrigger>
         <TabsTrigger value="users">Пользователи</TabsTrigger>
-        <TabsTrigger value="groups">Группы</TabsTrigger>
+        <TabsTrigger value="groups">Группы пользователей</TabsTrigger>
         <TabsTrigger value="sessions">Сеансы</TabsTrigger>
         <TabsTrigger value="audit">Журнал</TabsTrigger>
       </TabsList>
