@@ -121,16 +121,6 @@ const ORD = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="face-name">Наименование</Label>
-                  <Input id="face-name" placeholder="Введите название листа мониторинга" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="face-description">Описание</Label>
-                  <Input id="face-description" placeholder="Описание листа мониторинга" />
-                </div>
-
                 <ImageUploadZone
                   selectedImages={selectedImages}
                   isDragging={isDragging}
@@ -141,6 +131,16 @@ const ORD = () => {
                   removeImage={removeImage}
                   clearImages={() => setSelectedImages([])}
                 />
+
+                <div className="space-y-2">
+                  <Label htmlFor="face-name">Наименование</Label>
+                  <Input id="face-name" placeholder="Введите название листа мониторинга" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="face-description">Описание</Label>
+                  <Input id="face-description" placeholder="Описание листа мониторинга" />
+                </div>
 
                 <Button className="w-full">
                   <Icon name="Play" size={16} className="mr-2" />
