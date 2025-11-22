@@ -121,6 +121,17 @@ const CameraManagement = () => {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
+                          <Label>IP адрес PTZ</Label>
+                          <Input placeholder="192.168.1.10" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Порт PTZ</Label>
+                          <Input placeholder="8000" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
                           <Label>Логин PTZ</Label>
                           <Input placeholder="admin" />
                         </div>
@@ -128,6 +139,22 @@ const CameraManagement = () => {
                           <Label>Пароль PTZ</Label>
                           <Input type="password" placeholder="••••••••" />
                         </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Собственник камеры</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите собственника" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="mvd">МВД</SelectItem>
+                            <SelectItem value="admin">Администрация</SelectItem>
+                            <SelectItem value="gibdd">ГИБДД</SelectItem>
+                            <SelectItem value="mchs">МЧС</SelectItem>
+                            <SelectItem value="private">Частное лицо</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="space-y-2">
