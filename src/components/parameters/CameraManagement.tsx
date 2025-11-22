@@ -58,7 +58,7 @@ const CameraManagement = () => {
   return (
     <Tabs defaultValue="registry" className="space-y-6">
       <TabsList className="grid w-full grid-cols-5">
-        <TabsTrigger value="registry">Реестр камер</TabsTrigger>
+        <TabsTrigger value="registry">Камеры</TabsTrigger>
         <TabsTrigger value="groups">Группы камер</TabsTrigger>
         <TabsTrigger value="tags">Теги</TabsTrigger>
         <TabsTrigger value="tag-groups">Группы тегов</TabsTrigger>
