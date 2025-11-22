@@ -15,6 +15,7 @@ import Reports from "./pages/Reports";
 import PhotoArchive from "./pages/PhotoArchive";
 import Parameters from "./pages/Parameters";
 import VISS from "./pages/VISS";
+import CameraRegistry from "./pages/CameraRegistry";
 import AppLayout from "./components/AppLayout";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/photo-archive" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><PhotoArchive /></div></>} />
           <Route path="/parameters" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Parameters /></div></>} />
           <Route path="/viss" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><VISS /></div></>} />
+          <Route path="/camera-registry" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><CameraRegistry /></div></>} />
           <Route path="/old" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

@@ -12,15 +12,12 @@
       "path": "/",
       "body": {
         "name": "Тестовая камера",
+        "rtsp_url": "rtsp://test:test@192.168.1.100:554/stream",
         "address": "г. Пермь, ул. Тестовая, 1",
         "status": "active",
         "owner": "МВД",
-        "group": "Тест",
-        "lat": 58.01,
-        "lng": 56.23,
-        "resolution": "1920x1080",
-        "fps": 25,
-        "traffic": 3.5
+        "latitude": 58.01,
+        "longitude": 56.23
       },
       "expectedStatus": 201
     }

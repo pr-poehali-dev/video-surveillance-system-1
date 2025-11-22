@@ -1,4 +1,7 @@
 {
+  "models": "https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171",
+  "groups": "https://functions.poehali.dev/82081c1b-ac10-4aa3-aaa8-a7cc4a6fad84",
+  "tags": "https://functions.poehali.dev/57f01bad-6313-43f1-95bc-81189e167383",
   "cameras-stats": "https://functions.poehali.dev/493b6ec7-24af-42b5-993a-00cb298c4ef7",
   "cameras": "https://functions.poehali.dev/a2915cca-0478-407a-8a11-b2f1ed8d3b0e"
 }

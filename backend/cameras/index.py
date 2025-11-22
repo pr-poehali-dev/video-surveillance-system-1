@@ -39,10 +39,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             camera_id = params.get('id')
             
             if camera_id:
-                cur.execute(
-                    'SELECT * FROM t_p76735805_video_surveillance_s.cameras WHERE id = %s',
-                    (int(camera_id),)
-                )
+                cur.execute('''
+                    SELECT 
+                        c.*,
+                        cm.manufacturer, cm.model_name, cm.supports_ptz
+                    FROM cameras_registry c
+                    LEFT JOIN camera_models cm ON c.model_id = cm.id
+                    WHERE c.id = %s
+                ''', (int(camera_id),))
                 camera = cur.fetchone()
                 
                 if not camera:
@@ -64,23 +68,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             owner_filter = params.get('owner')
             search = params.get('search')
             
-            query = 'SELECT * FROM t_p76735805_video_surveillance_s.cameras WHERE 1=1'
+            query = '''
+                SELECT 
+                    c.id, c.name, c.rtsp_url, c.owner, c.address, 
+                    c.latitude, c.longitude, c.territorial_division,
+                    c.status, c.created_at, c.description,
+                    cm.manufacturer, cm.model_name
+                FROM cameras_registry c
+                LEFT JOIN camera_models cm ON c.model_id = cm.id
+                WHERE 1=1
+            '''
             query_params: List[Any] = []
             
             if status_filter:
-                query += ' AND status = %s'
+                query += ' AND c.status = %s'
                 query_params.append(status_filter)
             
             if owner_filter:
-                query += ' AND owner = %s'
+                query += ' AND c.owner = %s'
                 query_params.append(owner_filter)
             
             if search:
-                query += ' AND (name ILIKE %s OR address ILIKE %s)'
+                query += ' AND (c.name ILIKE %s OR c.address ILIKE %s)'
                 search_pattern = f'%{search}%'
                 query_params.extend([search_pattern, search_pattern])
             
-            query += ' ORDER BY id'
+            query += ' ORDER BY c.created_at DESC'
             
             cur.execute(query, query_params)
             cameras = cur.fetchall()
@@ -95,7 +108,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
             
-            required_fields = ['name', 'address', 'owner', 'group', 'lat', 'lng']
+            required_fields = ['name', 'rtsp_url']
             for field in required_fields:
                 if field not in body_data:
                     return {
@@ -106,30 +119,67 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
             
             cur.execute('''
-                INSERT INTO t_p76735805_video_surveillance_s.cameras 
-                (name, address, status, owner, "group", lat, lng, resolution, fps, traffic)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING *
+                INSERT INTO cameras_registry (
+                    name, rtsp_url, rtsp_login, rtsp_password,
+                    model_id, ptz_ip, ptz_port, ptz_login, ptz_password,
+                    owner, local_ip, local_port,
+                    address, latitude, longitude,
+                    territorial_division, archive_depth_days,
+                    description, status
+                ) VALUES (
+                    %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s,
+                    %s, %s, %s,
+                    %s, %s,
+                    %s, %s
+                ) RETURNING id
             ''', (
                 body_data['name'],
-                body_data['address'],
-                body_data.get('status', 'inactive'),
-                body_data['owner'],
-                body_data['group'],
-                float(body_data['lat']),
-                float(body_data['lng']),
-                body_data.get('resolution', '1920x1080'),
-                body_data.get('fps', 25),
-                body_data.get('traffic', 0)
+                body_data['rtsp_url'],
+                body_data.get('rtsp_login'),
+                body_data.get('rtsp_password'),
+                body_data.get('model_id'),
+                body_data.get('ptz_ip'),
+                body_data.get('ptz_port'),
+                body_data.get('ptz_login'),
+                body_data.get('ptz_password'),
+                body_data.get('owner', ''),
+                body_data.get('local_ip'),
+                body_data.get('local_port'),
+                body_data.get('address', ''),
+                body_data.get('latitude'),
+                body_data.get('longitude'),
+                body_data.get('territorial_division', ''),
+                body_data.get('archive_depth_days', 30),
+                body_data.get('description', ''),
+                body_data.get('status', 'active')
             ))
             
-            new_camera = cur.fetchone()
+            camera_id = cur.fetchone()['id']
+            
+            if body_data.get('group_ids'):
+                for group_id in body_data['group_ids']:
+                    cur.execute('''
+                        INSERT INTO camera_group_members (camera_id, group_id)
+                        VALUES (%s, %s)
+                        ON CONFLICT DO NOTHING
+                    ''', (camera_id, group_id))
+            
+            if body_data.get('tag_ids'):
+                for tag_id in body_data['tag_ids']:
+                    cur.execute('''
+                        INSERT INTO camera_tag_assignments (camera_id, tag_id)
+                        VALUES (%s, %s)
+                        ON CONFLICT DO NOTHING
+                    ''', (camera_id, tag_id))
+            
             conn.commit()
             
             return {
                 'statusCode': 201,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps(dict(new_camera), default=str),
+                'body': json.dumps({'id': camera_id, 'message': 'Camera created'}),
                 'isBase64Encoded': False
             }
         
@@ -148,13 +198,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             update_fields = []
             update_values = []
             
-            allowed_fields = ['name', 'address', 'status', 'owner', 'group', 'lat', 'lng', 'resolution', 'fps', 'traffic']
+            allowed_fields = ['name', 'rtsp_url', 'rtsp_login', 'rtsp_password', 'model_id', 
+                            'ptz_ip', 'ptz_port', 'ptz_login', 'ptz_password',
+                            'owner', 'local_ip', 'local_port', 'address', 
+                            'latitude', 'longitude', 'territorial_division', 
+                            'archive_depth_days', 'description', 'status']
+            
             for field in allowed_fields:
                 if field in body_data:
-                    if field == 'group':
-                        update_fields.append('"group" = %s')
-                    else:
-                        update_fields.append(f'{field} = %s')
+                    update_fields.append(f'{field} = %s')
                     update_values.append(body_data[field])
             
             if not update_fields:
@@ -169,17 +221,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             update_values.append(int(camera_id))
             
             query = f'''
-                UPDATE t_p76735805_video_surveillance_s.cameras 
+                UPDATE cameras_registry 
                 SET {', '.join(update_fields)}
                 WHERE id = %s
-                RETURNING *
+                RETURNING id
             '''
             
             cur.execute(query, update_values)
             updated_camera = cur.fetchone()
-            conn.commit()
             
             if not updated_camera:
+                conn.commit()
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -187,44 +239,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps(dict(updated_camera), default=str),
-                'isBase64Encoded': False
-            }
-        
-        elif method == 'DELETE':
-            params = event.get('queryStringParameters') or {}
-            camera_id = params.get('id')
-            
-            if not camera_id:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'ID камеры обязателен'}),
-                    'isBase64Encoded': False
-                }
-            
-            cur.execute(
-                'DELETE FROM t_p76735805_video_surveillance_s.cameras WHERE id = %s RETURNING id',
-                (int(camera_id),)
-            )
-            deleted = cur.fetchone()
             conn.commit()
             
-            if not deleted:
-                return {
-                    'statusCode': 404,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Камера не найдена'}),
-                    'isBase64Encoded': False
-                }
-            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'message': 'Камера удалена', 'id': deleted['id']}),
+                'body': json.dumps({'message': 'Camera updated'}),
                 'isBase64Encoded': False
             }
         
