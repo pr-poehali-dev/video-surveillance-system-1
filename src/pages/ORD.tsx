@@ -170,20 +170,19 @@ const ORD = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="plate-search">Государственный регистрационный знак</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="plate-search"
-                      placeholder="Например: А123ВС159"
-                      value={plateSearch}
-                      onChange={(e) => setPlateSearch(e.target.value)}
-                      className="font-mono"
-                    />
-                    <Button onClick={handlePlateSearch}>
-                      <Icon name="Search" size={16} className="mr-2" />
-                      Найти
-                    </Button>
-                  </div>
+                  <Input
+                    id="plate-search"
+                    placeholder="Например: А123ВС159"
+                    value={plateSearch}
+                    onChange={(e) => setPlateSearch(e.target.value)}
+                    className="font-mono"
+                  />
                 </div>
+
+                <Button onClick={handlePlateSearch} className="w-full">
+                  <Icon name="Search" size={16} className="mr-2" />
+                  Запустить поиск
+                </Button>
               </CardContent>
             </Card>
 
