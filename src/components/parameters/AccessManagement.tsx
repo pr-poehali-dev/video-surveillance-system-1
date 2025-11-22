@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 
 const AccessManagement = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [roles, setRoles] = useState([
     { id: 1, name: 'Администратор', users: 3, permissions: ['all'] },
     { id: 2, name: 'Оператор', users: 12, permissions: ['view', 'search'] },
@@ -293,6 +294,52 @@ const AccessManagement = () => {
                         <Label>Примечание</Label>
                         <Input placeholder="Дополнительная информация" />
                       </div>
+                      
+                      <div className="space-y-2">
+                        <Label>Прикрепленные файлы</Label>
+                        <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                          <input
+                            type="file"
+                            multiple
+                            className="hidden"
+                            id="file-upload"
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                setAttachedFiles(Array.from(e.target.files));
+                                toast.success(`Прикреплено файлов: ${e.target.files.length}`);
+                              }
+                            }}
+                          />
+                          <label htmlFor="file-upload" className="cursor-pointer">
+                            <Icon name="Upload" size={24} className="mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Нажмите для загрузки файлов</p>
+                          </label>
+                        </div>
+                        {attachedFiles.length > 0 && (
+                          <div className="space-y-2 mt-2">
+                            {attachedFiles.map((file, index) => (
+                              <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                                <div className="flex items-center gap-2">
+                                  <Icon name="File" size={16} />
+                                  <span className="text-sm">{file.name}</span>
+                                  <span className="text-xs text-muted-foreground">({(file.size / 1024).toFixed(1)} KB)</span>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    setAttachedFiles(attachedFiles.filter((_, i) => i !== index));
+                                    toast.success('Файл удален');
+                                  }}
+                                >
+                                  <Icon name="X" size={16} />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       <Button className="w-full" onClick={() => toast.success('Пользователь создан')}>
                         Создать пользователя
                       </Button>
