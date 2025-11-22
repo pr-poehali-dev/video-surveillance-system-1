@@ -263,6 +263,7 @@ const CameraManagement = () => {
                   </ScrollArea>
                 </DialogContent>
               </Dialog>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
