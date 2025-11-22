@@ -238,56 +238,6 @@ const Reports = () => {
         </Card>
       </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="Activity" size={20} />
-              Активность камер за последние {selectedPeriod} дней
-            </CardTitle>
-            <Select value={selectedCamera} onValueChange={setSelectedCamera}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {cameras.map((camera) => (
-                  <SelectItem key={camera.id} value={camera.id}>
-                    {camera.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="h-64 flex items-end justify-between gap-2">
-              {Array.from({ length: parseInt(selectedPeriod) }).map((_, index) => {
-                const value = 85 + Math.random() * 15;
-                return (
-                  <div key={index} className="flex-1 flex flex-col items-center gap-2 group">
-                    <div className="relative w-full">
-                      <div
-                        className="w-full bg-primary rounded-t-lg transition-all hover:bg-primary/80 cursor-pointer"
-                        style={{ height: `${value * 2.5}px` }}
-                        title={`День ${index + 1}: ${value.toFixed(1)}%`}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground">{index + 1}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="flex items-center justify-center gap-8 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-primary rounded" />
-                <span className="text-sm text-muted-foreground">Время работы (%)</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Card>
           <CardHeader>
@@ -395,6 +345,56 @@ const Reports = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Activity" size={20} />
+              Активность камер за последние {selectedPeriod} дней
+            </CardTitle>
+            <Select value={selectedCamera} onValueChange={setSelectedCamera}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {cameras.map((camera) => (
+                  <SelectItem key={camera.id} value={camera.id}>
+                    {camera.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="h-64 flex items-end justify-between gap-2">
+              {Array.from({ length: parseInt(selectedPeriod) }).map((_, index) => {
+                const value = 85 + Math.random() * 15;
+                return (
+                  <div key={index} className="flex-1 flex flex-col items-center gap-2 group">
+                    <div className="relative w-full">
+                      <div
+                        className="w-full bg-primary rounded-t-lg transition-all hover:bg-primary/80 cursor-pointer"
+                        style={{ height: `${value * 2.5}px` }}
+                        title={`День ${index + 1}: ${value.toFixed(1)}%`}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground">{index + 1}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex items-center justify-center gap-8 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-primary rounded" />
+                <span className="text-sm text-muted-foreground">Время работы (%)</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
