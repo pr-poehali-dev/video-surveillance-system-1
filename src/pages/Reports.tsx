@@ -77,55 +77,101 @@ const Reports = () => {
         </div>
       </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="Scan" size={20} />
-            Возможности распознавания
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Icon name="User" size={18} className="text-secondary" />
-                  <span className="text-sm font-medium">Распознавание лиц</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Users" size={20} />
+              Пользователи системы
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Users" size={18} className="text-blue-600" />
+                    <span className="text-sm font-medium">Всего пользователей</span>
+                  </div>
+                  <span className="text-2xl font-bold">23</span>
                 </div>
-                <span className="text-2xl font-bold">{stats.faceRecognition}</span>
+                <p className="text-xs text-muted-foreground">
+                  Зарегистрировано в системе
+                </p>
               </div>
-              <div className="w-full bg-muted rounded-full h-3">
-                <div 
-                  className="bg-secondary h-3 rounded-full transition-all"
-                  style={{ width: `${(stats.faceRecognition / stats.totalCameras) * 100}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {((stats.faceRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа камер
-              </p>
-            </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Icon name="CarFront" size={18} className="text-primary" />
-                  <span className="text-sm font-medium">Распознавание ГРЗ</span>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    <span className="text-sm font-medium">Онлайн</span>
+                  </div>
+                  <span className="text-2xl font-bold text-green-600">7</span>
                 </div>
-                <span className="text-2xl font-bold">{stats.plateRecognition}</span>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div 
+                    className="bg-green-600 h-2 rounded-full transition-all"
+                    style={{ width: `${(7 / 23) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {((7 / 23) * 100).toFixed(1)}% активных пользователей
+                </p>
               </div>
-              <div className="w-full bg-muted rounded-full h-3">
-                <div 
-                  className="bg-primary h-3 rounded-full transition-all"
-                  style={{ width: `${(stats.plateRecognition / stats.totalCameras) * 100}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {((stats.plateRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа камер
-              </p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Scan" size={20} />
+              Возможности распознавания
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Icon name="User" size={18} className="text-secondary" />
+                    <span className="text-sm font-medium">Распознавание лиц</span>
+                  </div>
+                  <span className="text-2xl font-bold">{stats.faceRecognition}</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div 
+                    className="bg-secondary h-2 rounded-full transition-all"
+                    style={{ width: `${(stats.faceRecognition / stats.totalCameras) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {((stats.faceRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа камер
+                </p>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Icon name="CarFront" size={18} className="text-primary" />
+                    <span className="text-sm font-medium">Распознавание ГРЗ</span>
+                  </div>
+                  <span className="text-2xl font-bold">{stats.plateRecognition}</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div 
+                    className="bg-primary h-2 rounded-full transition-all"
+                    style={{ width: `${(stats.plateRecognition / stats.totalCameras) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {((stats.plateRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа камер
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         <Card>
