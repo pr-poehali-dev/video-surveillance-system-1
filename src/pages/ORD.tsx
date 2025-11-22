@@ -113,6 +113,17 @@ const ORD = () => {
           </TabsList>
 
           <TabsContent value="online-face" className="space-y-6">
+            <ImageUploadZone
+              selectedImages={selectedImages}
+              isDragging={isDragging}
+              onImageUpload={handleImageUpload}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              removeImage={removeImage}
+              clearImages={() => setSelectedImages([])}
+            />
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -121,17 +132,6 @@ const ORD = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <ImageUploadZone
-                  selectedImages={selectedImages}
-                  isDragging={isDragging}
-                  onImageUpload={handleImageUpload}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  removeImage={removeImage}
-                  clearImages={() => setSelectedImages([])}
-                />
-
                 <div className="space-y-2">
                   <Label htmlFor="face-name">Наименование</Label>
                   <Input id="face-name" placeholder="Введите название листа мониторинга" />
