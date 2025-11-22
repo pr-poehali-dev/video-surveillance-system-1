@@ -159,6 +159,16 @@ const ORD = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="plate-name">Наименование</Label>
+                  <Input id="plate-name" placeholder="Введите название листа мониторинга" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="plate-description">Описание</Label>
+                  <Input id="plate-description" placeholder="Описание листа мониторинга" />
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="plate-search">Государственный регистрационный знак</Label>
                   <div className="flex gap-2">
                     <Input
