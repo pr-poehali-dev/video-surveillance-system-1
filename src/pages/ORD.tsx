@@ -122,8 +122,8 @@ const ORD = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="face-name">Наименование</Label>
-                  <Input id="face-name" placeholder="Введите название листа мониторинга" />
+                  <Label htmlFor="face-name">Наименование <span className="text-destructive">*</span></Label>
+                  <Input id="face-name" placeholder="Введите название листа мониторинга" required />
                 </div>
 
                 <div className="space-y-2">
