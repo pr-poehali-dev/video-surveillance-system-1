@@ -51,20 +51,20 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                   <ScrollArea className="max-h-[600px]">
                     <div className="space-y-4 py-4 pr-4">
                       <div className="space-y-2">
-                        <Label>ФИО *</Label>
+                        <Label>ФИО <span className="text-destructive">*</span></Label>
                         <Input placeholder="Фамилия Имя Отчество" required />
                       </div>
                       <div className="space-y-2">
-                        <Label>Предприятие *</Label>
+                        <Label>Предприятие <span className="text-destructive">*</span></Label>
                         <Input placeholder="Название организации" required />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Email *</Label>
+                          <Label>Email <span className="text-destructive">*</span></Label>
                           <Input type="email" placeholder="user@example.com" required />
                         </div>
                         <div className="space-y-2">
-                          <Label>Логин *</Label>
+                          <Label>Логин <span className="text-destructive">*</span></Label>
                           <div className="flex gap-2">
                             <Input placeholder="username" required />
                             <Button variant="outline" size="icon">
@@ -74,7 +74,7 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Пароль *</Label>
+                        <Label>Пароль <span className="text-destructive">*</span></Label>
                         <div className="flex gap-2">
                           <Input type={showPassword ? "text" : "password"} placeholder="••••••••" required />
                           <Button 
@@ -114,7 +114,7 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Роль *</Label>
+                        <Label>Роль <span className="text-destructive">*</span></Label>
                         <Select required>
                           <SelectTrigger>
                             <SelectValue placeholder="Выберите роль" />
