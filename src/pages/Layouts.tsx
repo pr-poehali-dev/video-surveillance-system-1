@@ -116,12 +116,13 @@ const Layouts = () => {
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="layout-name">Название раскладки</Label>
+                    <Label htmlFor="layout-name">Название раскладки <span className="text-destructive">*</span></Label>
                     <Input
                       id="layout-name"
                       placeholder="Введите название"
                       value={newLayoutName}
                       onChange={(e) => setNewLayoutName(e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
