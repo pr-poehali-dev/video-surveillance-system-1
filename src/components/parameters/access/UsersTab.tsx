@@ -52,21 +52,21 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                     <div className="space-y-4 py-4 pr-4">
                       <div className="space-y-2">
                         <Label>ФИО *</Label>
-                        <Input placeholder="Фамилия Имя Отчество" />
+                        <Input placeholder="Фамилия Имя Отчество" required />
                       </div>
                       <div className="space-y-2">
                         <Label>Предприятие *</Label>
-                        <Input placeholder="Название организации" />
+                        <Input placeholder="Название организации" required />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Email *</Label>
-                          <Input type="email" placeholder="user@example.com" />
+                          <Input type="email" placeholder="user@example.com" required />
                         </div>
                         <div className="space-y-2">
-                          <Label>Логин</Label>
+                          <Label>Логин *</Label>
                           <div className="flex gap-2">
-                            <Input placeholder="username" />
+                            <Input placeholder="username" required />
                             <Button variant="outline" size="icon">
                               <Icon name="RefreshCw" size={16} />
                             </Button>
@@ -76,7 +76,7 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                       <div className="space-y-2">
                         <Label>Пароль *</Label>
                         <div className="flex gap-2">
-                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" />
+                          <Input type={showPassword ? "text" : "password"} placeholder="••••••••" required />
                           <Button 
                             variant="outline" 
                             size="icon"
@@ -114,8 +114,8 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Роль</Label>
-                        <Select>
+                        <Label>Роль *</Label>
+                        <Select required>
                           <SelectTrigger>
                             <SelectValue placeholder="Выберите роль" />
                           </SelectTrigger>
