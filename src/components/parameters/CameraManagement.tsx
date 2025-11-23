@@ -56,6 +56,7 @@ const CameraManagement = () => {
   const [newGroupParentId, setNewGroupParentId] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [groupSearchQuery, setGroupSearchQuery] = useState('');
 
   const cameras = [
     {
@@ -88,6 +89,31 @@ const CameraManagement = () => {
       camera.owner.toLowerCase().includes(query)
     );
   });
+
+  const filterGroups = (groups: OwnerGroup[]): OwnerGroup[] => {
+    if (!groupSearchQuery.trim()) return groups;
+
+    const query = groupSearchQuery.toLowerCase();
+    const filtered: OwnerGroup[] = [];
+
+    for (const group of groups) {
+      const matches = group.name.toLowerCase().includes(query) || 
+                      (group.description?.toLowerCase().includes(query) || false);
+      const filteredChildren = group.children ? filterGroups(group.children) : [];
+
+      if (matches || filteredChildren.length > 0) {
+        filtered.push({
+          ...group,
+          children: filteredChildren.length > 0 ? filteredChildren : group.children,
+        });
+        if (filteredChildren.length > 0) {
+          expandedGroups.add(group.id);
+        }
+      }
+    }
+
+    return filtered;
+  };
 
   const toggleGroup = (id: string) => {
     const newExpanded = new Set(expandedGroups);
@@ -526,9 +552,20 @@ const CameraManagement = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="mb-4">
+              <div className="relative">
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Поиск по названию собственника..."
+                  value={groupSearchQuery}
+                  onChange={(e) => setGroupSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
             <ScrollArea className="h-[500px]">
               <div className="space-y-1">
-                {ownerGroups.map(group => renderGroupTree(group, 0))}
+                {filterGroups(ownerGroups).map(group => renderGroupTree(group, 0))}
               </div>
             </ScrollArea>
           </CardContent>
