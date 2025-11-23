@@ -169,13 +169,18 @@ const ORD = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="plate-search">Государственный регистрационный знак</Label>
+                  <Label htmlFor="plate-search">Государственный регистрационный знак <span className="text-destructive">*</span></Label>
                   <Input
                     id="plate-search"
                     placeholder="Например: А123ВС159"
                     value={plateSearch}
-                    onChange={(e) => setPlateSearch(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      const filtered = value.replace(/[^АВЕКМНОРСТУХ0-9]/g, '');
+                      setPlateSearch(filtered);
+                    }}
                     className="font-mono"
+                    required
                   />
                 </div>
 
