@@ -64,13 +64,6 @@ const CameraManagement = () => {
           </TabsTrigger>
         </TabsList>
 
-        <div className="mb-6 mt-4">
-          <h1 className="text-3xl font-bold mb-2">Управление камерами</h1>
-          <p className="text-muted-foreground">
-            Добавляйте и настраивайте камеры видеонаблюдения
-          </p>
-        </div>
-
         <TabsContent value="cameras">
           <Card>
             <CardHeader>
