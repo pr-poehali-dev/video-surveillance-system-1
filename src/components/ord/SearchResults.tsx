@@ -62,7 +62,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 </div>
 
                   </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">Время:</span>
                     <p className="font-medium">{result.time}</p>
