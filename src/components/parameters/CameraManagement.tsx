@@ -101,6 +101,7 @@ const CameraManagement = () => {
                         <Input
                           placeholder="rtsp://username:password@ip:port/stream"
                           className="font-mono text-sm"
+                          required
                         />
                       </div>
 
@@ -173,8 +174,8 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Собственник камеры</Label>
-                        <Select>
+                        <Label>Собственник камеры *</Label>
+                        <Select required>
                           <SelectTrigger>
                             <SelectValue placeholder="Выберите собственника" />
                           </SelectTrigger>
@@ -189,8 +190,8 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Глубина хранения видеоархива (дней)</Label>
-                        <Select defaultValue="30">
+                        <Label>Глубина хранения видеоархива (дней) *</Label>
+                        <Select defaultValue="30" required>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -205,8 +206,8 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Территориальное деление</Label>
-                        <Select>
+                        <Label>Территориальное деление *</Label>
+                        <Select required>
                           <SelectTrigger>
                             <SelectValue placeholder="Выберите территорию" />
                           </SelectTrigger>
@@ -219,8 +220,19 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Адрес местоположения</Label>
-                        <Input placeholder="Определится автоматически по координатам" />
+                        <Label>Адрес местоположения *</Label>
+                        <Input placeholder="Определится автоматически по координатам" required />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Широта *</Label>
+                          <Input placeholder="58.0105" type="number" step="any" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Долгота *</Label>
+                          <Input placeholder="56.2502" type="number" step="any" required />
+                        </div>
                       </div>
 
                       <div className="space-y-2">
