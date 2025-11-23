@@ -65,10 +65,7 @@ const Reports = () => {
                 <SelectItem value="90">90 дней</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={() => handleExport('PDF')}>
-              <Icon name="FileDown" size={18} className="mr-2" />
-              Экспорт PDF
-            </Button>
+
             <Button onClick={() => handleExport('Excel')}>
               <Icon name="FileSpreadsheet" size={18} className="mr-2" />
               Экспорт Excel
