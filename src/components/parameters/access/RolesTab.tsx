@@ -34,8 +34,8 @@ const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>Название роли</Label>
-                  <Input placeholder="Введите название роли" />
+                  <Label>Название роли <span className="text-destructive">*</span></Label>
+                  <Input placeholder="Введите название роли" required />
                 </div>
                 <div className="space-y-2">
                   <Label>Описание</Label>
