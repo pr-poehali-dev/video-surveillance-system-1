@@ -336,7 +336,7 @@ const CameraManagement = () => {
       <TabsContent value="groups">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">Собственники камер</CardTitle>
+            <CardTitle className="flex items-center gap-2">Реестр собственников камер видеонаблюдения</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center py-12">
