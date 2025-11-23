@@ -44,14 +44,14 @@ const CameraManagement = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+      <div className="mb-4">
         <h1 className="text-3xl font-bold mb-2">Управление камерами</h1>
         <p className="text-muted-foreground">
           Добавляйте и настраивайте камеры видеонаблюдения
         </p>
       </div>
 
-      <Tabs defaultValue="cameras" className="space-y-6">
+      <Tabs defaultValue="cameras" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="cameras">
             <Icon name="Camera" size={16} className="mr-2" />
