@@ -66,10 +66,6 @@ const Reports = () => {
               </SelectContent>
             </Select>
 
-            <Button onClick={() => handleExport('Excel')}>
-              <Icon name="FileSpreadsheet" size={18} className="mr-2" />
-              Экспорт Excel
-            </Button>
           </div>
         </div>
       </div>
