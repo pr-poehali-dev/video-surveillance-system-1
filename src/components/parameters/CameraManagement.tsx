@@ -205,6 +205,20 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
+                        <Label>Территориальное деление</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите территорию" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="center">Центральный район</SelectItem>
+                            <SelectItem value="leninsky">Ленинский район</SelectItem>
+                            <SelectItem value="dzer">Дзержинский район</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
                         <Label>Адрес местоположения</Label>
                         <Input placeholder="Определится автоматически по координатам" />
                       </div>
@@ -230,20 +244,6 @@ const CameraManagement = () => {
                           <Label>Порт</Label>
                           <Input placeholder="554" />
                         </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Территориальное деление</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Выберите территорию" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="center">Центральный район</SelectItem>
-                            <SelectItem value="leninsky">Ленинский район</SelectItem>
-                            <SelectItem value="dzer">Дзержинский район</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
 
                       <div className="space-y-2">
