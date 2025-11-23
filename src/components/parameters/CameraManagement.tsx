@@ -43,7 +43,7 @@ const CameraManagement = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4">
       <Tabs defaultValue="cameras" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="cameras">
