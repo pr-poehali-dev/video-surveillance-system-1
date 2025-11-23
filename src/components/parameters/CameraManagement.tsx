@@ -97,7 +97,7 @@ const CameraManagement = () => {
                   <ScrollArea className="max-h-[700px]">
                     <div className="space-y-4 py-4 pr-4">
                       <div className="space-y-2">
-                        <Label>RTSP ссылка на видеопоток *</Label>
+                        <Label>RTSP ссылка на видеопоток <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="rtsp://username:password@ip:port/stream"
                           className="font-mono text-sm"
@@ -174,7 +174,7 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Собственник камеры *</Label>
+                        <Label>Собственник камеры <span className="text-red-500">*</span></Label>
                         <Select required>
                           <SelectTrigger>
                             <SelectValue placeholder="Выберите собственника" />
@@ -190,7 +190,7 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Глубина хранения видеоархива (дней) *</Label>
+                        <Label>Глубина хранения видеоархива (дней) <span className="text-red-500">*</span></Label>
                         <Select defaultValue="30" required>
                           <SelectTrigger>
                             <SelectValue />
@@ -206,7 +206,7 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Территориальное деление *</Label>
+                        <Label>Территориальное деление <span className="text-red-500">*</span></Label>
                         <Select required>
                           <SelectTrigger>
                             <SelectValue placeholder="Выберите территорию" />
@@ -220,17 +220,17 @@ const CameraManagement = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Адрес местоположения *</Label>
+                        <Label>Адрес местоположения <span className="text-red-500">*</span></Label>
                         <Input placeholder="Определится автоматически по координатам" required />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Широта *</Label>
+                          <Label>Широта <span className="text-red-500">*</span></Label>
                           <Input placeholder="58.0105" type="number" step="any" required />
                         </div>
                         <div className="space-y-2">
-                          <Label>Долгота *</Label>
+                          <Label>Долгота <span className="text-red-500">*</span></Label>
                           <Input placeholder="56.2502" type="number" step="any" required />
                         </div>
                       </div>
