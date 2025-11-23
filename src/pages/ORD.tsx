@@ -73,6 +73,7 @@ const ORD = () => {
       time: '2024-11-21 14:32:15',
       camera: 'Камера-001',
       address: 'ул. Ленина, 50',
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
     },
     {
       id: 2,
@@ -82,6 +83,7 @@ const ORD = () => {
       camera: 'Камера-003',
       address: 'ул. Сибирская, 27',
       plate: 'А123ВС159',
+      image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=200&h=200&fit=crop',
     },
     {
       id: 3,
@@ -90,6 +92,7 @@ const ORD = () => {
       time: '2024-11-21 14:15:22',
       camera: 'Камера-006',
       address: 'ул. Куйбышева, 95',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
     },
   ];
 

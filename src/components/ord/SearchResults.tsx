@@ -11,6 +11,7 @@ interface SearchResult {
   camera: string;
   address: string;
   plate?: string;
+  image?: string;
 }
 
 interface SearchResultsProps {
@@ -31,6 +32,17 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 key={result.id}
                 className="border border-border rounded-lg p-4 hover:border-primary transition-colors"
               >
+                <div className="flex gap-4">
+                  {result.image && (
+                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                      <img
+                        src={result.image}
+                        alt="Кадр распознавания"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {result.type === 'face' ? (
@@ -49,6 +61,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                   </Badge>
                 </div>
 
+                  </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">Время:</span>
@@ -68,6 +81,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                       <p className="font-medium font-mono">{result.plate}</p>
                     </div>
                   )}
+                </div>
                 </div>
               </div>
             ))}
