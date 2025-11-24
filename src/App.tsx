@@ -29,8 +29,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Dashboard /></div></>} />
+          <Route path="/dashboard" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Dashboard /></div></>} />
           <Route path="/monitoring" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Monitoring /></div></>} />
           <Route path="/ord" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><ORD /></div></>} />
           <Route path="/layouts" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Layouts /></div></>} />
