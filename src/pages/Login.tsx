@@ -36,7 +36,7 @@ const Login = () => {
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userLogin', login);
         toast.success('Вход выполнен успешно');
-        navigate('/');
+        navigate('/dashboard');
       } else {
         toast.error('Неверный логин или пароль');
       }
