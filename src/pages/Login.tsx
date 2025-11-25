@@ -1,44 +1,50 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
-import Icon from '@/components/ui/icon';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { toast } from "sonner";
+import Icon from "@/components/ui/icon";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const supportEmail = 'support@esvs-perm.ru';
+  const supportEmail = "support@esvs-perm.rusdsad";
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(supportEmail);
-    toast.success('Email скопирован в буфер обмена');
+    toast.success("Email скопирован в буфер обмена");
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!login || !password) {
-      toast.error('Введите логин и пароль');
+      toast.error("Введите логин и пароль");
       return;
     }
 
     setLoading(true);
 
     setTimeout(() => {
-      if (login === 'admin' && password === 'admin') {
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userLogin', login);
-        toast.success('Вход выполнен успешно');
-        navigate('/dashboard');
+      if (login === "admin" && password === "admin") {
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userLogin", login);
+        toast.success("Вход выполнен успешно");
+        navigate("/dashboard");
       } else {
-        toast.error('Неверный логин или пароль');
+        toast.error("Неверный логин или пароль");
       }
       setLoading(false);
     }, 1000);
@@ -60,7 +66,9 @@ const Login = () => {
         <Card className="border-border/50 shadow-2xl">
           <CardHeader>
             <CardTitle>Вход в систему</CardTitle>
-            <CardDescription>Введите логин и пароль для доступа</CardDescription>
+            <CardDescription>
+              Введите логин и пароль для доступа
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -81,7 +89,7 @@ const Login = () => {
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Введите пароль"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -94,7 +102,7 @@ const Login = () => {
                     className="absolute right-0 top-0 h-full"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={18} />
+                    <Icon name={showPassword ? "EyeOff" : "Eye"} size={18} />
                   </Button>
                 </div>
               </div>
@@ -102,7 +110,11 @@ const Login = () => {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? (
                   <>
-                    <Icon name="Loader2" className="mr-2 animate-spin" size={16} />
+                    <Icon
+                      name="Loader2"
+                      className="mr-2 animate-spin"
+                      size={16}
+                    />
                     Вход...
                   </>
                 ) : (
@@ -116,7 +128,9 @@ const Login = () => {
 
             <div className="mt-6 pt-6 border-t border-border">
               <div className="text-center space-y-3">
-                <p className="text-sm text-muted-foreground">Техническая поддержка:</p>
+                <p className="text-sm text-muted-foreground">
+                  Техническая поддержка:
+                </p>
                 <Button
                   variant="outline"
                   size="sm"
