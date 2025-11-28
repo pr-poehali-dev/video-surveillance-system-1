@@ -55,7 +55,7 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                         <Input placeholder="Фамилия Имя Отчество" required />
                       </div>
                       <div className="space-y-2">
-                        <Label>Предприятие <span className="text-destructive">*</span></Label>
+                        <Label>Группа пользователей *</Label>
                         <Input placeholder="Название организации" required />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
