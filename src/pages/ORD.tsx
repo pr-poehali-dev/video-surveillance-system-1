@@ -248,13 +248,18 @@ const ORD = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="history-plate-search">Государственный регистрационный знак</Label>
+                  <Label htmlFor="history-plate-search">Государственный регистрационный знак <span className="text-destructive">*</span></Label>
                   <Input
                     id="history-plate-search"
                     placeholder="Например: А123ВС159"
                     value={plateSearch}
-                    onChange={(e) => setPlateSearch(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      const filtered = value.replace(/[^АВЕКМНОРСТУХ0-9]/g, '');
+                      setPlateSearch(filtered);
+                    }}
                     className="font-mono"
+                    required
                   />
                 </div>
 
