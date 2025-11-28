@@ -29,6 +29,7 @@ const Monitoring = () => {
   const [clusteringEnabled, setClusteringEnabled] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
+  const [groupFilter, setGroupFilter] = useState<string>('all');
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [stats, setStats] = useState<CameraStats | null>(null);
@@ -96,7 +97,8 @@ const Monitoring = () => {
       camera.address.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || camera.status === statusFilter;
     const matchesOwner = ownerFilter === 'all' || camera.owner === ownerFilter;
-    return matchesSearch && matchesStatus && matchesOwner;
+    const matchesGroup = groupFilter === 'all' || camera.group === groupFilter;
+    return matchesSearch && matchesStatus && matchesOwner && matchesGroup;
   });
 
   if (loading) {
@@ -166,6 +168,22 @@ const Monitoring = () => {
                     <SelectItem value="all">Все собственники</SelectItem>
                     <SelectItem value="МВД">МВД</SelectItem>
                     <SelectItem value="Администрация">Администрация</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={groupFilter} onValueChange={setGroupFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Фильтр по группе" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все группы</SelectItem>
+                    <SelectItem value="Центральный район">Центральный район</SelectItem>
+                    <SelectItem value="Дзержинский район">Дзержинский район</SelectItem>
+                    <SelectItem value="Индустриальный район">Индустриальный район</SelectItem>
+                    <SelectItem value="Ленинский район">Ленинский район</SelectItem>
+                    <SelectItem value="Мотовилихинский район">Мотовилихинский район</SelectItem>
+                    <SelectItem value="Свердловский район">Свердловский район</SelectItem>
+                    <SelectItem value="Кировский район">Кировский район</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
