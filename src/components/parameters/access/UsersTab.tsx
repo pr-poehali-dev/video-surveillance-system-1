@@ -55,8 +55,19 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                         <Input placeholder="Фамилия Имя Отчество" required />
                       </div>
                       <div className="space-y-2">
-                        <Label>Группа пользователей *</Label>
-                        <Input placeholder="Название организации" required />
+                        <Label>Группа пользователей <span className="text-destructive">*</span></Label>
+                        <Select required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите группу пользователей" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">Администраторы</SelectItem>
+                            <SelectItem value="operators">Операторы</SelectItem>
+                            <SelectItem value="security">Служба безопасности</SelectItem>
+                            <SelectItem value="analysts">Аналитики</SelectItem>
+                            <SelectItem value="viewers">Наблюдатели</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
