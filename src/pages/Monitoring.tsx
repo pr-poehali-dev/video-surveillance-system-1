@@ -122,58 +122,6 @@ const Monitoring = () => {
 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Map" size={20} />
-                  Карта камер
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setClusteringEnabled(!clusteringEnabled)}
-                    title={clusteringEnabled ? 'Отключить кластеризацию' : 'Включить кластеризацию'}
-                  >
-                    <Icon name={clusteringEnabled ? 'Layers' : 'Grid3x3'} size={18} />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleMyLocation}
-                    title="Мое местоположение"
-                  >
-                    <Icon name="MapPin" size={18} />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleFullscreen}
-                    title="Полноэкранный режим"
-                  >
-                    <Icon name={isFullscreen ? 'Minimize2' : 'Maximize2'} size={18} />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="relative rounded-lg overflow-hidden" style={{ height: '600px' }}>
-                <YandexMap
-                  cameras={filteredCameras}
-                  onCameraClick={(camera) => {
-                    setSelectedCamera(camera);
-                    setShowVideoDialog(true);
-                  }}
-                  height="600px"
-                  clusteringEnabled={clusteringEnabled}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         <div>
           <Card>
             <CardHeader>
@@ -263,6 +211,58 @@ const Monitoring = () => {
                   )}
                 </div>
               </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Map" size={20} />
+                  Карта камер
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setClusteringEnabled(!clusteringEnabled)}
+                    title={clusteringEnabled ? 'Отключить кластеризацию' : 'Включить кластеризацию'}
+                  >
+                    <Icon name={clusteringEnabled ? 'Layers' : 'Grid3x3'} size={18} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleMyLocation}
+                    title="Мое местоположение"
+                  >
+                    <Icon name="MapPin" size={18} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleFullscreen}
+                    title="Полноэкранный режим"
+                  >
+                    <Icon name={isFullscreen ? 'Minimize2' : 'Maximize2'} size={18} />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="relative rounded-lg overflow-hidden" style={{ height: '600px' }}>
+                <YandexMap
+                  cameras={filteredCameras}
+                  onCameraClick={(camera) => {
+                    setSelectedCamera(camera);
+                    setShowVideoDialog(true);
+                  }}
+                  height="600px"
+                  clusteringEnabled={clusteringEnabled}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
