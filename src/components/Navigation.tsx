@@ -12,7 +12,7 @@ const Navigation = () => {
   const location = useLocation();
 
   const navItems: NavItem[] = [
-    { path: '/', label: 'Главная', icon: 'Home' },
+    { path: '/dashboard', label: 'Главная', icon: 'Home' },
     { path: '/monitoring', label: 'Мониторинг', icon: 'Map' },
     { path: '/ord', label: 'ОРД', icon: 'Search' },
     { path: '/layouts', label: 'Раскладки', icon: 'Grid3x3' },
