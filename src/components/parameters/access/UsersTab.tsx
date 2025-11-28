@@ -129,6 +129,21 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                         </Select>
                       </div>
                       <div className="space-y-2">
+                        <Label>Группа камер</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите группу камер" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Все камеры</SelectItem>
+                            <SelectItem value="entrance">Входные группы</SelectItem>
+                            <SelectItem value="parking">Парковки</SelectItem>
+                            <SelectItem value="perimeter">Периметр</SelectItem>
+                            <SelectItem value="internal">Внутренние помещения</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
                         <Label>Примечание</Label>
                         <Input placeholder="Дополнительная информация" />
                       </div>
