@@ -272,10 +272,7 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                             setEditForm(user);
                             setIsEditDialogOpen(true);
                           }}
-                        >
-                          <Icon name="Edit" size={14} className="mr-1" />
-                          Редактировать
-                        </Button>
+                        >Изменить</Button>
                         <Button 
                           variant="outline" 
                           size="sm"
