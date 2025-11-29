@@ -81,11 +81,26 @@ const AccessManagement = () => {
   return (
     <Tabs defaultValue="roles" className="space-y-6">
       <TabsList className="grid w-full grid-cols-5">
-        <TabsTrigger value="roles">Роли</TabsTrigger>
-        <TabsTrigger value="users">Пользователи</TabsTrigger>
-        <TabsTrigger value="groups">Группы пользователей</TabsTrigger>
-        <TabsTrigger value="sessions">Сеансы</TabsTrigger>
-        <TabsTrigger value="audit">Журнал</TabsTrigger>
+        <TabsTrigger value="roles">
+          <Icon name="Shield" size={16} className="mr-2" />
+          Роли
+        </TabsTrigger>
+        <TabsTrigger value="users">
+          <Icon name="Users" size={16} className="mr-2" />
+          Пользователи
+        </TabsTrigger>
+        <TabsTrigger value="groups">
+          <Icon name="FolderTree" size={16} className="mr-2" />
+          Группы пользователей
+        </TabsTrigger>
+        <TabsTrigger value="sessions">
+          <Icon name="Clock" size={16} className="mr-2" />
+          Сеансы
+        </TabsTrigger>
+        <TabsTrigger value="audit">
+          <Icon name="FileText" size={16} className="mr-2" />
+          Журнал
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="roles">
