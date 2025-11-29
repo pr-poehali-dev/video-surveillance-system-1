@@ -61,17 +61,35 @@ export const CameraList = ({ cameras }: CameraListProps) => {
           {filteredCameras.map((camera) => (
             <Card key={camera.id}>
               <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2">
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Icon name="Camera" size={20} className="text-primary" />
                     <h3 className="font-semibold">{camera.name}</h3>
                   </div>
-                  <Badge variant={camera.status === 'active' ? 'default' : 'secondary'}>
-                    {camera.status === 'active' ? 'Активна' : 'Неактивна'}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={camera.status === 'active' ? 'default' : 'secondary'}>
+                      {camera.status === 'active' ? 'Активна' : 'Неактивна'}
+                    </Badge>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEdit(camera.id)}
+                    >
+                      <Icon name="Pencil" size={16} className="mr-2" />
+                      Изменить
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => handleDelete(camera.id)}
+                    >
+                      <Icon name="Trash2" size={16} className="mr-2" />
+                      Удалить
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+                <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">Адрес:</span>
                     <p className="font-medium">{camera.address}</p>
@@ -92,25 +110,6 @@ export const CameraList = ({ cameras }: CameraListProps) => {
                     <span className="text-muted-foreground">RTSP:</span>
                     <p className="font-mono text-xs truncate">{camera.rtspUrl}</p>
                   </div>
-                </div>
-
-                <div className="flex gap-2 justify-end">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleEdit(camera.id)}
-                  >
-                    <Icon name="Pencil" size={16} className="mr-2" />
-                    Изменить
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm"
-                    onClick={() => handleDelete(camera.id)}
-                  >
-                    <Icon name="Trash2" size={16} className="mr-2" />
-                    Удалить
-                  </Button>
                 </div>
               </CardContent>
             </Card>
