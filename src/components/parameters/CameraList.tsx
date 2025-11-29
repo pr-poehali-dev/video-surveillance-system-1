@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
+import { toast } from 'sonner';
 
 interface Camera {
   id: number;
@@ -31,6 +33,14 @@ export const CameraList = ({ cameras }: CameraListProps) => {
       camera.owner.toLowerCase().includes(query)
     );
   });
+
+  const handleEdit = (cameraId: number) => {
+    toast.info(`Редактирование камеры #${cameraId}`);
+  };
+
+  const handleDelete = (cameraId: number) => {
+    toast.success(`Камера #${cameraId} удалена`);
+  };
 
   return (
     <>
@@ -61,7 +71,7 @@ export const CameraList = ({ cameras }: CameraListProps) => {
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-sm mb-4">
                   <div>
                     <span className="text-muted-foreground">Адрес:</span>
                     <p className="font-medium">{camera.address}</p>
@@ -82,6 +92,25 @@ export const CameraList = ({ cameras }: CameraListProps) => {
                     <span className="text-muted-foreground">RTSP:</span>
                     <p className="font-mono text-xs truncate">{camera.rtspUrl}</p>
                   </div>
+                </div>
+
+                <div className="flex gap-2 justify-end">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleEdit(camera.id)}
+                  >
+                    <Icon name="Pencil" size={16} className="mr-2" />
+                    Изменить
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => handleDelete(camera.id)}
+                  >
+                    <Icon name="Trash2" size={16} className="mr-2" />
+                    Удалить
+                  </Button>
                 </div>
               </CardContent>
             </Card>
