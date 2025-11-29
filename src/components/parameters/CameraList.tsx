@@ -83,8 +83,7 @@ export const CameraList = ({ cameras }: CameraListProps) => {
                       size="sm"
                       onClick={() => handleDelete(camera.id)}
                     >
-                      <Icon name="Trash2" size={16} className="mr-2" />
-                      Удалить
+                      <Icon name="Trash2" size={16} />
                     </Button>
                   </div>
                 </div>
