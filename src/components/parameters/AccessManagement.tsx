@@ -7,6 +7,7 @@ import RolesTab from './access/RolesTab';
 import UsersTab from './access/UsersTab';
 import SessionsTab from './access/SessionsTab';
 import AuditLogTab from './access/AuditLogTab';
+import UserGroupsTab from './access/UserGroupsTab';
 
 const AccessManagement = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -126,27 +127,7 @@ const AccessManagement = () => {
       </TabsContent>
 
       <TabsContent value="groups">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="FolderTree" size={20} />
-              Группы пользователей
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-12">
-              <Icon name="FolderTree" size={64} className="text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Древовидная структура групп</h3>
-              <p className="text-muted-foreground mb-4">
-                Организуйте пользователей в иерархические группы
-              </p>
-              <Button>
-                <Icon name="Plus" size={18} className="mr-2" />
-                Создать группу
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <UserGroupsTab />
       </TabsContent>
 
       <TabsContent value="sessions">
