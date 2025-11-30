@@ -115,7 +115,6 @@ const Monitoring = () => {
   return (
     <div className="bg-background">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Мониторинг</h1>
         <p className="text-sm text-muted-foreground">
           Интерактивная карта камер видеонаблюдения
         </p>
