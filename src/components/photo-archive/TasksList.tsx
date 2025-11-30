@@ -3,6 +3,17 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useState } from 'react';
 
 interface ScreenshotTask {
   id: number;
@@ -36,7 +47,11 @@ const TasksList = ({
   setIsArchiveDialogOpen,
   setIsCreateDialogOpen,
 }: TasksListProps) => {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<ScreenshotTask | null>(null);
+  
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -70,7 +85,10 @@ const TasksList = ({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDeleteTask(task.id)}
+                        onClick={() => {
+                          setTaskToDelete(task);
+                          setIsDeleteDialogOpen(true);
+                        }}
                       >
                         <Icon name="Trash2" size={14} />
                       </Button>
@@ -150,6 +168,34 @@ const TasksList = ({
         </ScrollArea>
       </CardContent>
     </Card>
+
+    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Удалить задание?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Вы уверены, что хотите удалить задание "{taskToDelete?.name}"?
+            Все скриншоты ({taskToDelete?.totalScreenshots}) также будут удалены.
+            Это действие нельзя отменить.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Отмена</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (taskToDelete) {
+                handleDeleteTask(taskToDelete.id);
+                setTaskToDelete(null);
+                setIsDeleteDialogOpen(false);
+              }
+            }}
+          >
+            Удалить
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 };
 
