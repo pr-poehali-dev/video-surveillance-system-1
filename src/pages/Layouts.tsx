@@ -12,6 +12,16 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -37,6 +47,8 @@ const Layouts = () => {
   ]);
   const [selectedLayout, setSelectedLayout] = useState<LayoutConfig | null>(layouts[0]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [layoutToDelete, setLayoutToDelete] = useState<LayoutConfig | null>(null);
   const [newLayoutName, setNewLayoutName] = useState('');
   const [newLayoutGrid, setNewLayoutGrid] = useState('4');
 
@@ -173,11 +185,8 @@ const Layouts = () => {
                           className="h-6 w-6"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setLayouts(layouts.filter((l) => l.id !== layout.id));
-                            if (selectedLayout?.id === layout.id) {
-                              setSelectedLayout(layouts[0] || null);
-                            }
-                            toast.success('Раскладка удалена');
+                            setLayoutToDelete(layout);
+                            setIsDeleteDialogOpen(true);
                           }}
                         >
                           <Icon name="Trash2" size={14} />
@@ -285,6 +294,36 @@ const Layouts = () => {
           )}
         </main>
       </div>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить раскладку?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить раскладку "{layoutToDelete?.name}"? 
+              Это действие нельзя отменить.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (layoutToDelete) {
+                  setLayouts(layouts.filter((l) => l.id !== layoutToDelete.id));
+                  if (selectedLayout?.id === layoutToDelete.id) {
+                    setSelectedLayout(layouts[0] || null);
+                  }
+                  toast.success('Раскладка удалена');
+                  setLayoutToDelete(null);
+                  setIsDeleteDialogOpen(false);
+                }
+              }}
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
