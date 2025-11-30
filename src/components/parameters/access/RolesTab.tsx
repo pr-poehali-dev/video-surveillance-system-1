@@ -26,6 +26,8 @@ interface RolesTabProps {
 const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [roleToEdit, setRoleToEdit] = useState<any>(null);
 
   return (
     <>
@@ -126,7 +128,14 @@ const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setRoleToEdit(role);
+                        setIsEditDialogOpen(true);
+                      }}
+                    >
                       <Icon name="Edit" size={14} className="mr-1" />
                       Изменить
                     </Button>
@@ -148,6 +157,64 @@ const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
         </div>
       </CardContent>
     </Card>
+
+    <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Редактировать роль</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label>Название роли <span className="text-destructive">*</span></Label>
+            <Input placeholder="Введите название роли" defaultValue={roleToEdit?.name} required />
+          </div>
+          <div className="space-y-2">
+            <Label>Описание</Label>
+            <Input placeholder="Описание роли" />
+          </div>
+          <div className="space-y-2">
+            <Label>Права доступа</Label>
+            <div className="space-y-3 border rounded-lg p-3">
+              {[
+                { module: 'Камеры', permissions: ['Чтение', 'Создание', 'Редактирование', 'Удаление'] },
+                { module: 'ОРД', permissions: ['Чтение', 'Создание', 'Редактирование', 'Удаление'] },
+                { module: 'Отчеты', permissions: ['Чтение', 'Создание', 'Редактирование', 'Удаление'] },
+                { module: 'Пользователи', permissions: ['Чтение', 'Создание', 'Редактирование', 'Удаление'] },
+                { module: 'Архив фото', permissions: ['Чтение', 'Создание', 'Редактирование', 'Удаление'] },
+              ].map((item) => (
+                <div key={item.module} className="space-y-2">
+                  <Label className="font-semibold text-sm">{item.module}</Label>
+                  <div className="grid grid-cols-2 gap-2 ml-4">
+                    {item.permissions.map((perm) => (
+                      <div key={`${item.module}-${perm}`} className="flex items-center gap-2">
+                        <input 
+                          type="checkbox" 
+                          id={`edit-${item.module}-${perm}`} 
+                          className="w-4 h-4 cursor-pointer" 
+                        />
+                        <Label htmlFor={`edit-${item.module}-${perm}`} className="cursor-pointer text-sm">
+                          {perm}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <Button 
+            className="w-full" 
+            onClick={() => {
+              toast.success('Роль обновлена');
+              setIsEditDialogOpen(false);
+              setRoleToEdit(null);
+            }}
+          >
+            Сохранить
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
 
     <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
       <AlertDialogContent>
