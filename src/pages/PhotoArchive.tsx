@@ -138,7 +138,6 @@ const PhotoArchive = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Фотоархив</h1>
             <p className="text-sm text-muted-foreground">
               Управление заданиями скриншотов с камер видеонаблюдения
             </p>
