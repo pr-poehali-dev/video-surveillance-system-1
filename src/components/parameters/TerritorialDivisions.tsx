@@ -208,11 +208,6 @@ const TerritorialDivisions = () => {
                     <h4 className="font-semibold">{node.name}</h4>
                     <p className="text-sm text-muted-foreground">
                       Камер: {node.cameras}
-                      {level > 0 && (
-                        <Badge variant="secondary" className="ml-2">
-                          Уровень {level + 1}
-                        </Badge>
-                      )}
                     </p>
                   </div>
                 </div>
