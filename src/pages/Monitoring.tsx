@@ -196,14 +196,9 @@ const Monitoring = () => {
                       onClick={() => { setSelectedCamera(camera); setShowVideoDialog(true); }}
                     >
                       <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-3 h-3 ${getStatusColor(camera.status)} rounded-full`} />
-                            <h4 className="font-medium">{camera.name}</h4>
-                          </div>
-                          <Badge variant="secondary" className="text-xs">
-                            {camera.owner}
-                          </Badge>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className={`w-3 h-3 ${getStatusColor(camera.status)} rounded-full`} />
+                          <h4 className="font-medium">{camera.name}</h4>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {camera.address}
