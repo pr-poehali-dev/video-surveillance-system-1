@@ -193,7 +193,10 @@ const UserGroupsTab = () => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-lg font-semibold">Группы пользователей</h3>
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Icon name="Users" size={20} />
+                Группы пользователей
+              </h3>
               <p className="text-sm text-muted-foreground">
                 Иерархическая структура групп для организации доступа
               </p>
