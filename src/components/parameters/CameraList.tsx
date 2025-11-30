@@ -105,10 +105,6 @@ export const CameraList = ({ cameras }: CameraListProps) => {
                     <span className="text-muted-foreground">Архив:</span>
                     <p className="font-medium">{camera.archiveDepth} дней</p>
                   </div>
-                  <div className="col-span-2">
-                    <span className="text-muted-foreground">RTSP:</span>
-                    <p className="font-mono text-xs truncate">{camera.rtspUrl}</p>
-                  </div>
                 </div>
               </CardContent>
             </Card>
