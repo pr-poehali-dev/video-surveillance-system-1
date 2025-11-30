@@ -232,7 +232,7 @@ const Monitoring = () => {
           </Card>
         </div>
 
-        <div className="lg:col-span-2">
+        <div className="flex-1">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
