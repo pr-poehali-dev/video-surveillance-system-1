@@ -34,7 +34,10 @@ const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
               variant="outline" 
               size="sm"
               onClick={() => onEdit(user)}
-            >Изменить</Button>
+            >
+              <Icon name="Pencil" size={14} className="mr-2" />
+              Изменить
+            </Button>
             <Button 
               variant="outline" 
               size="sm"
