@@ -233,19 +233,16 @@ const Monitoring = () => {
         </div>
 
         <div className="flex-1">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Map" size={20} />
-                  Карта камер
-                </CardTitle>
-                <div className="flex items-center gap-2">
+          <Card className="h-full">
+            <CardContent className="p-0 h-full">
+              <div className="relative rounded-lg overflow-hidden h-full">
+                <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={() => setClusteringEnabled(!clusteringEnabled)}
                     title={clusteringEnabled ? 'Отключить кластеризацию' : 'Включить кластеризацию'}
+                    className="bg-background shadow-lg"
                   >
                     <Icon name={clusteringEnabled ? 'Layers' : 'Grid3x3'} size={18} />
                   </Button>
@@ -254,6 +251,7 @@ const Monitoring = () => {
                     size="icon"
                     onClick={handleMyLocation}
                     title="Мое местоположение"
+                    className="bg-background shadow-lg"
                   >
                     <Icon name="MapPin" size={18} />
                   </Button>
@@ -262,21 +260,18 @@ const Monitoring = () => {
                     size="icon"
                     onClick={handleFullscreen}
                     title="Полноэкранный режим"
+                    className="bg-background shadow-lg"
                   >
                     <Icon name={isFullscreen ? 'Minimize2' : 'Maximize2'} size={18} />
                   </Button>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="relative rounded-lg overflow-hidden" style={{ height: '600px' }}>
                 <YandexMap
                   cameras={filteredCameras}
                   onCameraClick={(camera) => {
                     setSelectedCamera(camera);
                     setShowVideoDialog(true);
                   }}
-                  height="600px"
+                  height="calc(100vh - 200px)"
                   clusteringEnabled={clusteringEnabled}
                 />
               </div>
