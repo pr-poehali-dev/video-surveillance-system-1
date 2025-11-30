@@ -5,6 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 interface Camera {
@@ -24,6 +34,8 @@ interface CameraListProps {
 
 export const CameraList = ({ cameras }: CameraListProps) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [cameraToDelete, setCameraToDelete] = useState<Camera | null>(null);
 
   const filteredCameras = cameras.filter(camera => {
     const query = searchQuery.toLowerCase();
@@ -79,9 +91,12 @@ export const CameraList = ({ cameras }: CameraListProps) => {
                       Изменить
                     </Button>
                     <Button 
-                      variant="destructive" 
+                      variant="outline" 
                       size="sm"
-                      onClick={() => handleDelete(camera.id)}
+                      onClick={() => {
+                        setCameraToDelete(camera);
+                        setIsDeleteDialogOpen(true);
+                      }}
                     >
                       <Icon name="Trash2" size={16} />
                     </Button>
@@ -118,6 +133,32 @@ export const CameraList = ({ cameras }: CameraListProps) => {
           )}
         </div>
       </ScrollArea>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить камеру?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить камеру "{cameraToDelete?.name}"? 
+              Это действие нельзя отменить.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (cameraToDelete) {
+                  handleDelete(cameraToDelete.id);
+                  setCameraToDelete(null);
+                  setIsDeleteDialogOpen(false);
+                }
+              }}
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
