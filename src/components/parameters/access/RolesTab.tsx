@@ -4,7 +4,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 interface RolesTabProps {
   roles: any[];
@@ -13,6 +24,9 @@ interface RolesTabProps {
 }
 
 const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<any>(null);
+
   return (
     <Card>
       <CardHeader>
@@ -115,7 +129,14 @@ const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
                       <Icon name="Edit" size={14} className="mr-1" />
                       Изменить
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setRoleToDelete(role);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    >
                       <Icon name="Trash2" size={14} />
                     </Button>
                   </div>
@@ -126,6 +147,31 @@ const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
         </div>
       </CardContent>
     </Card>
+
+    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Удалить роль?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Вы уверены, что хотите удалить роль "{roleToDelete?.name}"? 
+            Эта роль назначена {roleToDelete?.users} пользователям. 
+            Это действие нельзя отменить.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Отмена</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              toast.success(`Роль "${roleToDelete?.name}" удалена`);
+              setRoleToDelete(null);
+              setIsDeleteDialogOpen(false);
+            }}
+          >
+            Удалить
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
