@@ -210,9 +210,6 @@ const Monitoring = () => {
                         </p>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-xs">
-                            {camera.group}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
                             {getStatusLabel(camera.status)}
                           </Badge>
                         </div>
