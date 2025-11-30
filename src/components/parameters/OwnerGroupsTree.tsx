@@ -5,6 +5,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
@@ -48,6 +58,8 @@ const initialGroups: OwnerGroup[] = [
 
 export const OwnerGroupsTree = () => {
   const [ownerGroups, setOwnerGroups] = useState<OwnerGroup[]>(initialGroups);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<OwnerGroup | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['1', '2']));
   const [editingGroup, setEditingGroup] = useState<OwnerGroup | null>(null);
   const [newGroupParentId, setNewGroupParentId] = useState<string | null>(null);
@@ -201,12 +213,11 @@ export const OwnerGroupsTree = () => {
                   toast.error('Нельзя удалить группу с подгруппами');
                   return;
                 }
-                deleteGroup(ownerGroups, group.id);
-                setOwnerGroups([...ownerGroups]);
-                toast.success('Группа удалена');
+                setGroupToDelete(group);
+                setIsDeleteDialogOpen(true);
               }}
             >
-              <Icon name="Trash2" size={14} className="text-destructive" />
+              <Icon name="Trash2" size={14} />
             </Button>
           </div>
         </div>
@@ -331,6 +342,34 @@ export const OwnerGroupsTree = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить группу собственников?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить группу "{groupToDelete?.name}"? 
+              Это действие нельзя отменить.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (groupToDelete) {
+                  deleteGroup(ownerGroups, groupToDelete.id);
+                  setOwnerGroups([...ownerGroups]);
+                  toast.success('Группа удалена');
+                  setGroupToDelete(null);
+                  setIsDeleteDialogOpen(false);
+                }
+              }}
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
