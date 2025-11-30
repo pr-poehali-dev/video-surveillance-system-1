@@ -205,14 +205,9 @@ const Monitoring = () => {
                             {camera.owner}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">
+                        <p className="text-sm text-muted-foreground">
                           {camera.address}
                         </p>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {getStatusLabel(camera.status)}
-                          </Badge>
-                        </div>
                       </CardContent>
                     </Card>
                   ))}
