@@ -28,6 +28,7 @@ const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
   const [roleToDelete, setRoleToDelete] = useState<any>(null);
 
   return (
+    <>
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -172,6 +173,7 @@ const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+    </>
   );
 };
 
