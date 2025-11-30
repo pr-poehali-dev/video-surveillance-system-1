@@ -301,15 +301,6 @@ const TerritorialDivisions = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Количество камер</Label>
-              <Input
-                type="number"
-                placeholder="0"
-                value={formData.cameras}
-                onChange={(e) => setFormData({ ...formData, cameras: parseInt(e.target.value) || 0 })}
-              />
-            </div>
-            <div className="space-y-2">
               <Label>Цвет маркера</Label>
               <div className="flex gap-2">
                 {colorOptions.map((option) => (
