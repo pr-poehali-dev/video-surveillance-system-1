@@ -24,34 +24,53 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+
+interface Camera {
+  id: number;
+  name: string;
+  address: string;
+  status: string;
+}
 
 interface CameraGroup {
   id: number;
   name: string;
   description: string;
-  cameraCount: number;
+  cameraIds: number[];
   color: string;
 }
 
 const CameraGroupsTab = () => {
+  const availableCameras: Camera[] = [
+    { id: 1, name: 'Камера-001', address: 'ул. Ленина, 50', status: 'active' },
+    { id: 2, name: 'Камера-002', address: 'ул. Мира, 15', status: 'active' },
+    { id: 3, name: 'Камера-003', address: 'ул. Сибирская, 27', status: 'problem' },
+    { id: 4, name: 'Камера-004', address: 'Комсомольский пр., 68', status: 'active' },
+    { id: 5, name: 'Камера-005', address: 'ул. Петропавловская, 35', status: 'inactive' },
+    { id: 6, name: 'Камера-006', address: 'ул. Куйбышева, 95', status: 'active' },
+  ];
+
   const [groups, setGroups] = useState<CameraGroup[]>([
     {
       id: 1,
       name: 'Центр города',
       description: 'Камеры в центральных районах',
-      cameraCount: 45,
+      cameraIds: [1, 2, 4],
       color: '#3b82f6',
     },
     {
       id: 2,
       name: 'Периферия',
       description: 'Камеры в окраинных районах',
-      cameraCount: 28,
+      cameraIds: [5, 6],
       color: '#10b981',
     },
   ]);
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -63,6 +82,7 @@ const CameraGroupsTab = () => {
     name: '',
     description: '',
     color: '#3b82f6',
+    cameraIds: [] as number[],
   });
 
   const colorOptions = [
@@ -79,8 +99,24 @@ const CameraGroupsTab = () => {
       name: '',
       description: '',
       color: '#3b82f6',
+      cameraIds: [],
     });
+    setSearchQuery('');
   };
+
+  const toggleCamera = (cameraId: number) => {
+    setFormData(prev => ({
+      ...prev,
+      cameraIds: prev.cameraIds.includes(cameraId)
+        ? prev.cameraIds.filter(id => id !== cameraId)
+        : [...prev.cameraIds, cameraId]
+    }));
+  };
+
+  const filteredCameras = availableCameras.filter(camera =>
+    camera.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    camera.address.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleCreate = () => {
     if (!formData.name.trim()) {
@@ -92,7 +128,7 @@ const CameraGroupsTab = () => {
       id: Math.max(0, ...groups.map((g) => g.id)) + 1,
       name: formData.name,
       description: formData.description,
-      cameraCount: 0,
+      cameraIds: formData.cameraIds,
       color: formData.color,
     };
 
@@ -115,6 +151,7 @@ const CameraGroupsTab = () => {
               ...group,
               name: formData.name,
               description: formData.description,
+              cameraIds: formData.cameraIds,
               color: formData.color,
             }
           : group
@@ -142,6 +179,7 @@ const CameraGroupsTab = () => {
       name: group.name,
       description: group.description,
       color: group.color,
+      cameraIds: group.cameraIds,
     });
     setIsEditDialogOpen(true);
   };
@@ -178,7 +216,7 @@ const CameraGroupsTab = () => {
                       <h3 className="font-semibold text-lg">{group.name}</h3>
                       <Badge variant="secondary">
                         <Icon name="Camera" size={12} className="mr-1" />
-                        {group.cameraCount} камер
+                        {group.cameraIds.length} камер
                       </Badge>
                     </div>
                     {group.description && (
@@ -274,6 +312,41 @@ const CameraGroupsTab = () => {
                 ))}
               </div>
             </div>
+            <div className="space-y-2">
+              <Label>Камеры в группе</Label>
+              <div className="relative mb-2">
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Поиск камер..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <ScrollArea className="h-[200px] border rounded-lg p-2">
+                <div className="space-y-2">
+                  {filteredCameras.map((camera) => (
+                    <div
+                      key={camera.id}
+                      className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg cursor-pointer"
+                      onClick={() => toggleCamera(camera.id)}
+                    >
+                      <Checkbox
+                        checked={formData.cameraIds.includes(camera.id)}
+                        onCheckedChange={() => toggleCamera(camera.id)}
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{camera.name}</p>
+                        <p className="text-xs text-muted-foreground">{camera.address}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+              <p className="text-xs text-muted-foreground mt-1">
+                Выбрано: {formData.cameraIds.length} камер
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
@@ -334,6 +407,41 @@ const CameraGroupsTab = () => {
                 ))}
               </div>
             </div>
+            <div className="space-y-2">
+              <Label>Камеры в группе</Label>
+              <div className="relative mb-2">
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Поиск камер..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <ScrollArea className="h-[200px] border rounded-lg p-2">
+                <div className="space-y-2">
+                  {filteredCameras.map((camera) => (
+                    <div
+                      key={camera.id}
+                      className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg cursor-pointer"
+                      onClick={() => toggleCamera(camera.id)}
+                    >
+                      <Checkbox
+                        checked={formData.cameraIds.includes(camera.id)}
+                        onCheckedChange={() => toggleCamera(camera.id)}
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{camera.name}</p>
+                        <p className="text-xs text-muted-foreground">{camera.address}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+              <p className="text-xs text-muted-foreground mt-1">
+                Выбрано: {formData.cameraIds.length} камер
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
@@ -350,7 +458,7 @@ const CameraGroupsTab = () => {
             <AlertDialogTitle>Удалить группу?</AlertDialogTitle>
             <AlertDialogDescription>
               Вы уверены, что хотите удалить группу "{groupToDelete?.name}"? В этой
-              группе {groupToDelete?.cameraCount} камер. Камеры не будут удалены, только
+              группе {groupToDelete?.cameraIds.length} камер. Камеры не будут удалены, только
               группировка.
             </AlertDialogDescription>
           </AlertDialogHeader>
