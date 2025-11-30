@@ -122,8 +122,8 @@ const Monitoring = () => {
 
 
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div>
+      <div className="flex gap-6">
+        <div className="w-96 flex-shrink-0">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
