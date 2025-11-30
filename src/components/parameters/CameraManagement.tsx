@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { CameraList } from './CameraList';
 import { AddCameraDialog } from './AddCameraDialog';
 import { OwnerGroupsTree } from './OwnerGroupsTree';
+import CameraGroupsTab from './camera-groups/CameraGroupsTab';
 
 const CameraManagement = () => {
   const [testingStream, setTestingStream] = useState(false);
@@ -88,26 +89,13 @@ const CameraManagement = () => {
         <TabsContent value="camera-groups">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <Icon name="Layers" size={20} />
-                  Группы камер
-                </span>
-                <Button>
-                  <Icon name="Plus" size={18} className="mr-2" />
-                  Создать группу
-                </Button>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Layers" size={20} />
+                Группы камер
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Icon name="Layers" size={64} className="text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">Группируйте камеры для удобного управления</p>
-                <Button>
-                  <Icon name="Plus" size={18} className="mr-2" />
-                  Создать первую группу
-                </Button>
-              </div>
+              <CameraGroupsTab />
             </CardContent>
           </Card>
         </TabsContent>
