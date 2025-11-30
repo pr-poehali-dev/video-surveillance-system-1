@@ -29,7 +29,6 @@ const Dashboard = () => {
   return (
     <div className="bg-background">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Главная</h1>
         <p className="text-sm text-muted-foreground">
           Обзор системы видеонаблюдения Пермского края
         </p>
