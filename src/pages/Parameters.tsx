@@ -10,7 +10,6 @@ const Parameters = () => {
   return (
     <div className="bg-background">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Параметры</h1>
         <p className="text-sm text-muted-foreground">
           Настройки системы и управление доступом
         </p>
