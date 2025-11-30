@@ -7,6 +7,16 @@ import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
@@ -25,6 +35,8 @@ interface UsersTabProps {
 const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPassword, setShowPassword, attachedFiles, setAttachedFiles }: UsersTabProps) => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
 
   return (
@@ -277,10 +289,8 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                           variant="outline" 
                           size="sm"
                           onClick={() => {
-                            if (confirm(`Вы уверены, что хотите удалить пользователя ${user.fio}?`)) {
-                              setUsers(users.filter((u) => u.id !== user.id));
-                              toast.success('Пользователь удален');
-                            }
+                            setUserToDelete(user);
+                            setIsDeleteDialogOpen(true);
                           }}
                         >
                           <Icon name="Trash2" size={14} />
@@ -460,6 +470,33 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
           </ScrollArea>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить пользователя?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить пользователя "{userToDelete?.fio}"? 
+              Это действие нельзя отменить.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (userToDelete) {
+                  setUsers(users.filter((u) => u.id !== userToDelete.id));
+                  toast.success('Пользователь удален');
+                  setUserToDelete(null);
+                  setIsDeleteDialogOpen(false);
+                }
+              }}
+            >
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
