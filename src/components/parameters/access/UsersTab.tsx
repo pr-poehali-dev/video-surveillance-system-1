@@ -100,6 +100,9 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
         setEditForm={setEditForm}
         users={users}
         setUsers={setUsers}
+        roles={roles}
+        showPassword={showPassword}
+        setShowPassword={setShowPassword}
       />
 
       <DeleteUserDialog
