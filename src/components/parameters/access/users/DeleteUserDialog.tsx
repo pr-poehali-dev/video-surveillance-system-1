@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { useTrashStore } from '@/stores/trashStore';
 
 interface DeleteUserDialogProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ interface DeleteUserDialogProps {
 }
 
 const DeleteUserDialog = ({ isOpen, onOpenChange, userToDelete, setUserToDelete, users, setUsers }: DeleteUserDialogProps) => {
+  const { addToTrash } = useTrashStore();
+  
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -35,8 +38,9 @@ const DeleteUserDialog = ({ isOpen, onOpenChange, userToDelete, setUserToDelete,
           <AlertDialogAction
             onClick={() => {
               if (userToDelete) {
+                addToTrash('user', userToDelete);
                 setUsers(users.filter((u) => u.id !== userToDelete.id));
-                toast.success('Пользователь удален');
+                toast.success('Пользователь перемещен в корзину');
                 setUserToDelete(null);
                 onOpenChange(false);
               }

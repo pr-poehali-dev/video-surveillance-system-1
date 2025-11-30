@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { useTrashStore } from '@/stores/trashStore';
 
 interface RolesTabProps {
   roles: any[];
@@ -24,6 +25,7 @@ interface RolesTabProps {
 }
 
 const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
+  const { addToTrash } = useTrashStore();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<any>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -230,7 +232,10 @@ const RolesTab = ({ roles, searchQuery, setSearchQuery }: RolesTabProps) => {
           <AlertDialogCancel>Отмена</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              toast.success(`Роль "${roleToDelete?.name}" удалена`);
+              if (roleToDelete) {
+                addToTrash('role', roleToDelete);
+                toast.success(`Роль "${roleToDelete.name}" перемещена в корзину`);
+              }
               setRoleToDelete(null);
               setIsDeleteDialogOpen(false);
             }}

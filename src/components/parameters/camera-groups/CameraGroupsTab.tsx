@@ -27,6 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { useTrashStore } from '@/stores/trashStore';
 
 interface Camera {
   id: number;
@@ -44,6 +45,7 @@ interface CameraGroup {
 }
 
 const CameraGroupsTab = () => {
+  const { addToTrash } = useTrashStore();
   const availableCameras: Camera[] = [
     { id: 1, name: 'Камера-001', address: 'ул. Ленина, 50', status: 'active' },
     { id: 2, name: 'Камера-002', address: 'ул. Мира, 15', status: 'active' },
@@ -167,9 +169,10 @@ const CameraGroupsTab = () => {
   const handleDelete = () => {
     if (!groupToDelete) return;
 
+    addToTrash('cameraGroup', groupToDelete);
     setGroups(groups.filter((g) => g.id !== groupToDelete.id));
     setIsDeleteDialogOpen(false);
-    toast.success(`Группа "${groupToDelete.name}" удалена`);
+    toast.success(`Группа "${groupToDelete.name}" перемещена в корзину`);
     setGroupToDelete(null);
   };
 

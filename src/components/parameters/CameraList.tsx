@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { useTrashStore } from '@/stores/trashStore';
 
 interface Camera {
   id: number;
@@ -36,6 +37,7 @@ interface CameraListProps {
 }
 
 export const CameraList = ({ cameras }: CameraListProps) => {
+  const { addToTrash } = useTrashStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [cameraToDelete, setCameraToDelete] = useState<Camera | null>(null);
@@ -343,7 +345,8 @@ export const CameraList = ({ cameras }: CameraListProps) => {
             <AlertDialogAction
               onClick={() => {
                 if (cameraToDelete) {
-                  handleDelete(cameraToDelete.id);
+                  addToTrash('camera', cameraToDelete);
+                  toast.success('Камера перемещена в корзину');
                   setCameraToDelete(null);
                   setIsDeleteDialogOpen(false);
                 }
