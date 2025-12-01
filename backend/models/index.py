@@ -64,16 +64,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cur.execute('''
                 UPDATE t_p76735805_video_surveillance_s.camera_models
                 SET manufacturer = %s, model_name = %s, description = %s,
-                    default_rtsp_port = %s, default_ptz_port = %s, supports_ptz = %s,
-                    updated_at = CURRENT_TIMESTAMP
+                    supports_ptz = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 RETURNING id
             ''', (
                 body_data.get('manufacturer'),
                 body_data.get('model_name'),
                 body_data.get('description', ''),
-                body_data.get('default_rtsp_port', 554),
-                body_data.get('default_ptz_port', 8000),
                 body_data.get('supports_ptz', False),
                 body_data['id']
             ))
@@ -144,16 +141,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute('''
                 INSERT INTO t_p76735805_video_surveillance_s.camera_models (
-                    manufacturer, model_name, description,
-                    default_rtsp_port, default_ptz_port, supports_ptz
-                ) VALUES (%s, %s, %s, %s, %s, %s)
+                    manufacturer, model_name, description, supports_ptz
+                ) VALUES (%s, %s, %s, %s)
                 RETURNING id
             ''', (
                 body_data['manufacturer'],
                 body_data['model_name'],
                 body_data.get('description', ''),
-                body_data.get('default_rtsp_port', 554),
-                body_data.get('default_ptz_port', 8000),
                 body_data.get('supports_ptz', False)
             ))
             

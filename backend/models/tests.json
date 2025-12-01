@@ -7,6 +7,24 @@
       "expectedStatus": 200,
       "expectedBody": [],
       "bodyMatcher": "type"
+    },
+    {
+      "name": "Create new camera model",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "manufacturer": "Test Manufacturer",
+        "model_name": "Test Model",
+        "description": "Test Description",
+        "default_rtsp_port": 554,
+        "default_ptz_port": 8000,
+        "supports_ptz": true
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "id": "number"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }

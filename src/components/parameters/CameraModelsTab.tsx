@@ -24,8 +24,6 @@ interface CameraModel {
   manufacturer: string;
   model_name: string;
   description?: string;
-  default_rtsp_port: number;
-  default_ptz_port: number;
   supports_ptz: boolean;
 }
 
@@ -44,8 +42,6 @@ export const CameraModelsTab = () => {
     manufacturer: '',
     model_name: '',
     description: '',
-    default_rtsp_port: 554,
-    default_ptz_port: 8000,
     supports_ptz: false,
   });
 
@@ -89,8 +85,6 @@ export const CameraModelsTab = () => {
         manufacturer: '',
         model_name: '',
         description: '',
-        default_rtsp_port: 554,
-        default_ptz_port: 8000,
         supports_ptz: false,
       });
       toast.success('Модель создана');
@@ -182,8 +176,6 @@ export const CameraModelsTab = () => {
                   manufacturer: '',
                   model_name: '',
                   description: '',
-                  default_rtsp_port: 554,
-                  default_ptz_port: 8000,
                   supports_ptz: false,
                 });
                 setIsAddDialogOpen(true);
@@ -257,8 +249,6 @@ export const CameraModelsTab = () => {
                                     manufacturer: model.manufacturer,
                                     model_name: model.model_name,
                                     description: model.description || '',
-                                    default_rtsp_port: model.default_rtsp_port,
-                                    default_ptz_port: model.default_ptz_port,
                                     supports_ptz: model.supports_ptz,
                                   });
                                   setIsEditDialogOpen(true);
