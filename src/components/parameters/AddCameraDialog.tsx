@@ -136,7 +136,7 @@ export const AddCameraDialog = ({ onTestStream, testingStream }: AddCameraDialog
 
           <div className="space-y-2">
             <Label>Адрес местоположения <span className="text-red-500">*</span></Label>
-            <Input placeholder="Определится автоматически по координатам" required />
+            <Input placeholder="Введите адрес" required />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
