@@ -11,37 +11,10 @@ import CameraGroupsTab from './camera-groups/CameraGroupsTab';
 import { CameraModelsTab } from './CameraModelsTab';
 
 const CameraManagement = () => {
-  const [testingStream, setTestingStream] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const cameras = [
-    {
-      id: 1,
-      name: 'Камера-001',
-      rtspUrl: 'rtsp://admin:pass@192.168.1.10:554/stream',
-      model: 'Hikvision DS-2CD2143G0-I',
-      address: 'г. Пермь, ул. Ленина, 50',
-      owner: 'МВД',
-      status: 'active',
-      archiveDepth: 30,
-    },
-    {
-      id: 2,
-      name: 'Камера-002',
-      rtspUrl: 'rtsp://admin:pass@192.168.1.11:554/stream',
-      model: 'Dahua IPC-HFW5231E-Z',
-      address: 'г. Пермь, ул. Мира, 15',
-      owner: 'Полиция',
-      status: 'active',
-      archiveDepth: 30,
-    },
-  ];
-
-  const handleTestStream = () => {
-    setTestingStream(true);
-    setTimeout(() => {
-      setTestingStream(false);
-      toast.success('Видеопоток успешно проверен');
-    }, 2000);
+  const handleCameraAdded = () => {
+    setRefreshTrigger(prev => prev + 1);
   };
 
   return (
@@ -78,11 +51,11 @@ const CameraManagement = () => {
                   <Icon name="Camera" size={20} />
                   Список камер
                 </span>
-                <AddCameraDialog onTestStream={handleTestStream} testingStream={testingStream} />
+                <AddCameraDialog onSuccess={handleCameraAdded} />
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <CameraList cameras={cameras} />
+              <CameraList refreshTrigger={refreshTrigger} />
             </CardContent>
           </Card>
         </TabsContent>

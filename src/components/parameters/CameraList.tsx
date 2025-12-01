@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import Icon from '@/components/ui/icon';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,67 +17,232 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
-import { useTrashStore } from '@/stores/trashStore';
 
 interface Camera {
   id: number;
   name: string;
-  rtspUrl: string;
-  model: string;
-  address: string;
+  rtsp_url: string;
+  rtsp_login?: string;
+  rtsp_password?: string;
+  model_id?: number;
+  manufacturer?: string;
+  model_name?: string;
   owner: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  territorial_division: string;
+  archive_depth_days: number;
   status: string;
-  archiveDepth: number;
 }
+
+interface CameraModel {
+  id: number;
+  manufacturer: string;
+  model_name: string;
+}
+
+interface Owner {
+  id: number;
+  name: string;
+}
+
+interface TerritorialDivision {
+  id: number;
+  name: string;
+}
+
+const CAMERAS_API = 'https://functions.poehali.dev/dab3e8e4-48b1-43e8-bcfa-a4e01a88a3ca';
+const MODELS_API = 'https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171';
+const OWNERS_API = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
+const DIVISIONS_API = 'https://functions.poehali.dev/d5a6cdfb-9846-4e82-a073-4a9fe43fe2a8';
 
 interface CameraListProps {
-  cameras: Camera[];
+  refreshTrigger?: number;
 }
 
-export const CameraList = ({ cameras }: CameraListProps) => {
-  const { addToTrash } = useTrashStore();
+export const CameraList = ({ refreshTrigger }: CameraListProps) => {
+  const [cameras, setCameras] = useState<Camera[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [cameraToDelete, setCameraToDelete] = useState<Camera | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [cameraToEdit, setCameraToEdit] = useState<Camera | null>(null);
-  const [testingStream, setTestingStream] = useState(false);
+  const [cameraToDelete, setCameraToDelete] = useState<Camera | null>(null);
+  const [models, setModels] = useState<CameraModel[]>([]);
+  const [owners, setOwners] = useState<Owner[]>([]);
+  const [divisions, setDivisions] = useState<TerritorialDivision[]>([]);
 
-  const filteredCameras = cameras.filter(camera => {
-    const query = searchQuery.toLowerCase();
-    return (
-      camera.name.toLowerCase().includes(query) ||
-      camera.address.toLowerCase().includes(query) ||
-      camera.owner.toLowerCase().includes(query)
-    );
+  const [formData, setFormData] = useState({
+    name: '',
+    rtsp_url: '',
+    rtsp_login: '',
+    rtsp_password: '',
+    model_id: '',
+    owner: '',
+    address: '',
+    latitude: '',
+    longitude: '',
+    territorial_division: '',
+    archive_depth_days: '30',
   });
+
+  useEffect(() => {
+    fetchCameras();
+    fetchModels();
+    fetchOwners();
+    fetchDivisions();
+  }, [refreshTrigger]);
+
+  const fetchCameras = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(CAMERAS_API);
+      if (!response.ok) throw new Error('Failed to fetch cameras');
+      const data = await response.json();
+      setCameras(data);
+    } catch (error) {
+      console.error('Error fetching cameras:', error);
+      toast.error('Ошибка загрузки камер');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchModels = async () => {
+    try {
+      const response = await fetch(MODELS_API);
+      if (response.ok) {
+        const data = await response.json();
+        setModels(data);
+      }
+    } catch (error) {
+      console.error('Error fetching models:', error);
+    }
+  };
+
+  const fetchOwners = async () => {
+    try {
+      const response = await fetch(OWNERS_API);
+      if (response.ok) {
+        const data = await response.json();
+        setOwners(data);
+      }
+    } catch (error) {
+      console.error('Error fetching owners:', error);
+    }
+  };
+
+  const fetchDivisions = async () => {
+    try {
+      const response = await fetch(DIVISIONS_API);
+      if (response.ok) {
+        const data = await response.json();
+        setDivisions(data);
+      }
+    } catch (error) {
+      console.error('Error fetching divisions:', error);
+    }
+  };
 
   const handleEdit = (camera: Camera) => {
     setCameraToEdit(camera);
+    setFormData({
+      name: camera.name,
+      rtsp_url: camera.rtsp_url,
+      rtsp_login: camera.rtsp_login || '',
+      rtsp_password: camera.rtsp_password || '',
+      model_id: camera.model_id?.toString() || '',
+      owner: camera.owner || '',
+      address: camera.address || '',
+      latitude: camera.latitude?.toString() || '',
+      longitude: camera.longitude?.toString() || '',
+      territorial_division: camera.territorial_division || '',
+      archive_depth_days: camera.archive_depth_days?.toString() || '30',
+    });
     setIsEditDialogOpen(true);
   };
 
-  const handleTestStream = () => {
-    setTestingStream(true);
-    setTimeout(() => {
-      setTestingStream(false);
-      toast.success('Видеопоток успешно проверен');
-    }, 2000);
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cameraToEdit) return;
+
+    try {
+      const payload = {
+        id: cameraToEdit.id,
+        ...formData,
+        model_id: formData.model_id ? parseInt(formData.model_id) : null,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        archive_depth_days: parseInt(formData.archive_depth_days),
+      };
+
+      const response = await fetch(CAMERAS_API, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error('Failed to update camera');
+
+      toast.success('Камера обновлена');
+      setIsEditDialogOpen(false);
+      fetchCameras();
+    } catch (error) {
+      console.error('Error updating camera:', error);
+      toast.error('Ошибка обновления камеры');
+    }
   };
 
-  const handleDelete = (cameraId: number) => {
-    toast.success(`Камера #${cameraId} удалена`);
+  const handleDelete = async () => {
+    if (!cameraToDelete) return;
+
+    try {
+      const response = await fetch(CAMERAS_API, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: cameraToDelete.id }),
+      });
+
+      if (!response.ok) throw new Error('Failed to delete camera');
+
+      toast.success('Камера удалена');
+      setIsDeleteDialogOpen(false);
+      fetchCameras();
+    } catch (error) {
+      console.error('Error deleting camera:', error);
+      toast.error('Ошибка удаления камеры');
+    }
   };
+
+  const filteredCameras = cameras.filter((camera) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      camera.name.toLowerCase().includes(query) ||
+      camera.address?.toLowerCase().includes(query) ||
+      camera.owner?.toLowerCase().includes(query)
+    );
+  });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Icon name="Loader2" size={32} className="animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="mb-4">
         <div className="relative">
-          <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Icon
+            name="Search"
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <Input
             placeholder="Поиск по названию, адресу, собственнику..."
             value={searchQuery}
@@ -99,16 +266,12 @@ export const CameraList = ({ cameras }: CameraListProps) => {
                     <Badge variant={camera.status === 'active' ? 'default' : 'secondary'}>
                       {camera.status === 'active' ? 'Активна' : 'Неактивна'}
                     </Badge>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleEdit(camera)}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(camera)}>
                       <Icon name="Pencil" size={16} className="mr-2" />
                       Изменить
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => {
                         setCameraToDelete(camera);
@@ -127,15 +290,19 @@ export const CameraList = ({ cameras }: CameraListProps) => {
                   </div>
                   <div>
                     <span className="text-muted-foreground">Модель:</span>
-                    <p className="font-medium">{camera.model}</p>
+                    <p className="font-medium">
+                      {camera.manufacturer && camera.model_name
+                        ? `${camera.manufacturer} ${camera.model_name}`
+                        : 'Не указана'}
+                    </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Собственник:</span>
-                    <p className="font-medium">{camera.owner}</p>
+                    <p className="font-medium">{camera.owner || 'Не указан'}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Архив:</span>
-                    <p className="font-medium">{camera.archiveDepth} дней</p>
+                    <p className="font-medium">{camera.archive_depth_days || 30} дней</p>
                   </div>
                 </div>
               </CardContent>
@@ -157,18 +324,25 @@ export const CameraList = ({ cameras }: CameraListProps) => {
             <DialogTitle>Редактировать камеру видеонаблюдения</DialogTitle>
           </DialogHeader>
 
-          <form className="space-y-4">
+          <form onSubmit={handleUpdate} className="space-y-4">
             <div className="space-y-2">
-              <Label>Название камеры <span className="text-red-500">*</span></Label>
-              <Input placeholder="Камера-001" defaultValue={cameraToEdit?.name} required />
+              <Label>
+                Название камеры <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
             </div>
 
             <div className="space-y-2">
-              <Label>RTSP ссылка на видеопоток <span className="text-red-500">*</span></Label>
+              <Label>
+                RTSP ссылка <span className="text-red-500">*</span>
+              </Label>
               <Input
-                placeholder="rtsp://username:password@ip:port/stream"
-                className="font-mono text-sm"
-                defaultValue={cameraToEdit?.rtspUrl}
+                value={formData.rtsp_url}
+                onChange={(e) => setFormData({ ...formData, rtsp_url: e.target.value })}
                 required
               />
             </div>
@@ -176,91 +350,121 @@ export const CameraList = ({ cameras }: CameraListProps) => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Логин RTSP</Label>
-                <Input placeholder="admin" />
+                <Input
+                  value={formData.rtsp_login}
+                  onChange={(e) => setFormData({ ...formData, rtsp_login: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Пароль RTSP</Label>
-                <Input type="password" placeholder="••••••••" />
+                <Input
+                  value={formData.rtsp_password}
+                  onChange={(e) => setFormData({ ...formData, rtsp_password: e.target.value })}
+                />
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleTestStream}
-                disabled={testingStream}
-                type="button"
-              >
-                {testingStream ? (
-                  <>
-                    <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                    Проверка...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="Play" size={18} className="mr-2" />
-                    Проверить видеопоток
-                  </>
-                )}
-              </Button>
-            </div>
-
             <div className="space-y-2">
-              <Label>Марка и модель камеры</Label>
-              <Select defaultValue={cameraToEdit?.model}>
+              <Label>Модель камеры</Label>
+              <Select
+                value={formData.model_id}
+                onValueChange={(value) => setFormData({ ...formData, model_id: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите модель" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="hikvision-ds2cd">Hikvision DS-2CD2143G0-I</SelectItem>
-                  <SelectItem value="dahua-ipc">Dahua IPC-HDBW4631R-ZS</SelectItem>
-                  <SelectItem value="axis-p3375">Axis P3375-V</SelectItem>
+                  {models.map((model) => (
+                    <SelectItem key={model.id} value={model.id.toString()}>
+                      {model.manufacturer} {model.model_name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>IP адрес PTZ</Label>
-                <Input placeholder="192.168.1.10" />
-              </div>
-              <div className="space-y-2">
-                <Label>Порт PTZ</Label>
-                <Input placeholder="8000" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Логин PTZ</Label>
-                <Input placeholder="admin" />
-              </div>
-              <div className="space-y-2">
-                <Label>Пароль PTZ</Label>
-                <Input type="password" placeholder="••••••••" />
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label>Собственник камеры <span className="text-red-500">*</span></Label>
-              <Select defaultValue={cameraToEdit?.owner} required>
+              <Label>
+                Собственник <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.owner}
+                onValueChange={(value) => setFormData({ ...formData, owner: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите собственника" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="МВД">МВД</SelectItem>
-                  <SelectItem value="Администрация">Администрация</SelectItem>
-                  <SelectItem value="ГИБДД">ГИБДД</SelectItem>
-                  <SelectItem value="МЧС">МЧС</SelectItem>
-                  <SelectItem value="Частное лицо">Частное лицо</SelectItem>
+                  {owners.map((owner) => (
+                    <SelectItem key={owner.id} value={owner.name}>
+                      {owner.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Глубина хранения видеоархива (дней) <span className="text-red-500">*</span></Label>
-              <Select defaultValue={cameraToEdit?.archiveDepth.toString() || '30'} required>
+              <Label>
+                Территориальное деление <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.territorial_division}
+                onValueChange={(value) => setFormData({ ...formData, territorial_division: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите территорию" />
+                </SelectTrigger>
+                <SelectContent>
+                  {divisions.map((division) => (
+                    <SelectItem key={division.id} value={division.name}>
+                      {division.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>
+                Адрес <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Широта</Label>
+                <Input
+                  type="number"
+                  step="any"
+                  value={formData.latitude}
+                  onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Долгота</Label>
+                <Input
+                  type="number"
+                  step="any"
+                  value={formData.longitude}
+                  onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>
+                Архив (дней) <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.archive_depth_days}
+                onValueChange={(value) => setFormData({ ...formData, archive_depth_days: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -274,57 +478,17 @@ export const CameraList = ({ cameras }: CameraListProps) => {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Территориальное деление <span className="text-red-500">*</span></Label>
-              <Select required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите территорию" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="center">Центральный район</SelectItem>
-                  <SelectItem value="leninsky">Ленинский район</SelectItem>
-                  <SelectItem value="dzer">Дзержинский район</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Адрес местоположения <span className="text-red-500">*</span></Label>
-              <Input placeholder="Определится автоматически по координатам" defaultValue={cameraToEdit?.address} required />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Широта <span className="text-red-500">*</span></Label>
-                <Input placeholder="58.0105" type="number" step="any" required />
-              </div>
-              <div className="space-y-2">
-                <Label>Долгота <span className="text-red-500">*</span></Label>
-                <Input placeholder="56.2502" type="number" step="any" required />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Карта местоположения</Label>
-              <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <Icon name="MapPin" size={48} className="text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Переместите маркер для указания местоположения
-                  </p>
-                </div>
-              </div>
-            </div>
-
             <div className="flex gap-2 pt-4">
-              <Button type="button" variant="outline" className="flex-1" onClick={() => setIsEditDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
                 Отмена
               </Button>
-              <Button type="button" className="flex-1" onClick={() => {
-                toast.success('Камера обновлена');
-                setIsEditDialogOpen(false);
-              }}>
-                Сохранить изменения
+              <Button type="submit" className="flex-1">
+                Сохранить
               </Button>
             </div>
           </form>
@@ -336,24 +500,13 @@ export const CameraList = ({ cameras }: CameraListProps) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Удалить камеру?</AlertDialogTitle>
             <AlertDialogDescription>
-              Вы уверены, что хотите удалить камеру "{cameraToDelete?.name}"? 
-              Это действие нельзя отменить.
+              Вы действительно хотите удалить камеру "{cameraToDelete?.name}"? Это действие нельзя
+              отменить.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Отмена</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (cameraToDelete) {
-                  addToTrash('camera', cameraToDelete);
-                  toast.success('Камера перемещена в корзину');
-                  setCameraToDelete(null);
-                  setIsDeleteDialogOpen(false);
-                }
-              }}
-            >
-              Удалить
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete}>Удалить</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
