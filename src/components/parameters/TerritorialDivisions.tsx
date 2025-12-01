@@ -72,6 +72,16 @@ const TerritorialDivisions = () => {
       }
     });
 
+    const sortByName = (territories: Territory[]) => {
+      territories.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+      territories.forEach((territory) => {
+        if (territory.children && territory.children.length > 0) {
+          sortByName(territory.children);
+        }
+      });
+    };
+
+    sortByName(roots);
     return roots;
   };
 
