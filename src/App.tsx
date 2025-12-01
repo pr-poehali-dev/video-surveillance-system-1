@@ -32,7 +32,7 @@ const App = () => (
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Dashboard /></div></>} />
-          <Route path="/monitoring" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Monitoring /></div></>} />
+          <Route path="/monitoring" element={<><Header /><Navigation /><div className="container mx-auto px-0 py-0"><Monitoring /></div></>} />
           <Route path="/ord" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><ORD /></div></>} />
           <Route path="/layouts" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Layouts /></div></>} />
           <Route path="/reports" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Reports /></div></>} />
