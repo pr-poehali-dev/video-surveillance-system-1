@@ -402,30 +402,6 @@ export const CameraModelsTab = () => {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="edit-rtsp_port">RTSP порт</Label>
-                <Input
-                  id="edit-rtsp_port"
-                  type="number"
-                  value={formData.default_rtsp_port}
-                  onChange={(e) =>
-                    setFormData({ ...formData, default_rtsp_port: Number(e.target.value) })
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-ptz_port">PTZ порт</Label>
-                <Input
-                  id="edit-ptz_port"
-                  type="number"
-                  value={formData.default_ptz_port}
-                  onChange={(e) =>
-                    setFormData({ ...formData, default_ptz_port: Number(e.target.value) })
-                  }
-                />
-              </div>
-            </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="edit-supports_ptz"
