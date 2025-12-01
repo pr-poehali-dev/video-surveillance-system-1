@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,6 +51,8 @@ const Layouts = () => {
   const [layoutToDelete, setLayoutToDelete] = useState<LayoutConfig | null>(null);
   const [newLayoutName, setNewLayoutName] = useState('');
   const [newLayoutGrid, setNewLayoutGrid] = useState('4');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const layoutContainerRef = useRef<HTMLDivElement>(null);
 
   const gridOptions = [
     { value: '1', label: '1 камера', cols: 1, rows: 1 },
@@ -99,6 +101,25 @@ const Layouts = () => {
   };
 
   const currentGrid = selectedLayout ? getGridConfig(selectedLayout.grid) : gridOptions[2];
+
+  const handleFullscreen = () => {
+    if (!layoutContainerRef.current) return;
+
+    if (!isFullscreen) {
+      layoutContainerRef.current.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   return (
     <div className="bg-background">
@@ -206,7 +227,7 @@ const Layouts = () => {
 
         <main className="flex-1 p-6 bg-muted/20">
           {selectedLayout ? (
-            <div className="h-full">
+            <div className="h-full" ref={layoutContainerRef}>
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-2xl font-bold">{selectedLayout.name}</h2>
@@ -214,10 +235,16 @@ const Layouts = () => {
                     Сетка {currentGrid.cols}×{currentGrid.rows}
                   </p>
                 </div>
-                <Button variant="outline">
-                  <Icon name="Settings" size={18} className="mr-2" />
-                  Настроить камеры
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" onClick={handleFullscreen}>
+                    <Icon name={isFullscreen ? 'Minimize2' : 'Maximize2'} size={18} className="mr-2" />
+                    {isFullscreen ? 'Выйти' : 'Полный экран'}
+                  </Button>
+                  <Button variant="outline">
+                    <Icon name="Settings" size={18} className="mr-2" />
+                    Настроить камеры
+                  </Button>
+                </div>
               </div>
 
               <div
