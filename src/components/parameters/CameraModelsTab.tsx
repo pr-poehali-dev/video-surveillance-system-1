@@ -242,14 +242,10 @@ export const CameraModelsTab = () => {
                                 )}
                               </div>
                               {model.description && (
-                                <p className="text-sm text-muted-foreground mb-2">
+                                <p className="text-sm text-muted-foreground">
                                   {model.description}
                                 </p>
                               )}
-                              <div className="flex gap-4 text-xs text-muted-foreground">
-                                <span>RTSP: {model.default_rtsp_port}</span>
-                                <span>PTZ: {model.default_ptz_port}</span>
-                              </div>
                             </div>
                             <div className="opacity-0 group-hover:opacity-100 flex gap-1">
                               <Button
