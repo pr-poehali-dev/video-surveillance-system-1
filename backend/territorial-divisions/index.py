@@ -77,6 +77,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         name = body_data.get('name', '')
         camera_count = body_data.get('camera_count', 0)
+        parent_id = body_data.get('parent_id')
+        color = body_data.get('color', 'bg-blue-500')
         
         if not name:
             cur.close()
@@ -89,8 +91,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         cur.execute(
-            "INSERT INTO territorial_divisions (name, camera_count) VALUES (%s, %s) RETURNING *",
-            (name, camera_count)
+            "INSERT INTO territorial_divisions (name, camera_count, parent_id, color) VALUES (%s, %s, %s, %s) RETURNING *",
+            (name, camera_count, parent_id, color)
         )
         new_division = cur.fetchone()
         conn.commit()
@@ -109,6 +111,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         division_id = body_data.get('id')
         name = body_data.get('name')
         camera_count = body_data.get('camera_count')
+        parent_id = body_data.get('parent_id')
+        color = body_data.get('color')
         
         if not division_id:
             cur.close()
@@ -121,8 +125,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         cur.execute(
-            "UPDATE territorial_divisions SET name = %s, camera_count = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING *",
-            (name, camera_count, division_id)
+            "UPDATE territorial_divisions SET name = %s, camera_count = %s, parent_id = %s, color = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING *",
+            (name, camera_count, parent_id, color, division_id)
         )
         updated_division = cur.fetchone()
         conn.commit()

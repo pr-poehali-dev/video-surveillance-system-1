@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 
@@ -13,8 +14,11 @@ interface Territory {
   id: number;
   name: string;
   camera_count: number;
+  parent_id: number | null;
+  color: string;
   created_at?: string;
   updated_at?: string;
+  children?: Territory[];
 }
 
 const API_URL = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674';
@@ -22,6 +26,7 @@ const API_URL = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07
 const TerritorialDivisions = () => {
   const [divisions, setDivisions] = useState<Territory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set([1, 2]));
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -30,7 +35,20 @@ const TerritorialDivisions = () => {
   const [formData, setFormData] = useState({
     name: '',
     camera_count: 0,
+    parent_id: null as number | null,
+    color: 'bg-blue-500',
   });
+
+  const colorOptions = [
+    { value: 'bg-blue-500', label: 'Синий' },
+    { value: 'bg-green-500', label: 'Зелёный' },
+    { value: 'bg-orange-500', label: 'Оранжевый' },
+    { value: 'bg-red-500', label: 'Красный' },
+    { value: 'bg-purple-500', label: 'Фиолетовый' },
+    { value: 'bg-pink-500', label: 'Розовый' },
+    { value: 'bg-blue-400', label: 'Светло-синий' },
+    { value: 'bg-green-400', label: 'Светло-зелёный' },
+  ];
 
   const fetchDivisions = async () => {
     try {
@@ -51,10 +69,45 @@ const TerritorialDivisions = () => {
     fetchDivisions();
   }, []);
 
+  const buildTree = (items: Territory[]): Territory[] => {
+    const map = new Map<number, Territory>();
+    const roots: Territory[] = [];
+
+    items.forEach((item) => {
+      map.set(item.id, { ...item, children: [] });
+    });
+
+    items.forEach((item) => {
+      const node = map.get(item.id)!;
+      if (item.parent_id === null) {
+        roots.push(node);
+      } else {
+        const parent = map.get(item.parent_id);
+        if (parent) {
+          parent.children!.push(node);
+        }
+      }
+    });
+
+    return roots;
+  };
+
+  const toggleExpand = (id: number) => {
+    const newExpanded = new Set(expandedIds);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
+    } else {
+      newExpanded.add(id);
+    }
+    setExpandedIds(newExpanded);
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
       camera_count: 0,
+      parent_id: null,
+      color: 'bg-blue-500',
     });
   };
 
@@ -71,6 +124,8 @@ const TerritorialDivisions = () => {
         body: JSON.stringify({
           name: formData.name,
           camera_count: formData.camera_count,
+          parent_id: formData.parent_id,
+          color: formData.color,
         }),
       });
 
@@ -100,6 +155,8 @@ const TerritorialDivisions = () => {
           id: selectedTerritory.id,
           name: formData.name,
           camera_count: formData.camera_count,
+          parent_id: formData.parent_id,
+          color: formData.color,
         }),
       });
 
@@ -118,6 +175,13 @@ const TerritorialDivisions = () => {
 
   const handleDelete = async () => {
     if (!territoryToDelete) return;
+
+    const hasChildren = divisions.some((d) => d.parent_id === territoryToDelete.id);
+    if (hasChildren) {
+      toast.error('Удалите сначала все дочерние территории');
+      setIsDeleteDialogOpen(false);
+      return;
+    }
 
     try {
       const response = await fetch(API_URL, {
@@ -143,6 +207,8 @@ const TerritorialDivisions = () => {
     setFormData({
       name: territory.name,
       camera_count: territory.camera_count,
+      parent_id: territory.parent_id,
+      color: territory.color,
     });
     setIsEditDialogOpen(true);
   };
@@ -151,6 +217,76 @@ const TerritorialDivisions = () => {
     setTerritoryToDelete(territory);
     setIsDeleteDialogOpen(true);
   };
+
+  const renderTree = (nodes: Territory[], level: number = 0) => {
+    return nodes.map((node) => {
+      const hasChildren = node.children && node.children.length > 0;
+      const isExpanded = expandedIds.has(node.id);
+
+      return (
+        <div key={node.id}>
+          <Card className="border-border/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {hasChildren && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpand(node.id)}
+                      className="p-0 h-8 w-8"
+                    >
+                      <Icon
+                        name={isExpanded ? 'ChevronDown' : 'ChevronRight'}
+                        size={18}
+                      />
+                    </Button>
+                  )}
+                  {!hasChildren && <div className="w-8" />}
+                  <div
+                    className={`w-10 h-10 ${node.color} rounded-full flex items-center justify-center`}
+                  >
+                    <Icon name="MapPin" size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">{node.name}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Камер: {node.camera_count}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openEditDialog(node)}
+                  >
+                    <Icon name="Pencil" size={14} className="mr-1" />
+                    Изменить
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openDeleteDialog(node)}
+                  >
+                    <Icon name="Trash2" size={14} />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          {hasChildren && isExpanded && (
+            <div className="ml-12 mt-2 space-y-2 border-l-2 border-border pl-4">
+              {renderTree(node.children!, level + 1)}
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
+
+  const tree = buildTree(divisions);
+  const rootDivisions = divisions.filter((d) => d.parent_id === null);
 
   if (loading) {
     return (
@@ -187,42 +323,7 @@ const TerritorialDivisions = () => {
       <CardContent>
         <ScrollArea className="h-[600px] pr-4">
           <div className="space-y-2">
-            {divisions.map((division) => (
-              <Card key={division.id} className="border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                        <Icon name="MapPin" size={20} className="text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">{division.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Камер: {division.camera_count}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openEditDialog(division)}
-                      >
-                        <Icon name="Pencil" size={14} className="mr-1" />
-                        Изменить
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openDeleteDialog(division)}
-                      >
-                        <Icon name="Trash2" size={14} />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {renderTree(tree)}
           </div>
         </ScrollArea>
       </CardContent>
@@ -241,6 +342,48 @@ const TerritorialDivisions = () => {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Например: Центральный район"
               />
+            </div>
+            <div>
+              <Label htmlFor="create-parent">Родительская территория</Label>
+              <Select
+                value={formData.parent_id?.toString() || 'none'}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parent_id: value === 'none' ? null : parseInt(value) })
+                }
+              >
+                <SelectTrigger id="create-parent">
+                  <SelectValue placeholder="Без родительской территории" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Без родительской территории</SelectItem>
+                  {rootDivisions.map((division) => (
+                    <SelectItem key={division.id} value={division.id.toString()}>
+                      {division.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="create-color">Цвет</Label>
+              <Select
+                value={formData.color}
+                onValueChange={(value) => setFormData({ ...formData, color: value })}
+              >
+                <SelectTrigger id="create-color">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {colorOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 ${option.value} rounded`} />
+                        {option.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="create-cameras">Количество камер</Label>
@@ -277,6 +420,50 @@ const TerritorialDivisions = () => {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
+            </div>
+            <div>
+              <Label htmlFor="edit-parent">Родительская территория</Label>
+              <Select
+                value={formData.parent_id?.toString() || 'none'}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parent_id: value === 'none' ? null : parseInt(value) })
+                }
+              >
+                <SelectTrigger id="edit-parent">
+                  <SelectValue placeholder="Без родительской территории" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Без родительской территории</SelectItem>
+                  {rootDivisions
+                    .filter((d) => d.id !== selectedTerritory?.id)
+                    .map((division) => (
+                      <SelectItem key={division.id} value={division.id.toString()}>
+                        {division.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-color">Цвет</Label>
+              <Select
+                value={formData.color}
+                onValueChange={(value) => setFormData({ ...formData, color: value })}
+              >
+                <SelectTrigger id="edit-color">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {colorOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 ${option.value} rounded`} />
+                        {option.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="edit-cameras">Количество камер</Label>
