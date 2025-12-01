@@ -8,6 +8,7 @@ import { CameraList } from './CameraList';
 import { AddCameraDialog } from './AddCameraDialog';
 import { OwnerGroupsTree } from './OwnerGroupsTree';
 import CameraGroupsTab from './camera-groups/CameraGroupsTab';
+import { CameraModelsTab } from './CameraModelsTab';
 
 const CameraManagement = () => {
   const [testingStream, setTestingStream] = useState(false);
@@ -63,9 +64,9 @@ const CameraManagement = () => {
             <Icon name="Tag" size={16} className="mr-2" />
             Теги
           </TabsTrigger>
-          <TabsTrigger value="tag-groups">
-            <Icon name="Tags" size={16} className="mr-2" />
-            Группы тегов
+          <TabsTrigger value="models">
+            <Icon name="Box" size={16} className="mr-2" />
+            Модели камер
           </TabsTrigger>
         </TabsList>
 
@@ -125,27 +126,8 @@ const CameraManagement = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="tag-groups">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Tags" size={20} />
-                Группы тегов
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <Icon name="Tags" size={64} className="text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">
-                  Организуйте теги в группы
-                </p>
-                <Button>
-                  <Icon name="Plus" size={18} className="mr-2" />
-                  Создать группу тегов
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="models">
+          <CameraModelsTab />
         </TabsContent>
       </Tabs>
     </div>

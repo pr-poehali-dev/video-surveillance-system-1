@@ -23,7 +23,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
@@ -37,7 +37,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         if method == 'GET':
             cur.execute('''
-                SELECT * FROM camera_models
+                SELECT * FROM t_p76735805_video_surveillance_s.camera_models
                 ORDER BY manufacturer, model_name
             ''')
             
@@ -47,6 +47,85 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps([dict(m) for m in models], default=str),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'PUT':
+            body_data = json.loads(event.get('body', '{}'))
+            
+            if 'id' not in body_data:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'ID обязателен'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute('''
+                UPDATE t_p76735805_video_surveillance_s.camera_models
+                SET manufacturer = %s, model_name = %s, description = %s,
+                    default_rtsp_port = %s, default_ptz_port = %s, supports_ptz = %s,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+                RETURNING id
+            ''', (
+                body_data.get('manufacturer'),
+                body_data.get('model_name'),
+                body_data.get('description', ''),
+                body_data.get('default_rtsp_port', 554),
+                body_data.get('default_ptz_port', 8000),
+                body_data.get('supports_ptz', False),
+                body_data['id']
+            ))
+            
+            if not cur.fetchone():
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Модель не найдена'}),
+                    'isBase64Encoded': False
+                }
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'DELETE':
+            body_data = json.loads(event.get('body', '{}'))
+            
+            if 'id' not in body_data:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'ID обязателен'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute('''
+                DELETE FROM t_p76735805_video_surveillance_s.camera_models
+                WHERE id = %s
+                RETURNING id
+            ''', (body_data['id'],))
+            
+            if not cur.fetchone():
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Модель не найдена'}),
+                    'isBase64Encoded': False
+                }
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
                 'isBase64Encoded': False
             }
         
@@ -64,7 +143,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
             
             cur.execute('''
-                INSERT INTO camera_models (
+                INSERT INTO t_p76735805_video_surveillance_s.camera_models (
                     manufacturer, model_name, description,
                     default_rtsp_port, default_ptz_port, supports_ptz
                 ) VALUES (%s, %s, %s, %s, %s, %s)
