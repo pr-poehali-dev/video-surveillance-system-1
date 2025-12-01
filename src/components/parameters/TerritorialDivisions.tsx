@@ -26,6 +26,7 @@ const API_URL = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07
 const TerritorialDivisions = () => {
   const [divisions, setDivisions] = useState<Territory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set([1, 2]));
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -68,6 +69,13 @@ const TerritorialDivisions = () => {
   useEffect(() => {
     fetchDivisions();
   }, []);
+
+  const filterDivisions = (items: Territory[], query: string): Territory[] => {
+    if (!query.trim()) return items;
+    
+    const lowerQuery = query.toLowerCase();
+    return items.filter((item) => item.name.toLowerCase().includes(lowerQuery));
+  };
 
   const buildTree = (items: Territory[]): Territory[] => {
     const map = new Map<number, Territory>();
@@ -285,7 +293,8 @@ const TerritorialDivisions = () => {
     });
   };
 
-  const tree = buildTree(divisions);
+  const filteredDivisions = filterDivisions(divisions, searchQuery);
+  const tree = buildTree(filteredDivisions);
   const rootDivisions = divisions.filter((d) => d.parent_id === null);
 
   if (loading) {
@@ -321,9 +330,40 @@ const TerritorialDivisions = () => {
         </div>
       </CardHeader>
       <CardContent>
+        <div className="mb-4">
+          <div className="relative">
+            <Icon
+              name="Search"
+              size={18}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              placeholder="Поиск территории..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
+              >
+                <Icon name="X" size={16} />
+              </Button>
+            )}
+          </div>
+        </div>
         <ScrollArea className="h-[600px] pr-4">
           <div className="space-y-2">
-            {renderTree(tree)}
+            {filteredDivisions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {searchQuery ? 'Территории не найдены' : 'Нет территорий'}
+              </div>
+            ) : (
+              renderTree(tree)
+            )}
           </div>
         </ScrollArea>
       </CardContent>
