@@ -48,7 +48,7 @@ export const AddCameraDialog = ({ onTestStream, testingStream }: AddCameraDialog
             </div>
             <div className="space-y-2">
               <Label>Пароль RTSP</Label>
-              <Input type="password" placeholder="••••••••" />
+              <Input placeholder="Введите пароль" />
             </div>
           </div>
 
