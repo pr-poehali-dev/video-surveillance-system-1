@@ -326,30 +326,6 @@ export const CameraModelsTab = () => {
                 placeholder="IP-камера 4Мп с ИК-подсветкой"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="rtsp_port">RTSP порт</Label>
-                <Input
-                  id="rtsp_port"
-                  type="number"
-                  value={formData.default_rtsp_port}
-                  onChange={(e) =>
-                    setFormData({ ...formData, default_rtsp_port: Number(e.target.value) })
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="ptz_port">PTZ порт</Label>
-                <Input
-                  id="ptz_port"
-                  type="number"
-                  value={formData.default_ptz_port}
-                  onChange={(e) =>
-                    setFormData({ ...formData, default_ptz_port: Number(e.target.value) })
-                  }
-                />
-              </div>
-            </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="supports_ptz"
