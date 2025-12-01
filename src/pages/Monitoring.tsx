@@ -113,12 +113,8 @@ const Monitoring = () => {
   }
 
   return (
-    <div className="bg-background">
-
-
-
-      <div className="flex gap-6">
-        <div className="w-96 flex-shrink-0">
+    <div className="bg-background flex">
+      <div className="w-96 flex-shrink-0">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -212,9 +208,9 @@ const Monitoring = () => {
               </ScrollArea>
             </CardContent>
           </Card>
-        </div>
+      </div>
 
-        <div className="flex-1">
+      <div className="flex-1">
           <Card className="h-full">
             <CardContent className="p-0 h-full">
               <div className="relative rounded-lg overflow-hidden h-full">
@@ -250,7 +246,6 @@ const Monitoring = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
       </div>
 
       <Dialog open={showVideoDialog} onOpenChange={setShowVideoDialog}>
