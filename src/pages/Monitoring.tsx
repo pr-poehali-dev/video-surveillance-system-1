@@ -218,7 +218,7 @@ const Monitoring = () => {
           <Card className="h-full">
             <CardContent className="p-0 h-full">
               <div className="relative rounded-lg overflow-hidden h-full">
-                <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+                <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
                   <Button
                     variant="outline"
                     size="icon"
