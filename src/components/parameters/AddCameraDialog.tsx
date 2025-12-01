@@ -52,27 +52,6 @@ export const AddCameraDialog = ({ onTestStream, testingStream }: AddCameraDialog
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={onTestStream}
-              disabled={testingStream}
-            >
-              {testingStream ? (
-                <>
-                  <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                  Проверка...
-                </>
-              ) : (
-                <>
-                  <Icon name="Play" size={18} className="mr-2" />
-                  Проверить видеопоток
-                </>
-              )}
-            </Button>
-          </div>
-
           <div className="space-y-2">
             <Label>Марка и модель камеры</Label>
             <Select>
