@@ -231,15 +231,6 @@ const Monitoring = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={handleMyLocation}
-                    title="Мое местоположение"
-                    className="bg-background shadow-lg"
-                  >
-                    <Icon name="MapPin" size={18} />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
                     onClick={handleFullscreen}
                     title="Полноэкранный режим"
                     className="bg-background shadow-lg"
