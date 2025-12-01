@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get all territorial divisions",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Create new territorial division",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Тестовый район",
+        "camera_count": 50
+      },
+      "expectedStatus": 201
+    }
+  ]
+}
