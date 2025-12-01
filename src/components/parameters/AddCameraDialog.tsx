@@ -27,10 +27,10 @@ interface TerritorialDivision {
   name: string;
 }
 
-const CAMERAS_API = 'https://functions.poehali.dev/dab3e8e4-48b1-43e8-bcfa-a4e01a88a3ca';
+const CAMERAS_API = 'https://functions.poehali.dev/a2915cca-0478-407a-8a11-b2f1ed8d3b0e';
 const MODELS_API = 'https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171';
 const OWNERS_API = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
-const DIVISIONS_API = 'https://functions.poehali.dev/d5a6cdfb-9846-4e82-a073-4a9fe43fe2a8';
+const DIVISIONS_API = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674';
 
 export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
   const [open, setOpen] = useState(false);
