@@ -83,9 +83,15 @@ export const CameraGroupFormDialog = ({
 }: CameraGroupFormDialogProps) => {
   const [ownerSearchOpen, setOwnerSearchOpen] = useState(false);
   const [ownerSearchQuery, setOwnerSearchQuery] = useState('');
+  const [divisionSearchOpen, setDivisionSearchOpen] = useState(false);
+  const [divisionSearchQuery, setDivisionSearchQuery] = useState('');
 
   const filteredOwners = owners.filter(owner =>
     owner.name.toLowerCase().includes(ownerSearchQuery.toLowerCase())
+  );
+
+  const filteredDivisions = divisions.filter(division =>
+    division.name.toLowerCase().includes(divisionSearchQuery.toLowerCase())
   );
 
   const filteredCameras = cameras.filter(camera => {
@@ -209,19 +215,64 @@ export const CameraGroupFormDialog = ({
 
               <div className="space-y-2">
                 <Label className="text-xs">Фильтр по территории</Label>
-                <Select value={selectedDivision || 'all'} onValueChange={(value) => onDivisionChange(value === 'all' ? '' : value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Все территории" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все территории</SelectItem>
-                    {divisions.map(division => (
-                      <SelectItem key={division.id} value={division.name}>
-                        {division.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={divisionSearchOpen} onOpenChange={setDivisionSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={divisionSearchOpen}
+                      className="w-full justify-between font-normal"
+                    >
+                      {selectedDivision || 'Все территории'}
+                      <Icon name="ChevronsUpDown" size={16} className="ml-2 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0" align="start">
+                    <Command>
+                      <CommandInput
+                        placeholder="Поиск территории..."
+                        value={divisionSearchQuery}
+                        onValueChange={setDivisionSearchQuery}
+                      />
+                      <CommandList>
+                        <CommandEmpty>Территория не найдена</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            onSelect={() => {
+                              onDivisionChange('');
+                              setDivisionSearchOpen(false);
+                              setDivisionSearchQuery('');
+                            }}
+                          >
+                            <Icon
+                              name="Check"
+                              size={16}
+                              className={selectedDivision === '' ? 'mr-2 opacity-100' : 'mr-2 opacity-0'}
+                            />
+                            Все территории
+                          </CommandItem>
+                          {filteredDivisions.map((division) => (
+                            <CommandItem
+                              key={division.id}
+                              onSelect={() => {
+                                onDivisionChange(division.name);
+                                setDivisionSearchOpen(false);
+                                setDivisionSearchQuery('');
+                              }}
+                            >
+                              <Icon
+                                name="Check"
+                                size={16}
+                                className={selectedDivision === division.name ? 'mr-2 opacity-100' : 'mr-2 opacity-0'}
+                              />
+                              {division.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
