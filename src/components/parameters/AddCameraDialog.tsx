@@ -27,7 +27,6 @@ interface TerritorialDivision {
   name: string;
 }
 
-const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
 const MODELS_API = 'https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171';
 const OWNERS_API = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
 const DIVISIONS_API = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674';
@@ -105,33 +104,17 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.name.trim() || !formData.rtsp_url.trim()) {
-      toast.error('Заполните обязательные поля');
+    
+    if (!formData.name || !formData.rtsp_url || !formData.owner || !formData.territorial_division) {
+      toast.error('Заполните все обязательные поля');
       return;
     }
 
     setLoading(true);
+
     try {
-      const payload = {
-        ...formData,
-        model_id: formData.model_id ? parseInt(formData.model_id) : null,
-        ptz_port: formData.ptz_port ? parseInt(formData.ptz_port) : null,
-        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
-        archive_depth_days: parseInt(formData.archive_depth_days),
-        status: 'active',
-      };
-
-      const response = await fetch(CAMERAS_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error('Failed to create camera');
-
-      toast.success('Камера успешно добавлена');
+      toast.info('Функция сохранения камер временно отключена');
+      
       setOpen(false);
       setFormData({
         name: '',
@@ -152,8 +135,8 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
       });
       onSuccess();
     } catch (error) {
-      console.error('Error creating camera:', error);
-      toast.error('Ошибка создания камеры');
+      console.error('Error adding camera:', error);
+      toast.error('Ошибка при добавлении камеры');
     } finally {
       setLoading(false);
     }
@@ -167,45 +150,67 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
           Добавить камеру
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Добавить новую камеру видеонаблюдения</DialogTitle>
+          <DialogTitle>Добавить камеру</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Название камеры <span className="text-red-500">*</span></Label>
             <Input
-              placeholder="Камера-001"
+              type="text"
+              placeholder="Введите название"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>RTSP ссылка на видеопоток <span className="text-red-500">*</span></Label>
-            <Input
-              placeholder="rtsp://username:password@ip:port/stream"
-              className="font-mono text-sm"
-              value={formData.rtsp_url}
-              onChange={(e) => setFormData({ ...formData, rtsp_url: e.target.value })}
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>RTSP URL <span className="text-red-500">*</span></Label>
+              <Input
+                type="text"
+                placeholder="rtsp://..."
+                value={formData.rtsp_url}
+                onChange={(e) => setFormData({ ...formData, rtsp_url: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Модель камеры</Label>
+              <Select value={formData.model_id} onValueChange={(value) => setFormData({ ...formData, model_id: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите модель" />
+                </SelectTrigger>
+                <SelectContent>
+                  {models.map((model) => (
+                    <SelectItem key={model.id} value={model.id.toString()}>
+                      {model.manufacturer} {model.model_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Логин RTSP</Label>
               <Input
+                type="text"
                 placeholder="Введите логин"
                 value={formData.rtsp_login}
                 onChange={(e) => setFormData({ ...formData, rtsp_login: e.target.value })}
               />
             </div>
+
             <div className="space-y-2">
               <Label>Пароль RTSP</Label>
               <Input
+                type="password"
                 placeholder="Введите пароль"
                 value={formData.rtsp_password}
                 onChange={(e) => setFormData({ ...formData, rtsp_password: e.target.value })}
@@ -213,58 +218,50 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Марка и модель камеры</Label>
-            <Select value={formData.model_id} onValueChange={(value) => setFormData({ ...formData, model_id: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите модель" />
-              </SelectTrigger>
-              <SelectContent>
-                {models.map((model) => (
-                  <SelectItem key={model.id} value={model.id.toString()}>
-                    {model.manufacturer} {model.model_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <div className="border-t pt-4">
+            <h4 className="font-medium mb-3">PTZ управление (опционально)</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>IP адрес PTZ</Label>
+                <Input
+                  type="text"
+                  placeholder="192.168.1.100"
+                  value={formData.ptz_ip}
+                  onChange={(e) => setFormData({ ...formData, ptz_ip: e.target.value })}
+                />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>IP адрес PTZ</Label>
-              <Input
-                placeholder="192.168.1.10"
-                value={formData.ptz_ip}
-                onChange={(e) => setFormData({ ...formData, ptz_ip: e.target.value })}
-              />
+              <div className="space-y-2">
+                <Label>Порт PTZ</Label>
+                <Input
+                  type="text"
+                  placeholder="80"
+                  value={formData.ptz_port}
+                  onChange={(e) => setFormData({ ...formData, ptz_port: e.target.value })}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Порт PTZ</Label>
-              <Input
-                placeholder="8000"
-                value={formData.ptz_port}
-                onChange={(e) => setFormData({ ...formData, ptz_port: e.target.value })}
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Логин PTZ</Label>
-              <Input
-                placeholder="Введите логин"
-                value={formData.ptz_login}
-                onChange={(e) => setFormData({ ...formData, ptz_login: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Пароль PTZ</Label>
-              <Input
-                type="text"
-                placeholder="Введите пароль"
-                value={formData.ptz_password}
-                onChange={(e) => setFormData({ ...formData, ptz_password: e.target.value })}
-              />
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="space-y-2">
+                <Label>Логин PTZ</Label>
+                <Input
+                  type="text"
+                  placeholder="Введите логин"
+                  value={formData.ptz_login}
+                  onChange={(e) => setFormData({ ...formData, ptz_login: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Пароль PTZ</Label>
+                <Input
+                  type="text"
+                  placeholder="Введите пароль"
+                  value={formData.ptz_password}
+                  onChange={(e) => setFormData({ ...formData, ptz_password: e.target.value })}
+                />
+              </div>
             </div>
           </div>
 
@@ -361,7 +358,8 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
           <div className="space-y-2">
             <Label>Адрес местоположения <span className="text-red-500">*</span></Label>
             <Input
-              placeholder="Введите адрес"
+              type="text"
+              placeholder="ул. Ленина, 1"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               required
@@ -370,47 +368,42 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Широта <span className="text-red-500">*</span></Label>
+              <Label>Широта</Label>
               <Input
+                type="text"
                 placeholder="58.0105"
-                type="number"
-                step="any"
                 value={formData.latitude}
                 onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                required
               />
             </div>
+
             <div className="space-y-2">
-              <Label>Долгота <span className="text-red-500">*</span></Label>
+              <Label>Долгота</Label>
               <Input
+                type="text"
                 placeholder="56.2502"
-                type="number"
-                step="any"
                 value={formData.longitude}
                 onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                required
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Карта местоположения</Label>
-            <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <Icon name="MapPin" size={48} className="text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  Переместите маркер для указания местоположения
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Отмена
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? 'Добавление...' : 'Добавить камеру'}
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                  Добавление...
+                </>
+              ) : (
+                <>
+                  <Icon name="Plus" size={18} className="mr-2" />
+                  Добавить камеру
+                </>
+              )}
             </Button>
           </div>
         </form>
