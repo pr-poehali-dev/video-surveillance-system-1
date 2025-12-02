@@ -276,6 +276,26 @@ export const CameraGroupFormDialog = ({
               </div>
             </div>
 
+            <div className="flex items-center space-x-3 p-2 border rounded-md bg-muted/30">
+              <Checkbox
+                checked={filteredCameras.length > 0 && filteredCameras.every(camera => formData.camera_ids.includes(camera.id))}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    const allFilteredIds = filteredCameras.map(c => c.id);
+                    const newIds = [...new Set([...formData.camera_ids, ...allFilteredIds])];
+                    onFormDataChange({ ...formData, camera_ids: newIds });
+                  } else {
+                    const filteredIds = new Set(filteredCameras.map(c => c.id));
+                    const newIds = formData.camera_ids.filter(id => !filteredIds.has(id));
+                    onFormDataChange({ ...formData, camera_ids: newIds });
+                  }
+                }}
+              />
+              <Label className="text-sm font-medium cursor-pointer">
+                Выбрать все ({filteredCameras.length})
+              </Label>
+            </div>
+
             <ScrollArea className="h-[300px] border rounded-md p-4">
               <div className="space-y-2">
                 {filteredCameras.map((camera) => (
