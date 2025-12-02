@@ -36,13 +36,6 @@ export const CameraCard = ({ camera, onEdit, onDelete }: CameraCardProps) => {
                 </div>
               )}
 
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Icon name="Link" size={14} className="flex-shrink-0" />
-                <code className="text-xs truncate bg-muted px-2 py-0.5 rounded">
-                  {camera.rtsp_url}
-                </code>
-              </div>
-
               {camera.archive_depth_days && (
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="text-xs">
