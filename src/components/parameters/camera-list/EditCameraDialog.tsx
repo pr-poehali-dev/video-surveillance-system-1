@@ -90,7 +90,7 @@ export const EditCameraDialog = ({
             <div className="space-y-2">
               <Label>Пароль RTSP</Label>
               <Input
-                type="password"
+                type="text"
                 value={formData.rtsp_password}
                 onChange={(e) => onFormDataChange({ ...formData, rtsp_password: e.target.value })}
               />
