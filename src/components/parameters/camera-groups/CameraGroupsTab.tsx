@@ -257,10 +257,7 @@ const CameraGroupsTab = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-muted-foreground">
-          Управление группами камер для удобной организации
-        </p>
+      <div className="flex items-center justify-end mb-4">
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Icon name="Plus" size={18} className="mr-2" />
           Создать группу
