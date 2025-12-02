@@ -167,33 +167,15 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>RTSP URL <span className="text-red-500">*</span></Label>
-              <Input
-                type="text"
-                placeholder="rtsp://..."
-                value={formData.rtsp_url}
-                onChange={(e) => setFormData({ ...formData, rtsp_url: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Модель камеры</Label>
-              <Select value={formData.model_id} onValueChange={(value) => setFormData({ ...formData, model_id: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите модель" />
-                </SelectTrigger>
-                <SelectContent>
-                  {models.map((model) => (
-                    <SelectItem key={model.id} value={model.id.toString()}>
-                      {model.manufacturer} {model.model_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label>RTSP URL <span className="text-red-500">*</span></Label>
+            <Input
+              type="text"
+              placeholder="rtsp://..."
+              value={formData.rtsp_url}
+              onChange={(e) => setFormData({ ...formData, rtsp_url: e.target.value })}
+              required
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -216,6 +198,22 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
                 onChange={(e) => setFormData({ ...formData, rtsp_password: e.target.value })}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Модель камеры</Label>
+            <Select value={formData.model_id} onValueChange={(value) => setFormData({ ...formData, model_id: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите модель" />
+              </SelectTrigger>
+              <SelectContent>
+                {models.map((model) => (
+                  <SelectItem key={model.id} value={model.id.toString()}>
+                    {model.manufacturer} {model.model_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="border-t pt-4">
