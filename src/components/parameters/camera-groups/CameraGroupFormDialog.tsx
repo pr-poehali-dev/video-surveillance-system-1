@@ -137,12 +137,12 @@ export const CameraGroupFormDialog = ({
 
               <div className="space-y-2">
                 <Label className="text-xs">Фильтр по собственнику</Label>
-                <Select value={selectedOwner} onValueChange={onOwnerChange}>
+                <Select value={selectedOwner || 'all'} onValueChange={(value) => onOwnerChange(value === 'all' ? '' : value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Все собственники" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Все собственники</SelectItem>
+                    <SelectItem value="all">Все собственники</SelectItem>
                     {owners.map(owner => (
                       <SelectItem key={owner.id} value={owner.name}>
                         {owner.name}
@@ -154,12 +154,12 @@ export const CameraGroupFormDialog = ({
 
               <div className="space-y-2">
                 <Label className="text-xs">Фильтр по территории</Label>
-                <Select value={selectedDivision} onValueChange={onDivisionChange}>
+                <Select value={selectedDivision || 'all'} onValueChange={(value) => onDivisionChange(value === 'all' ? '' : value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Все территории" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Все территории</SelectItem>
+                    <SelectItem value="all">Все территории</SelectItem>
                     {divisions.map(division => (
                       <SelectItem key={division.id} value={division.name}>
                         {division.name}
