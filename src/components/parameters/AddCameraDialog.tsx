@@ -203,8 +203,12 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
           <div className="space-y-2">
             <Label>Модель камеры</Label>
             <Select value={formData.model_id} onValueChange={(value) => setFormData({ ...formData, model_id: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите модель" />
+              <SelectTrigger className="[&>span]:block [&>span]:truncate">
+                <SelectValue placeholder="Выберите модель">
+                  {formData.model_id && models.find(m => m.id.toString() === formData.model_id)
+                    ? `${models.find(m => m.id.toString() === formData.model_id)?.manufacturer} ${models.find(m => m.id.toString() === formData.model_id)?.model_name}`
+                    : 'Выберите модель'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {models.map((model) => (
