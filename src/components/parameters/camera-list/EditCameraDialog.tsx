@@ -100,7 +100,7 @@ export const EditCameraDialog = ({
           <div className="space-y-2">
             <Label>Модель камеры</Label>
             <Select value={formData.model_id} onValueChange={(value) => onFormDataChange({ ...formData, model_id: value })}>
-              <SelectTrigger className="[&>span]:block [&>span]:truncate">
+              <SelectTrigger className="[&>span]:block [&>span]:truncate [&>span]:text-foreground">
                 <SelectValue placeholder="Выберите модель">
                   {formData.model_id && models.find(m => m.id.toString() === formData.model_id)
                     ? `${models.find(m => m.id.toString() === formData.model_id)?.manufacturer} ${models.find(m => m.id.toString() === formData.model_id)?.model_name}`
