@@ -145,6 +145,10 @@ export const OwnerGroupsTree = () => {
           name: formData.name,
           description: formData.description || null,
           parent_id: newGroupParentId,
+          responsible_full_name: formData.responsible_full_name || null,
+          responsible_phone: formData.responsible_phone || null,
+          responsible_email: formData.responsible_email || null,
+          responsible_position: formData.responsible_position || null,
         }),
       });
 
@@ -176,6 +180,10 @@ export const OwnerGroupsTree = () => {
           name: formData.name,
           description: formData.description || null,
           parent_id: editingGroup.parent_id,
+          responsible_full_name: formData.responsible_full_name || null,
+          responsible_phone: formData.responsible_phone || null,
+          responsible_email: formData.responsible_email || null,
+          responsible_position: formData.responsible_position || null,
         }),
       });
 
