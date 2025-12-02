@@ -1,33 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { CameraGroupCard } from './CameraGroupCard';
+import { CameraGroupFormDialog } from './CameraGroupFormDialog';
+import { CameraGroupDeleteDialog } from './CameraGroupDeleteDialog';
 
 const GROUPS_API = 'https://functions.poehali.dev/90109919-f443-4ada-9135-696710aa2338';
 const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
@@ -164,16 +142,6 @@ const CameraGroupsTab = () => {
     }));
   };
 
-  const filteredCameras = cameras.filter(camera => {
-    const matchesSearch = 
-      camera.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      camera.address?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesOwner = !selectedOwner || camera.owner === selectedOwner;
-    const matchesDivision = !selectedDivision || camera.territorial_division === selectedDivision;
-    
-    return matchesSearch && matchesOwner && matchesDivision;
-  });
-
   const handleCreate = async () => {
     if (!formData.name.trim()) {
       toast.error('Введите название группы');
@@ -262,6 +230,17 @@ const CameraGroupsTab = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleCreateCancel = () => {
+    setIsCreateDialogOpen(false);
+    resetForm();
+  };
+
+  const handleEditCancel = () => {
+    setIsEditDialogOpen(false);
+    setSelectedGroup(null);
+    resetForm();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -285,43 +264,12 @@ const CameraGroupsTab = () => {
       <ScrollArea className="h-[600px]">
         <div className="grid gap-4">
           {groups.map((group) => (
-            <Card key={group.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{group.name}</h3>
-                      <Badge variant="secondary">
-                        <Icon name="Camera" size={12} className="mr-1" />
-                        {group.camera_ids?.length || 0} камер
-                      </Badge>
-                    </div>
-                    {group.description && (
-                      <p className="text-sm text-muted-foreground">
-                        {group.description}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openEditDialog(group)}
-                    >
-                      <Icon name="Pencil" size={16} className="mr-2" />
-                      Изменить
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openDeleteDialog(group)}
-                    >
-                      <Icon name="Trash2" size={16} />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <CameraGroupCard
+              key={group.id}
+              group={group}
+              onEdit={openEditDialog}
+              onDelete={openDeleteDialog}
+            />
           ))}
 
           {groups.length === 0 && (
@@ -339,271 +287,52 @@ const CameraGroupsTab = () => {
         </div>
       </ScrollArea>
 
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Создать группу камер</DialogTitle>
-            <DialogDescription>
-              Выберите камеры для новой группы
-            </DialogDescription>
-          </DialogHeader>
+      <CameraGroupFormDialog
+        open={isCreateDialogOpen}
+        isEdit={false}
+        formData={formData}
+        cameras={cameras}
+        owners={owners}
+        divisions={divisions}
+        searchQuery={searchQuery}
+        selectedOwner={selectedOwner}
+        selectedDivision={selectedDivision}
+        onOpenChange={setIsCreateDialogOpen}
+        onFormDataChange={setFormData}
+        onSearchChange={setSearchQuery}
+        onOwnerChange={setSelectedOwner}
+        onDivisionChange={setSelectedDivision}
+        onToggleCamera={toggleCamera}
+        onSubmit={handleCreate}
+        onCancel={handleCreateCancel}
+      />
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Название группы <span className="text-red-500">*</span></Label>
-              <Input
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Введите название"
-              />
-            </div>
+      <CameraGroupFormDialog
+        open={isEditDialogOpen}
+        isEdit={true}
+        formData={formData}
+        cameras={cameras}
+        owners={owners}
+        divisions={divisions}
+        searchQuery={searchQuery}
+        selectedOwner={selectedOwner}
+        selectedDivision={selectedDivision}
+        onOpenChange={setIsEditDialogOpen}
+        onFormDataChange={setFormData}
+        onSearchChange={setSearchQuery}
+        onOwnerChange={setSelectedOwner}
+        onDivisionChange={setSelectedDivision}
+        onToggleCamera={toggleCamera}
+        onSubmit={handleEdit}
+        onCancel={handleEditCancel}
+      />
 
-            <div className="space-y-2">
-              <Label>Описание</Label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Описание группы (опционально)"
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-3 border-t pt-4">
-              <Label>Камеры в группе</Label>
-              
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-2">
-                  <Label className="text-xs">Поиск по названию/адресу</Label>
-                  <div className="relative">
-                    <Icon name="Search" size={16} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Поиск..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Фильтр по собственнику</Label>
-                  <Select value={selectedOwner} onValueChange={setSelectedOwner}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Все собственники" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Все собственники</SelectItem>
-                      {owners.map(owner => (
-                        <SelectItem key={owner.id} value={owner.name}>
-                          {owner.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Фильтр по территории</Label>
-                  <Select value={selectedDivision} onValueChange={setSelectedDivision}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Все территории" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Все территории</SelectItem>
-                      {divisions.map(division => (
-                        <SelectItem key={division.id} value={division.name}>
-                          {division.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <ScrollArea className="h-[300px] border rounded-md p-4">
-                <div className="space-y-2">
-                  {filteredCameras.map((camera) => (
-                    <div
-                      key={camera.id}
-                      className="flex items-center space-x-3 p-2 hover:bg-muted rounded-md"
-                    >
-                      <Checkbox
-                        checked={formData.camera_ids.includes(camera.id)}
-                        onCheckedChange={() => toggleCamera(camera.id)}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm">{camera.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{camera.address}</p>
-                      </div>
-                    </div>
-                  ))}
-                  {filteredCameras.length === 0 && (
-                    <p className="text-center text-sm text-muted-foreground py-8">
-                      Камеры не найдены
-                    </p>
-                  )}
-                </div>
-              </ScrollArea>
-
-              <p className="text-sm text-muted-foreground">
-                Выбрано: {formData.camera_ids.length} камер
-              </p>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setIsCreateDialogOpen(false); resetForm(); }}>
-              Отмена
-            </Button>
-            <Button onClick={handleCreate}>
-              <Icon name="Plus" size={18} className="mr-2" />
-              Создать
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Редактировать группу</DialogTitle>
-            <DialogDescription>
-              Измените данные группы камер
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Название группы <span className="text-red-500">*</span></Label>
-              <Input
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Введите название"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Описание</Label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Описание группы (опционально)"
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-3 border-t pt-4">
-              <Label>Камеры в группе</Label>
-              
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-2">
-                  <Label className="text-xs">Поиск по названию/адресу</Label>
-                  <div className="relative">
-                    <Icon name="Search" size={16} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Поиск..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Фильтр по собственнику</Label>
-                  <Select value={selectedOwner} onValueChange={setSelectedOwner}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Все собственники" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Все собственники</SelectItem>
-                      {owners.map(owner => (
-                        <SelectItem key={owner.id} value={owner.name}>
-                          {owner.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Фильтр по территории</Label>
-                  <Select value={selectedDivision} onValueChange={setSelectedDivision}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Все территории" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Все территории</SelectItem>
-                      {divisions.map(division => (
-                        <SelectItem key={division.id} value={division.name}>
-                          {division.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <ScrollArea className="h-[300px] border rounded-md p-4">
-                <div className="space-y-2">
-                  {filteredCameras.map((camera) => (
-                    <div
-                      key={camera.id}
-                      className="flex items-center space-x-3 p-2 hover:bg-muted rounded-md"
-                    >
-                      <Checkbox
-                        checked={formData.camera_ids.includes(camera.id)}
-                        onCheckedChange={() => toggleCamera(camera.id)}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm">{camera.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{camera.address}</p>
-                      </div>
-                    </div>
-                  ))}
-                  {filteredCameras.length === 0 && (
-                    <p className="text-center text-sm text-muted-foreground py-8">
-                      Камеры не найдены
-                    </p>
-                  )}
-                </div>
-              </ScrollArea>
-
-              <p className="text-sm text-muted-foreground">
-                Выбрано: {formData.camera_ids.length} камер
-              </p>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setIsEditDialogOpen(false); setSelectedGroup(null); resetForm(); }}>
-              Отмена
-            </Button>
-            <Button onClick={handleEdit}>
-              <Icon name="Save" size={18} className="mr-2" />
-              Сохранить
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Удалить группу?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Вы действительно хотите удалить группу "{groupToDelete?.name}"?
-              Камеры останутся в системе.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Отмена</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Удалить
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CameraGroupDeleteDialog
+        open={isDeleteDialogOpen}
+        group={groupToDelete}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDelete}
+      />
     </>
   );
 };
