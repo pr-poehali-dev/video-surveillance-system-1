@@ -12,14 +12,14 @@ import { CameraModelsTab } from './CameraModelsTab';
 
 const CameraManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [showCreateGroupDialog, setShowCreateGroupDialog] = useState(false);
+  const [createGroupTrigger, setCreateGroupTrigger] = useState(0);
 
   const handleCameraAdded = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
   const handleCreateGroup = () => {
-    setShowCreateGroupDialog(true);
+    setCreateGroupTrigger(prev => prev + 1);
   };
 
   return (
@@ -80,7 +80,7 @@ const CameraManagement = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <CameraGroupsTab onCreateClick={handleCreateGroup} />
+              <CameraGroupsTab createTrigger={createGroupTrigger} />
             </CardContent>
           </Card>
         </TabsContent>

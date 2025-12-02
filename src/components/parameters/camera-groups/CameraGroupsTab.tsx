@@ -39,10 +39,10 @@ interface Division {
 }
 
 interface CameraGroupsTabProps {
-  onCreateClick: () => void;
+  createTrigger?: number;
 }
 
-const CameraGroupsTab = ({ onCreateClick }: CameraGroupsTabProps) => {
+const CameraGroupsTab = ({ createTrigger }: CameraGroupsTabProps) => {
   const [groups, setGroups] = useState<CameraGroup[]>([]);
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [owners, setOwners] = useState<Owner[]>([]);
@@ -69,6 +69,12 @@ const CameraGroupsTab = ({ onCreateClick }: CameraGroupsTabProps) => {
   useEffect(() => {
     fetchAll();
   }, []);
+
+  useEffect(() => {
+    if (createTrigger && createTrigger > 0) {
+      setIsCreateDialogOpen(true);
+    }
+  }, [createTrigger]);
 
   const fetchAll = async () => {
     await Promise.all([
@@ -258,11 +264,6 @@ const CameraGroupsTab = ({ onCreateClick }: CameraGroupsTabProps) => {
       </div>
     );
   }
-
-  const handleCreateClick = () => {
-    setIsCreateDialogOpen(true);
-    onCreateClick();
-  };
 
   return (
     <>
