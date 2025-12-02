@@ -39,6 +39,7 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
   const [owners, setOwners] = useState<Owner[]>([]);
   const [divisions, setDivisions] = useState<TerritorialDivision[]>([]);
   const [ownerSearch, setOwnerSearch] = useState('');
+  const [divisionSearch, setDivisionSearch] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -327,11 +328,32 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
                 <SelectValue placeholder="Выберите территорию" />
               </SelectTrigger>
               <SelectContent>
-                {divisions.map((division) => (
-                  <SelectItem key={division.id} value={division.name}>
-                    {division.name}
-                  </SelectItem>
-                ))}
+                <div className="px-2 py-1.5 sticky top-0 bg-background border-b">
+                  <div className="relative">
+                    <Icon name="Search" size={16} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="Поиск территории..."
+                      value={divisionSearch}
+                      onChange={(e) => setDivisionSearch(e.target.value)}
+                      className="pl-8 h-8"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                </div>
+                <div className="max-h-[200px] overflow-y-auto">
+                  {divisions
+                    .filter(division => division.name.toLowerCase().includes(divisionSearch.toLowerCase()))
+                    .map((division) => (
+                      <SelectItem key={division.id} value={division.name}>
+                        {division.name}
+                      </SelectItem>
+                    ))}
+                  {divisions.filter(division => division.name.toLowerCase().includes(divisionSearch.toLowerCase())).length === 0 && (
+                    <div className="py-6 text-center text-sm text-muted-foreground">
+                      Не найдено
+                    </div>
+                  )}
+                </div>
               </SelectContent>
             </Select>
           </div>
