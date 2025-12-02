@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Get all camera groups",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create camera group",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Test Group",
+        "description": "Test Description",
+        "camera_ids": [1, 2]
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "id": "number",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
