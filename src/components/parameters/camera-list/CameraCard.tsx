@@ -35,19 +35,18 @@ export const CameraCard = ({ camera, onEdit, onDelete }: CameraCardProps) => {
                   <span className="truncate">{camera.address}</span>
                 </div>
               )}
-
-              {camera.archive_depth_days && (
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Icon name="Archive" size={12} className="mr-1" />
-                    Архив: {camera.archive_depth_days} дн.
-                  </Badge>
-                </div>
-              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-1 ml-4">
+          <div className="flex flex-col items-end gap-2 ml-4">
+            {camera.archive_depth_days && (
+              <Badge variant="secondary" className="text-xs">
+                <Icon name="Archive" size={12} className="mr-1" />
+                Архив: {camera.archive_depth_days} дн.
+              </Badge>
+            )}
+
+            <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
@@ -56,14 +55,15 @@ export const CameraCard = ({ camera, onEdit, onDelete }: CameraCardProps) => {
             >
               <Icon name="Pencil" size={16} />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(camera)}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            >
-              <Icon name="Trash2" size={16} />
-            </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(camera)}
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+              >
+                <Icon name="Trash2" size={16} />
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
