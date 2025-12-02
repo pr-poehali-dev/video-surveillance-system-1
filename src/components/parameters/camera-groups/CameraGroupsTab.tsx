@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { CameraGroupCard } from './CameraGroupCard';
@@ -44,6 +45,7 @@ const CameraGroupsTab = () => {
   const [divisions, setDivisions] = useState<Division[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [groupSearchQuery, setGroupSearchQuery] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOwner, setSelectedOwner] = useState<string>('');
   const [selectedDivision, setSelectedDivision] = useState<string>('');
@@ -241,6 +243,10 @@ const CameraGroupsTab = () => {
     resetForm();
   };
 
+  const filteredGroups = groups.filter(group =>
+    group.name.toLowerCase().includes(groupSearchQuery.toLowerCase())
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -261,9 +267,21 @@ const CameraGroupsTab = () => {
         </Button>
       </div>
 
+      <div className="mb-4">
+        <div className="relative">
+          <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Поиск группы по названию..."
+            value={groupSearchQuery}
+            onChange={(e) => setGroupSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      </div>
+
       <ScrollArea className="h-[600px]">
         <div className="grid gap-4">
-          {groups.map((group) => (
+          {filteredGroups.map((group) => (
             <CameraGroupCard
               key={group.id}
               group={group}
@@ -271,6 +289,15 @@ const CameraGroupsTab = () => {
               onDelete={openDeleteDialog}
             />
           ))}
+
+          {filteredGroups.length === 0 && groups.length > 0 && (
+            <div className="text-center py-12">
+              <Icon name="Search" size={64} className="text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-4">
+                Группы не найдены по запросу
+              </p>
+            </div>
+          )}
 
           {groups.length === 0 && (
             <div className="text-center py-12">
