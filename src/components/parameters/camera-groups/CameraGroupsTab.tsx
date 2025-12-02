@@ -257,15 +257,8 @@ const CameraGroupsTab = () => {
 
   return (
     <>
-      <div className="flex items-center justify-end mb-4">
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Icon name="Plus" size={18} className="mr-2" />
-          Создать группу
-        </Button>
-      </div>
-
-      <div className="mb-4">
-        <div className="relative">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="relative flex-1">
           <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Поиск группы по названию..."
@@ -274,6 +267,10 @@ const CameraGroupsTab = () => {
             className="pl-9"
           />
         </div>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Icon name="Plus" size={18} className="mr-2" />
+          Создать группу
+        </Button>
       </div>
 
       <ScrollArea className="h-[600px]">
