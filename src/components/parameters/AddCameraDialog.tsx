@@ -105,7 +105,7 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.rtsp_url || !formData.owner || !formData.territorial_division) {
+    if (!formData.name || !formData.rtsp_url || !formData.owner || !formData.territorial_division || !formData.latitude || !formData.longitude) {
       toast.error('Заполните все обязательные поля');
       return;
     }
@@ -398,22 +398,24 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Широта</Label>
+              <Label>Широта <span className="text-red-500">*</span></Label>
               <Input
                 type="text"
                 placeholder="58.0105"
                 value={formData.latitude}
                 onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                required
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Долгота</Label>
+              <Label>Долгота <span className="text-red-500">*</span></Label>
               <Input
                 type="text"
                 placeholder="56.2502"
                 value={formData.longitude}
                 onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                required
               />
             </div>
           </div>

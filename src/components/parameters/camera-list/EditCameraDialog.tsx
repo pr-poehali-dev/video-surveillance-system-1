@@ -215,20 +215,22 @@ export const EditCameraDialog = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Широта</Label>
+              <Label>Широта <span className="text-red-500">*</span></Label>
               <Input
                 type="text"
                 value={formData.latitude}
                 onChange={(e) => onFormDataChange({ ...formData, latitude: e.target.value })}
+                required
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Долгота</Label>
+              <Label>Долгота <span className="text-red-500">*</span></Label>
               <Input
                 type="text"
                 value={formData.longitude}
                 onChange={(e) => onFormDataChange({ ...formData, longitude: e.target.value })}
+                required
               />
             </div>
           </div>
