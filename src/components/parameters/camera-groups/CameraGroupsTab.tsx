@@ -38,7 +38,11 @@ interface Division {
   name: string;
 }
 
-const CameraGroupsTab = () => {
+interface CameraGroupsTabProps {
+  onCreateClick: () => void;
+}
+
+const CameraGroupsTab = ({ onCreateClick }: CameraGroupsTabProps) => {
   const [groups, setGroups] = useState<CameraGroup[]>([]);
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [owners, setOwners] = useState<Owner[]>([]);
@@ -255,10 +259,15 @@ const CameraGroupsTab = () => {
     );
   }
 
+  const handleCreateClick = () => {
+    setIsCreateDialogOpen(true);
+    onCreateClick();
+  };
+
   return (
     <>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="relative flex-1">
+      <div className="mb-4">
+        <div className="relative">
           <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Поиск группы по названию..."
@@ -267,10 +276,6 @@ const CameraGroupsTab = () => {
             className="pl-9"
           />
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Icon name="Plus" size={18} className="mr-2" />
-          Создать группу
-        </Button>
       </div>
 
       <ScrollArea className="h-[600px]">

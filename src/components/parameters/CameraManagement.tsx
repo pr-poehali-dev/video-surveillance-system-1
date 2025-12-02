@@ -12,9 +12,14 @@ import { CameraModelsTab } from './CameraModelsTab';
 
 const CameraManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [showCreateGroupDialog, setShowCreateGroupDialog] = useState(false);
 
   const handleCameraAdded = () => {
     setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleCreateGroup = () => {
+    setShowCreateGroupDialog(true);
   };
 
   return (
@@ -63,13 +68,19 @@ const CameraManagement = () => {
         <TabsContent value="camera-groups">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Layers" size={20} />
-                Группы камер
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Icon name="Layers" size={20} />
+                  Группы камер
+                </span>
+                <Button onClick={handleCreateGroup}>
+                  <Icon name="Plus" size={18} className="mr-2" />
+                  Создать группу
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <CameraGroupsTab />
+              <CameraGroupsTab onCreateClick={handleCreateGroup} />
             </CardContent>
           </Card>
         </TabsContent>
