@@ -250,7 +250,7 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
             <div className="space-y-2">
               <Label>Логин PTZ</Label>
               <Input
-                placeholder="admin"
+                placeholder="Введите логин"
                 value={formData.ptz_login}
                 onChange={(e) => setFormData({ ...formData, ptz_login: e.target.value })}
               />
