@@ -32,7 +32,7 @@ export interface TerritorialDivision {
   name: string;
 }
 
-export const CAMERAS_API = 'https://functions.poehali.dev/a2915cca-0478-407a-8a11-b2f1ed8d3b0e';
+export const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
 export const MODELS_API = 'https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171';
 export const OWNERS_API = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
 export const DIVISIONS_API = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674';
