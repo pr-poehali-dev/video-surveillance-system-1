@@ -113,7 +113,35 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
     setLoading(true);
 
     try {
-      toast.info('Функция сохранения камер временно отключена');
+      const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
+      
+      const payload = {
+        name: formData.name,
+        rtsp_url: formData.rtsp_url,
+        rtsp_login: formData.rtsp_login || null,
+        rtsp_password: formData.rtsp_password || null,
+        model_id: formData.model_id ? parseInt(formData.model_id) : null,
+        ptz_ip: formData.ptz_ip || null,
+        ptz_port: formData.ptz_port || null,
+        ptz_login: formData.ptz_login || null,
+        ptz_password: formData.ptz_password || null,
+        owner: formData.owner,
+        address: formData.address,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        territorial_division: formData.territorial_division,
+        archive_depth_days: parseInt(formData.archive_depth_days),
+      };
+
+      const response = await fetch(CAMERAS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error('Failed to create camera');
+
+      toast.success('Камера добавлена');
       
       setOpen(false);
       setFormData({

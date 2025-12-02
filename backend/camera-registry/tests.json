@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Get all cameras",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create camera",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Test Camera",
+        "rtsp_url": "rtsp://test.com/stream",
+        "owner": "Test Owner",
+        "territorial_division": "Test Division",
+        "archive_depth_days": 30
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "id": "number",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
