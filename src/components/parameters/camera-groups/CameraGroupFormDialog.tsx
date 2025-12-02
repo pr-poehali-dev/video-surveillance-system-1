@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -5,6 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import {
   Dialog,
   DialogContent,
@@ -78,6 +81,13 @@ export const CameraGroupFormDialog = ({
   onSubmit,
   onCancel,
 }: CameraGroupFormDialogProps) => {
+  const [ownerSearchOpen, setOwnerSearchOpen] = useState(false);
+  const [ownerSearchQuery, setOwnerSearchQuery] = useState('');
+
+  const filteredOwners = owners.filter(owner =>
+    owner.name.toLowerCase().includes(ownerSearchQuery.toLowerCase())
+  );
+
   const filteredCameras = cameras.filter(camera => {
     const matchesSearch = 
       camera.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -137,19 +147,64 @@ export const CameraGroupFormDialog = ({
 
               <div className="space-y-2">
                 <Label className="text-xs">Фильтр по собственнику</Label>
-                <Select value={selectedOwner || 'all'} onValueChange={(value) => onOwnerChange(value === 'all' ? '' : value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Все собственники" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все собственники</SelectItem>
-                    {owners.map(owner => (
-                      <SelectItem key={owner.id} value={owner.name}>
-                        {owner.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={ownerSearchOpen} onOpenChange={setOwnerSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={ownerSearchOpen}
+                      className="w-full justify-between font-normal"
+                    >
+                      {selectedOwner || 'Все собственники'}
+                      <Icon name="ChevronsUpDown" size={16} className="ml-2 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0" align="start">
+                    <Command>
+                      <CommandInput
+                        placeholder="Поиск собственника..."
+                        value={ownerSearchQuery}
+                        onValueChange={setOwnerSearchQuery}
+                      />
+                      <CommandList>
+                        <CommandEmpty>Собственник не найден</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            onSelect={() => {
+                              onOwnerChange('');
+                              setOwnerSearchOpen(false);
+                              setOwnerSearchQuery('');
+                            }}
+                          >
+                            <Icon
+                              name="Check"
+                              size={16}
+                              className={selectedOwner === '' ? 'mr-2 opacity-100' : 'mr-2 opacity-0'}
+                            />
+                            Все собственники
+                          </CommandItem>
+                          {filteredOwners.map((owner) => (
+                            <CommandItem
+                              key={owner.id}
+                              onSelect={() => {
+                                onOwnerChange(owner.name);
+                                setOwnerSearchOpen(false);
+                                setOwnerSearchQuery('');
+                              }}
+                            >
+                              <Icon
+                                name="Check"
+                                size={16}
+                                className={selectedOwner === owner.name ? 'mr-2 opacity-100' : 'mr-2 opacity-0'}
+                              />
+                              {owner.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
