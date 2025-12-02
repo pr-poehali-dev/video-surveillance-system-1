@@ -26,6 +26,10 @@ export interface OwnerGroup {
   children?: OwnerGroup[];
   created_at?: string;
   updated_at?: string;
+  responsible_full_name?: string;
+  responsible_phone?: string;
+  responsible_email?: string;
+  responsible_position?: string;
 }
 
 const API_URL = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
@@ -41,7 +45,14 @@ export const OwnerGroupsTree = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [groupSearchQuery, setGroupSearchQuery] = useState('');
-  const [formData, setFormData] = useState({ name: '', description: '' });
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    description: '',
+    responsible_full_name: '',
+    responsible_phone: '',
+    responsible_email: '',
+    responsible_position: ''
+  });
 
   const fetchOwners = async () => {
     try {
@@ -141,7 +152,7 @@ export const OwnerGroupsTree = () => {
 
       await fetchOwners();
       setIsAddDialogOpen(false);
-      setFormData({ name: '', description: '' });
+      setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
       setNewGroupParentId(null);
       toast.success(`Собственник "${formData.name}" создан`);
     } catch (error) {
@@ -173,7 +184,7 @@ export const OwnerGroupsTree = () => {
       await fetchOwners();
       setIsEditDialogOpen(false);
       setEditingGroup(null);
-      setFormData({ name: '', description: '' });
+      setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
       toast.success('Собственник обновлен');
     } catch (error) {
       console.error('Error updating owner:', error);
@@ -247,7 +258,7 @@ export const OwnerGroupsTree = () => {
               variant="ghost"
               onClick={() => {
                 setNewGroupParentId(group.id);
-                setFormData({ name: '', description: '' });
+                setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
                 setIsAddDialogOpen(true);
               }}
             >
@@ -258,7 +269,14 @@ export const OwnerGroupsTree = () => {
               variant="ghost"
               onClick={() => {
                 setEditingGroup(group);
-                setFormData({ name: group.name, description: group.description || '' });
+                setFormData({ 
+                  name: group.name, 
+                  description: group.description || '',
+                  responsible_full_name: group.responsible_full_name || '',
+                  responsible_phone: group.responsible_phone || '',
+                  responsible_email: group.responsible_email || '',
+                  responsible_position: group.responsible_position || ''
+                });
                 setIsEditDialogOpen(true);
               }}
             >
@@ -317,7 +335,7 @@ export const OwnerGroupsTree = () => {
             <span className="flex items-center gap-2">Реестр собственников камер видеонаблюдения</span>
             <Button onClick={() => { 
               setNewGroupParentId(null); 
-              setFormData({ name: '', description: '' });
+              setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
               setIsAddDialogOpen(true); 
             }}>
               <Icon name="Plus" size={18} className="mr-2" />
@@ -375,6 +393,48 @@ export const OwnerGroupsTree = () => {
                 placeholder="Например: Министерство внутренних дел"
               />
             </div>
+            <div className="border-t pt-4 mt-4">
+              <h4 className="font-medium mb-3 text-sm">Ответственный сотрудник</h4>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="responsible_full_name">ФИО</Label>
+                  <Input
+                    id="responsible_full_name"
+                    value={formData.responsible_full_name}
+                    onChange={(e) => setFormData({ ...formData, responsible_full_name: e.target.value })}
+                    placeholder="Например: Иванов Иван Иванович"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="responsible_phone">Телефон</Label>
+                  <Input
+                    id="responsible_phone"
+                    value={formData.responsible_phone}
+                    onChange={(e) => setFormData({ ...formData, responsible_phone: e.target.value })}
+                    placeholder="+7 (999) 123-45-67"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="responsible_email">Email</Label>
+                  <Input
+                    id="responsible_email"
+                    type="email"
+                    value={formData.responsible_email}
+                    onChange={(e) => setFormData({ ...formData, responsible_email: e.target.value })}
+                    placeholder="example@domain.ru"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="responsible_position">Должность</Label>
+                  <Input
+                    id="responsible_position"
+                    value={formData.responsible_position}
+                    onChange={(e) => setFormData({ ...formData, responsible_position: e.target.value })}
+                    placeholder="Например: Начальник отдела"
+                  />
+                </div>
+              </div>
+            </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Отмена
@@ -406,6 +466,48 @@ export const OwnerGroupsTree = () => {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
+            </div>
+            <div className="border-t pt-4 mt-4">
+              <h4 className="font-medium mb-3 text-sm">Ответственный сотрудник</h4>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="edit_responsible_full_name">ФИО</Label>
+                  <Input
+                    id="edit_responsible_full_name"
+                    value={formData.responsible_full_name}
+                    onChange={(e) => setFormData({ ...formData, responsible_full_name: e.target.value })}
+                    placeholder="Например: Иванов Иван Иванович"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_responsible_phone">Телефон</Label>
+                  <Input
+                    id="edit_responsible_phone"
+                    value={formData.responsible_phone}
+                    onChange={(e) => setFormData({ ...formData, responsible_phone: e.target.value })}
+                    placeholder="+7 (999) 123-45-67"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_responsible_email">Email</Label>
+                  <Input
+                    id="edit_responsible_email"
+                    type="email"
+                    value={formData.responsible_email}
+                    onChange={(e) => setFormData({ ...formData, responsible_email: e.target.value })}
+                    placeholder="example@domain.ru"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_responsible_position">Должность</Label>
+                  <Input
+                    id="edit_responsible_position"
+                    value={formData.responsible_position}
+                    onChange={(e) => setFormData({ ...formData, responsible_position: e.target.value })}
+                    placeholder="Например: Начальник отдела"
+                  />
+                </div>
+              </div>
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>

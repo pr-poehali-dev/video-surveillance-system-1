@@ -9,12 +9,20 @@ class OwnerCreate(BaseModel):
     name: str = Field(..., min_length=1)
     description: Optional[str] = None
     parent_id: Optional[int] = None
+    responsible_full_name: Optional[str] = None
+    responsible_phone: Optional[str] = None
+    responsible_email: Optional[str] = None
+    responsible_position: Optional[str] = None
 
 class OwnerUpdate(BaseModel):
     id: int
     name: str = Field(..., min_length=1)
     description: Optional[str] = None
     parent_id: Optional[int] = None
+    responsible_full_name: Optional[str] = None
+    responsible_phone: Optional[str] = None
+    responsible_email: Optional[str] = None
+    responsible_position: Optional[str] = None
 
 class OwnerDelete(BaseModel):
     id: int
@@ -44,7 +52,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'GET':
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT id, name, description, parent_id, created_at, updated_at
+                SELECT id, name, description, parent_id, created_at, updated_at,
+                       responsible_full_name, responsible_phone, responsible_email, responsible_position
                 FROM camera_owners
                 ORDER BY name
             ''')
@@ -67,10 +76,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO camera_owners (name, description, parent_id)
-                VALUES (%s, %s, %s)
-                RETURNING id, name, description, parent_id, created_at, updated_at
-            ''', (owner.name, owner.description, owner.parent_id))
+                INSERT INTO camera_owners (name, description, parent_id, 
+                                          responsible_full_name, responsible_phone, 
+                                          responsible_email, responsible_position)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                RETURNING id, name, description, parent_id, created_at, updated_at,
+                          responsible_full_name, responsible_phone, responsible_email, responsible_position
+            ''', (owner.name, owner.description, owner.parent_id,
+                  owner.responsible_full_name, owner.responsible_phone,
+                  owner.responsible_email, owner.responsible_position))
             
             result = cursor.fetchone()
             conn.commit()
@@ -93,10 +107,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cursor = conn.cursor()
             cursor.execute('''
                 UPDATE camera_owners
-                SET name = %s, description = %s, parent_id = %s, updated_at = CURRENT_TIMESTAMP
+                SET name = %s, description = %s, parent_id = %s, updated_at = CURRENT_TIMESTAMP,
+                    responsible_full_name = %s, responsible_phone = %s,
+                    responsible_email = %s, responsible_position = %s
                 WHERE id = %s
-                RETURNING id, name, description, parent_id, created_at, updated_at
-            ''', (owner.name, owner.description, owner.parent_id, owner.id))
+                RETURNING id, name, description, parent_id, created_at, updated_at,
+                          responsible_full_name, responsible_phone, responsible_email, responsible_position
+            ''', (owner.name, owner.description, owner.parent_id,
+                  owner.responsible_full_name, owner.responsible_phone,
+                  owner.responsible_email, owner.responsible_position, owner.id))
             
             result = cursor.fetchone()
             conn.commit()
