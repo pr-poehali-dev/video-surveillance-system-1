@@ -40,6 +40,7 @@ const Monitoring = () => {
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
   const [groupFilter, setGroupFilter] = useState<string>('all');
   const [divisionFilter, setDivisionFilter] = useState<string>('all');
+  const [tagFilter, setTagFilter] = useState<string>('all');
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [cameras, setCameras] = useState<Camera[]>([]);
@@ -110,14 +111,16 @@ const Monitoring = () => {
     const matchesOwner = ownerFilter === 'all' || camera.owner === ownerFilter;
     const matchesGroup = groupFilter === 'all' || camera.group === groupFilter;
     const matchesDivision = divisionFilter === 'all' || camera.territorial_division === divisionFilter;
-    return matchesSearch && matchesStatus && matchesOwner && matchesGroup && matchesDivision;
+    const matchesTag = tagFilter === 'all' || (camera.tags && camera.tags.includes(tagFilter));
+    return matchesSearch && matchesStatus && matchesOwner && matchesGroup && matchesDivision && matchesTag;
   });
 
   const activeFiltersCount = [
     statusFilter !== 'all',
     ownerFilter !== 'all',
     groupFilter !== 'all',
-    divisionFilter !== 'all'
+    divisionFilter !== 'all',
+    tagFilter !== 'all'
   ].filter(Boolean).length;
 
   if (loading) {
@@ -246,6 +249,22 @@ const Monitoring = () => {
                         </Select>
                       </div>
 
+                      <div className="space-y-2">
+                        <Label>Теги</Label>
+                        <Select value={tagFilter} onValueChange={setTagFilter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите тег" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Все теги</SelectItem>
+                            <SelectItem value="Важная">Важная</SelectItem>
+                            <SelectItem value="Проблемная">Проблемная</SelectItem>
+                            <SelectItem value="Новая">Новая</SelectItem>
+                            <SelectItem value="На проверке">На проверке</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
                       <div className="pt-4 border-t">
                         <Button
                           variant="outline"
@@ -255,6 +274,7 @@ const Monitoring = () => {
                             setOwnerFilter('all');
                             setGroupFilter('all');
                             setDivisionFilter('all');
+                            setTagFilter('all');
                           }}
                         >
                           <Icon name="X" size={16} className="mr-2" />
