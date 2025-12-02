@@ -16,6 +16,10 @@ interface EditCameraDialogProps {
     rtsp_login: string;
     rtsp_password: string;
     model_id: string;
+    ptz_ip?: string;
+    ptz_port?: string;
+    ptz_login?: string;
+    ptz_password?: string;
     owner: string;
     address: string;
     latitude: string;
@@ -111,6 +115,53 @@ export const EditCameraDialog = ({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="border-t pt-4">
+            <h4 className="font-medium mb-3">PTZ управление (опционально)</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>IP адрес PTZ</Label>
+                <Input
+                  type="text"
+                  placeholder="192.168.1.100"
+                  value={formData.ptz_ip || ''}
+                  onChange={(e) => onFormDataChange({ ...formData, ptz_ip: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Порт PTZ</Label>
+                <Input
+                  type="text"
+                  placeholder="80"
+                  value={formData.ptz_port || ''}
+                  onChange={(e) => onFormDataChange({ ...formData, ptz_port: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="space-y-2">
+                <Label>Логин PTZ</Label>
+                <Input
+                  type="text"
+                  placeholder="Введите логин"
+                  value={formData.ptz_login || ''}
+                  onChange={(e) => onFormDataChange({ ...formData, ptz_login: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Пароль PTZ</Label>
+                <Input
+                  type="text"
+                  placeholder="Введите пароль"
+                  value={formData.ptz_password || ''}
+                  onChange={(e) => onFormDataChange({ ...formData, ptz_password: e.target.value })}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">
