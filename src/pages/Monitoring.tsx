@@ -18,6 +18,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import YandexMap from '@/components/YandexMap';
 import { api, Camera, CameraStats } from '@/lib/api';
@@ -30,7 +39,9 @@ const Monitoring = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
   const [groupFilter, setGroupFilter] = useState<string>('all');
+  const [divisionFilter, setDivisionFilter] = useState<string>('all');
   const [showVideoDialog, setShowVideoDialog] = useState(false);
+  const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [stats, setStats] = useState<CameraStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,8 +109,16 @@ const Monitoring = () => {
     const matchesStatus = statusFilter === 'all' || camera.status === statusFilter;
     const matchesOwner = ownerFilter === 'all' || camera.owner === ownerFilter;
     const matchesGroup = groupFilter === 'all' || camera.group === groupFilter;
-    return matchesSearch && matchesStatus && matchesOwner && matchesGroup;
+    const matchesDivision = divisionFilter === 'all' || camera.territorial_division === divisionFilter;
+    return matchesSearch && matchesStatus && matchesOwner && matchesGroup && matchesDivision;
   });
+
+  const activeFiltersCount = [
+    statusFilter !== 'all',
+    ownerFilter !== 'all',
+    groupFilter !== 'all',
+    divisionFilter !== 'all'
+  ].filter(Boolean).length;
 
   if (loading) {
     return (
@@ -138,44 +157,113 @@ const Monitoring = () => {
                   />
                 </div>
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Фильтр по статусу" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все статусы</SelectItem>
-                    <SelectItem value="active">Активные</SelectItem>
-                    <SelectItem value="inactive">Неактивные</SelectItem>
-                    <SelectItem value="problem">Проблемные</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Sheet open={showFilterSheet} onOpenChange={setShowFilterSheet}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      <span className="flex items-center gap-2">
+                        <Icon name="Filter" size={16} />
+                        Фильтры
+                      </span>
+                      {activeFiltersCount > 0 && (
+                        <Badge variant="secondary" className="ml-2">
+                          {activeFiltersCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[400px]">
+                    <SheetHeader>
+                      <SheetTitle>Фильтры камер</SheetTitle>
+                      <SheetDescription>
+                        Настройте параметры отображения камер
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div className="space-y-6 mt-6">
+                      <div className="space-y-2">
+                        <Label>Статус камеры</Label>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите статус" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Все статусы</SelectItem>
+                            <SelectItem value="active">Активные</SelectItem>
+                            <SelectItem value="inactive">Неактивные</SelectItem>
+                            <SelectItem value="problem">Проблемные</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                <Select value={ownerFilter} onValueChange={setOwnerFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Фильтр по собственнику" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все собственники</SelectItem>
-                    <SelectItem value="МВД">МВД</SelectItem>
-                    <SelectItem value="Администрация">Администрация</SelectItem>
-                  </SelectContent>
-                </Select>
+                      <div className="space-y-2">
+                        <Label>Собственник</Label>
+                        <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите собственника" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Все собственники</SelectItem>
+                            <SelectItem value="МВД">МВД</SelectItem>
+                            <SelectItem value="Администрация">Администрация</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                <Select value={groupFilter} onValueChange={setGroupFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Фильтр по группе" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все группы</SelectItem>
-                    <SelectItem value="Центральный район">Центральный район</SelectItem>
-                    <SelectItem value="Дзержинский район">Дзержинский район</SelectItem>
-                    <SelectItem value="Индустриальный район">Индустриальный район</SelectItem>
-                    <SelectItem value="Ленинский район">Ленинский район</SelectItem>
-                    <SelectItem value="Мотовилихинский район">Мотовилихинский район</SelectItem>
-                    <SelectItem value="Свердловский район">Свердловский район</SelectItem>
-                    <SelectItem value="Кировский район">Кировский район</SelectItem>
-                  </SelectContent>
-                </Select>
+                      <div className="space-y-2">
+                        <Label>Группа камер</Label>
+                        <Select value={groupFilter} onValueChange={setGroupFilter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите группу" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Все группы</SelectItem>
+                            <SelectItem value="Центральный район">Центральный район</SelectItem>
+                            <SelectItem value="Дзержинский район">Дзержинский район</SelectItem>
+                            <SelectItem value="Индустриальный район">Индустриальный район</SelectItem>
+                            <SelectItem value="Ленинский район">Ленинский район</SelectItem>
+                            <SelectItem value="Мотовилихинский район">Мотовилихинский район</SelectItem>
+                            <SelectItem value="Свердловский район">Свердловский район</SelectItem>
+                            <SelectItem value="Кировский район">Кировский район</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Территориальное деление</Label>
+                        <Select value={divisionFilter} onValueChange={setDivisionFilter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите территорию" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Все территории</SelectItem>
+                            <SelectItem value="Центральный район">Центральный район</SelectItem>
+                            <SelectItem value="Дзержинский район">Дзержинский район</SelectItem>
+                            <SelectItem value="Индустриальный район">Индустриальный район</SelectItem>
+                            <SelectItem value="Ленинский район">Ленинский район</SelectItem>
+                            <SelectItem value="Мотовилихинский район">Мотовилихинский район</SelectItem>
+                            <SelectItem value="Свердловский район">Свердловский район</SelectItem>
+                            <SelectItem value="Кировский район">Кировский район</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="pt-4 border-t">
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            setStatusFilter('all');
+                            setOwnerFilter('all');
+                            setGroupFilter('all');
+                            setDivisionFilter('all');
+                          }}
+                        >
+                          <Icon name="X" size={16} className="mr-2" />
+                          Сбросить все фильтры
+                        </Button>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
 
               <ScrollArea className="h-[500px]">
