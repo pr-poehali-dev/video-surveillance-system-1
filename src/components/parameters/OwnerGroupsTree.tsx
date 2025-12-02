@@ -2,21 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { OwnerGroupTreeItem } from './OwnerGroupTreeItem';
+import { OwnerGroupFormDialog } from './OwnerGroupFormDialog';
+import { OwnerGroupDeleteDialog } from './OwnerGroupDeleteDialog';
 
 export interface OwnerGroup {
   id: number;
@@ -229,318 +220,150 @@ export const OwnerGroupsTree = () => {
     }
   };
 
-  const renderGroupTree = (group: OwnerGroup, level: number) => {
+  const renderGroupTree = (group: OwnerGroup, level: number): React.ReactNode => {
     const isExpanded = expandedGroups.has(group.id);
     const hasChildren = group.children && group.children.length > 0;
 
     return (
-      <div key={group.id}>
-        <div
-          className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
-          style={{ paddingLeft: `${level * 24 + 8}px` }}
-        >
-          {hasChildren ? (
-            <button
-              onClick={() => toggleGroup(group.id)}
-              className="p-0.5 hover:bg-muted rounded"
-            >
-              <Icon
-                name={isExpanded ? 'ChevronDown' : 'ChevronRight'}
-                size={16}
-                className="text-muted-foreground"
-              />
-            </button>
-          ) : (
-            <div className="w-5" />
-          )}
-          <Icon name="Folder" size={16} className="text-primary" />
-          <div className="flex-1">
-            <p className="font-medium">{group.name}</p>
-            {group.description && (
-              <p className="text-xs text-muted-foreground">{group.description}</p>
-            )}
-          </div>
-          <div className="opacity-0 group-hover:opacity-100 flex gap-1">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setNewGroupParentId(group.id);
-                setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
-                setIsAddDialogOpen(true);
-              }}
-            >
-              <Icon name="Plus" size={14} />
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setEditingGroup(group);
-                setFormData({ 
-                  name: group.name, 
-                  description: group.description || '',
-                  responsible_full_name: group.responsible_full_name || '',
-                  responsible_phone: group.responsible_phone || '',
-                  responsible_email: group.responsible_email || '',
-                  responsible_position: group.responsible_position || ''
-                });
-                setIsEditDialogOpen(true);
-              }}
-            >
-              <Icon name="Pencil" size={14} />
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                if (hasChildren) {
-                  toast.error('Нельзя удалить группу с подгруппами');
-                  return;
-                }
-                setGroupToDelete(group);
-                setIsDeleteDialogOpen(true);
-              }}
-            >
-              <Icon name="Trash2" size={14} />
-            </Button>
-          </div>
-        </div>
-        {isExpanded && hasChildren && (
-          <div>
-            {group.children!.map(child => renderGroupTree(child, level + 1))}
-          </div>
-        )}
-      </div>
+      <OwnerGroupTreeItem
+        key={group.id}
+        group={group}
+        level={level}
+        isExpanded={isExpanded}
+        hasChildren={hasChildren}
+        onToggle={toggleGroup}
+        onEdit={(g) => {
+          setEditingGroup(g);
+          setFormData({
+            name: g.name,
+            description: g.description || '',
+            responsible_full_name: g.responsible_full_name || '',
+            responsible_phone: g.responsible_phone || '',
+            responsible_email: g.responsible_email || '',
+            responsible_position: g.responsible_position || '',
+          });
+          setIsEditDialogOpen(true);
+        }}
+        onAddChild={(parentId) => {
+          setNewGroupParentId(parentId);
+          setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
+          setIsAddDialogOpen(true);
+        }}
+        onDelete={(g) => {
+          setGroupToDelete(g);
+          setIsDeleteDialogOpen(true);
+        }}
+        renderChildren={renderGroupTree}
+      />
     );
   };
 
   const tree = buildTree(ownerGroups);
   const filteredTree = filterGroups(tree);
 
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Реестр собственников камер видеонаблюдения
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <Icon name="Loader2" size={32} className="animate-spin text-muted-foreground" />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const handleFormChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
+  };
 
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">Реестр собственников камер видеонаблюдения</span>
-            <Button onClick={() => { 
-              setNewGroupParentId(null); 
-              setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
-              setIsAddDialogOpen(true); 
-            }}>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Building2" size={24} />
+              Собственники камер
+            </CardTitle>
+            <Button
+              onClick={() => {
+                setNewGroupParentId(null);
+                setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
+                setIsAddDialogOpen(true);
+              }}
+            >
               <Icon name="Plus" size={18} className="mr-2" />
-              Создать группу
+              Добавить собственника
             </Button>
-          </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
             <div className="relative">
-              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Icon
+                name="Search"
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
               <Input
-                placeholder="Поиск по названию собственника..."
+                placeholder="Поиск собственника..."
+                className="pl-10"
                 value={groupSearchQuery}
                 onChange={(e) => setGroupSearchQuery(e.target.value)}
-                className="pl-10"
               />
             </div>
           </div>
-          <ScrollArea className="h-[400px]">
-            {filteredTree.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {groupSearchQuery ? 'Собственники не найдены' : 'Нет собственников'}
+
+          <ScrollArea className="h-[600px] pr-4">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Icon name="Loader2" size={32} className="animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredTree.length === 0 ? (
+              <div className="text-center py-12">
+                <Icon name="Building2" size={64} className="text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {groupSearchQuery ? 'Ничего не найдено' : 'Собственники не добавлены'}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {groupSearchQuery
+                    ? 'Попробуйте изменить поисковый запрос'
+                    : 'Добавьте первого собственника для начала работы'}
+                </p>
               </div>
             ) : (
-              filteredTree.map((group) => renderGroupTree(group, 0))
+              <div className="space-y-1">
+                {filteredTree.map((group) => renderGroupTree(group, 0))}
+              </div>
             )}
           </ScrollArea>
         </CardContent>
       </Card>
 
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {newGroupParentId ? 'Создать подгруппу' : 'Создать группу собственников'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Название *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Например: МВД"
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">Описание</Label>
-              <Input
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Например: Министерство внутренних дел"
-              />
-            </div>
-            <div className="border-t pt-4 mt-4">
-              <h4 className="font-medium mb-3 text-sm">Ответственный сотрудник</h4>
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="responsible_full_name">ФИО</Label>
-                  <Input
-                    id="responsible_full_name"
-                    value={formData.responsible_full_name}
-                    onChange={(e) => setFormData({ ...formData, responsible_full_name: e.target.value })}
-                    placeholder="Например: Иванов Иван Иванович"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="responsible_phone">Телефон</Label>
-                  <Input
-                    id="responsible_phone"
-                    value={formData.responsible_phone}
-                    onChange={(e) => setFormData({ ...formData, responsible_phone: e.target.value })}
-                    placeholder="+7 (999) 123-45-67"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="responsible_email">Email</Label>
-                  <Input
-                    id="responsible_email"
-                    type="email"
-                    value={formData.responsible_email}
-                    onChange={(e) => setFormData({ ...formData, responsible_email: e.target.value })}
-                    placeholder="example@domain.ru"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="responsible_position">Должность</Label>
-                  <Input
-                    id="responsible_position"
-                    value={formData.responsible_position}
-                    onChange={(e) => setFormData({ ...formData, responsible_position: e.target.value })}
-                    placeholder="Например: Начальник отдела"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Отмена
-              </Button>
-              <Button onClick={handleAdd}>Создать</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <OwnerGroupFormDialog
+        isOpen={isAddDialogOpen}
+        onClose={() => {
+          setIsAddDialogOpen(false);
+          setNewGroupParentId(null);
+        }}
+        onSubmit={handleAdd}
+        formData={formData}
+        onFormChange={handleFormChange}
+        title="Добавить собственника"
+        submitLabel="Создать"
+      />
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Редактировать собственника</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-name">Название *</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-description">Описание</Label>
-              <Input
-                id="edit-description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-            </div>
-            <div className="border-t pt-4 mt-4">
-              <h4 className="font-medium mb-3 text-sm">Ответственный сотрудник</h4>
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="edit_responsible_full_name">ФИО</Label>
-                  <Input
-                    id="edit_responsible_full_name"
-                    value={formData.responsible_full_name}
-                    onChange={(e) => setFormData({ ...formData, responsible_full_name: e.target.value })}
-                    placeholder="Например: Иванов Иван Иванович"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit_responsible_phone">Телефон</Label>
-                  <Input
-                    id="edit_responsible_phone"
-                    value={formData.responsible_phone}
-                    onChange={(e) => setFormData({ ...formData, responsible_phone: e.target.value })}
-                    placeholder="+7 (999) 123-45-67"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit_responsible_email">Email</Label>
-                  <Input
-                    id="edit_responsible_email"
-                    type="email"
-                    value={formData.responsible_email}
-                    onChange={(e) => setFormData({ ...formData, responsible_email: e.target.value })}
-                    placeholder="example@domain.ru"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit_responsible_position">Должность</Label>
-                  <Input
-                    id="edit_responsible_position"
-                    value={formData.responsible_position}
-                    onChange={(e) => setFormData({ ...formData, responsible_position: e.target.value })}
-                    placeholder="Например: Начальник отдела"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Отмена
-              </Button>
-              <Button onClick={handleEdit}>Сохранить</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <OwnerGroupFormDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => {
+          setIsEditDialogOpen(false);
+          setEditingGroup(null);
+        }}
+        onSubmit={handleEdit}
+        formData={formData}
+        onFormChange={handleFormChange}
+        title="Редактировать собственника"
+        submitLabel="Сохранить"
+      />
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Удалить собственника?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Вы действительно хотите удалить "{groupToDelete?.name}"? Это действие нельзя отменить.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Отмена</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Удалить</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <OwnerGroupDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setGroupToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        group={groupToDelete}
+      />
     </>
   );
 };
