@@ -12,9 +12,34 @@ interface UserCardProps {
 
 const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
   const handleImpersonate = () => {
-    toast.success(`Вход выполнен как ${user.fio}`);
-    // Здесь можно добавить логику для имперсонации
-    console.log('Impersonate user:', { login: user.login, password: user.password });
+    // Создаём HTML-страницу с автоматической отправкой формы
+    const impersonateHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Вход в систему...</title>
+      </head>
+      <body>
+        <form id="loginForm" action="/login" method="POST">
+          <input type="hidden" name="login" value="${user.login}" />
+          <input type="hidden" name="password" value="${user.password}" />
+        </form>
+        <script>
+          document.getElementById('loginForm').submit();
+        </script>
+      </body>
+      </html>
+    `;
+    
+    // Открываем новую вкладку и записываем туда HTML
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+      newWindow.document.write(impersonateHTML);
+      newWindow.document.close();
+      toast.success(`Открыта новая вкладка для входа как ${user.fio}`);
+    } else {
+      toast.error('Не удалось открыть новую вкладку. Разрешите всплывающие окна.');
+    }
   };
 
   return (
