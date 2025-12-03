@@ -92,4 +92,16 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  [cmdk-item] {
+    outline: none !important;
+  }
+
+  [cmdk-item]:focus {
+    outline: none !important;
+  }
+
+  [cmdk-item][data-selected="true"] {
+    outline: none !important;
+  }
 }
