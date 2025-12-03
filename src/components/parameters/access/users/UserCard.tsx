@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { toast } from 'sonner';
 
 interface UserCardProps {
   user: any;
@@ -10,6 +11,12 @@ interface UserCardProps {
 }
 
 const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
+  const handleImpersonate = () => {
+    toast.success(`Вход выполнен как ${user.fio}`);
+    // Здесь можно добавить логику для имперсонации
+    console.log('Impersonate user:', { login: user.login, password: user.password });
+  };
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -30,6 +37,15 @@ const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
                 Онлайн
               </Badge>
             )}
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleImpersonate}
+              title="Войти как этот пользователь"
+            >
+              <Icon name="LogIn" size={14} className="mr-2" />
+              Войти
+            </Button>
             <Button 
               variant="outline" 
               size="sm"
