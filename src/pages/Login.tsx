@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,12 +15,42 @@ import Icon from "@/components/ui/icon";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const supportEmail = "support@esvs-perm.rusdsad";
+
+  // Проверка на имперсонацию при загрузке страницы
+  useEffect(() => {
+    const impersonateKey = searchParams.get('impersonate');
+    if (impersonateKey) {
+      const impersonateDataStr = sessionStorage.getItem(impersonateKey);
+      if (impersonateDataStr) {
+        try {
+          const impersonateData = JSON.parse(impersonateDataStr);
+          // Проверяем, что данные не устарели (не старше 30 секунд)
+          if (Date.now() - impersonateData.timestamp < 30000) {
+            setLogin(impersonateData.login);
+            setPassword(impersonateData.password);
+            // Удаляем данные из sessionStorage
+            sessionStorage.removeItem(impersonateKey);
+            // Автоматически выполняем вход
+            setTimeout(() => {
+              const form = document.querySelector('form');
+              if (form) form.requestSubmit();
+            }, 500);
+          } else {
+            sessionStorage.removeItem(impersonateKey);
+          }
+        } catch (e) {
+          console.error('Ошибка при чтении данных имперсонации:', e);
+        }
+      }
+    }
+  }, [searchParams]);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(supportEmail);
@@ -38,10 +68,11 @@ const Login = () => {
     setLoading(true);
 
     setTimeout(() => {
-      if (login === "admin" && password === "admin") {
+      // Простая проверка - принимаем любой непустой логин/пароль
+      if (login && password) {
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("userLogin", login);
-        toast.success("Вход выполнен успешно");
+        toast.success(`Вход выполнен как ${login}`);
         navigate("/dashboard");
       } else {
         toast.error("Неверный логин или пароль");
