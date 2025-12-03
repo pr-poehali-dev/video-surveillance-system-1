@@ -273,7 +273,7 @@ const TerritorialDivisions = () => {
             )}
           </div>
         </div>
-        <ScrollArea className="h-[600px] pr-4">
+        <ScrollArea className="h-[calc(100vh-280px)] pr-4">
           <div className="space-y-2">
             {filteredDivisions.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
