@@ -59,7 +59,6 @@ export const CameraCard = ({ camera, onEdit, onDelete }: CameraCardProps) => {
                 variant="outline"
                 size="sm"
                 onClick={() => onDelete(camera)}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <Icon name="Trash2" size={16} />
               </Button>
