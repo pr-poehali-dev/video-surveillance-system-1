@@ -38,31 +38,29 @@ export const CameraCard = ({ camera, onEdit, onDelete }: CameraCardProps) => {
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-2 ml-4">
+          <div className="flex items-center gap-2 ml-4">
             {camera.archive_depth_days && (
               <Badge variant="secondary" className="text-xs">
                 <Icon name="Archive" size={12} className="mr-1" />
                 Архив: {camera.archive_depth_days} дн.
               </Badge>
             )}
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onEdit(camera)}
-              >
-                <Icon name="Pencil" size={16} className="mr-2" />
-                Изменить
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onDelete(camera)}
-              >
-                <Icon name="Trash2" size={16} />
-              </Button>
-            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(camera)}
+            >
+              <Icon name="Pencil" size={16} className="mr-2" />
+              Изменить
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(camera)}
+            >
+              <Icon name="Trash2" size={16} />
+            </Button>
           </div>
         </div>
       </CardContent>
