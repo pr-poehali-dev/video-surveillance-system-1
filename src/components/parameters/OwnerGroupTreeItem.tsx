@@ -99,7 +99,7 @@ export const OwnerGroupTreeItem = ({
             variant="ghost"
             size="sm"
             onClick={() => onDelete(group)}
-            className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+            className="h-7 w-7 p-0"
           >
             <Icon name="Trash2" size={14} />
           </Button>
