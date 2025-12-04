@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import {
@@ -32,6 +35,8 @@ export const CameraList = ({ refreshTrigger }: CameraListProps) => {
   const [models, setModels] = useState<CameraModel[]>([]);
   const [owners, setOwners] = useState<Owner[]>([]);
   const [divisions, setDivisions] = useState<TerritorialDivision[]>([]);
+  const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
+  const [selectedDivisions, setSelectedDivisions] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -189,12 +194,42 @@ export const CameraList = ({ refreshTrigger }: CameraListProps) => {
 
   const filteredCameras = cameras.filter((camera) => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = 
       camera.name.toLowerCase().includes(query) ||
       camera.address?.toLowerCase().includes(query) ||
-      camera.owner?.toLowerCase().includes(query)
-    );
+      camera.owner?.toLowerCase().includes(query);
+    
+    const matchesOwner = selectedOwners.length === 0 || 
+      (camera.owner && selectedOwners.includes(camera.owner));
+    
+    const matchesDivision = selectedDivisions.length === 0 || 
+      (camera.territorial_division && selectedDivisions.includes(camera.territorial_division));
+    
+    return matchesSearch && matchesOwner && matchesDivision;
   });
+
+  const handleOwnerToggle = (owner: string) => {
+    setSelectedOwners(prev => 
+      prev.includes(owner) 
+        ? prev.filter(o => o !== owner)
+        : [...prev, owner]
+    );
+  };
+
+  const handleDivisionToggle = (division: string) => {
+    setSelectedDivisions(prev => 
+      prev.includes(division) 
+        ? prev.filter(d => d !== division)
+        : [...prev, division]
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSelectedOwners([]);
+    setSelectedDivisions([]);
+  };
+
+  const activeFiltersCount = selectedOwners.length + selectedDivisions.length;
 
   if (loading) {
     return (
@@ -206,7 +241,7 @@ export const CameraList = ({ refreshTrigger }: CameraListProps) => {
 
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 space-y-3">
         <div className="relative">
           <Icon
             name="Search"
@@ -219,6 +254,87 @@ export const CameraList = ({ refreshTrigger }: CameraListProps) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
           />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="relative">
+                <Icon name="Filter" size={18} className="mr-2" />
+                Фильтры
+                {activeFiltersCount > 0 && (
+                  <span className="ml-2 px-1.5 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="start">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Фильтры</h4>
+                  {activeFiltersCount > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleClearFilters}
+                      className="h-auto p-1 text-xs"
+                    >
+                      Сбросить
+                    </Button>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <h5 className="text-sm font-medium mb-2">Собственники</h5>
+                    <ScrollArea className="h-[150px]">
+                      <div className="space-y-2">
+                        {owners.map((owner) => (
+                          <div key={owner.name} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`owner-${owner.name}`}
+                              checked={selectedOwners.includes(owner.name)}
+                              onCheckedChange={() => handleOwnerToggle(owner.name)}
+                            />
+                            <label
+                              htmlFor={`owner-${owner.name}`}
+                              className="text-sm cursor-pointer flex-1"
+                            >
+                              {owner.name}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+
+                  <div>
+                    <h5 className="text-sm font-medium mb-2">Территориальные деления</h5>
+                    <ScrollArea className="h-[150px]">
+                      <div className="space-y-2">
+                        {divisions.map((division) => (
+                          <div key={division.name} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`division-${division.name}`}
+                              checked={selectedDivisions.includes(division.name)}
+                              onCheckedChange={() => handleDivisionToggle(division.name)}
+                            />
+                            <label
+                              htmlFor={`division-${division.name}`}
+                              className="text-sm cursor-pointer flex-1"
+                            >
+                              {division.name}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
