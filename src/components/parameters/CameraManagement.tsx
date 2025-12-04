@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { CameraList } from './CameraList';
 import { AddCameraDialog } from './AddCameraDialog';
+import { CameraFilters } from './CameraFilters';
 import { OwnerGroupsTree } from './OwnerGroupsTree';
 import CameraGroupsTab from './camera-groups/CameraGroupsTab';
 import { CameraModelsTab } from './CameraModelsTab';
@@ -13,6 +14,8 @@ import { CameraModelsTab } from './CameraModelsTab';
 const CameraManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [createGroupTrigger, setCreateGroupTrigger] = useState(0);
+  const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
+  const [selectedDivisions, setSelectedDivisions] = useState<string[]>([]);
 
   const handleCameraAdded = () => {
     setRefreshTrigger(prev => prev + 1);
@@ -56,11 +59,23 @@ const CameraManagement = () => {
                   <Icon name="Camera" size={20} />
                   Список камер
                 </span>
-                <AddCameraDialog onSuccess={handleCameraAdded} />
+                <div className="flex items-center gap-2">
+                  <CameraFilters
+                    selectedOwners={selectedOwners}
+                    selectedDivisions={selectedDivisions}
+                    onOwnersChange={setSelectedOwners}
+                    onDivisionsChange={setSelectedDivisions}
+                  />
+                  <AddCameraDialog onSuccess={handleCameraAdded} />
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <CameraList refreshTrigger={refreshTrigger} />
+              <CameraList 
+                refreshTrigger={refreshTrigger} 
+                selectedOwners={selectedOwners}
+                selectedDivisions={selectedDivisions}
+              />
             </CardContent>
           </Card>
         </TabsContent>
