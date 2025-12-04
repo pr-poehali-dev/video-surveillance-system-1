@@ -46,20 +46,20 @@ export const CameraCard = ({ camera, onEdit, onDelete }: CameraCardProps) => {
               </Badge>
             )}
 
-            <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(camera)}
-              className="h-8 w-8 p-0"
-            >
-              <Icon name="Pencil" size={16} />
-            </Button>
+            <div className="flex items-center gap-2">
               <Button
-                variant="ghost"
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(camera)}
+              >
+                <Icon name="Pencil" size={16} className="mr-2" />
+                Изменить
+              </Button>
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => onDelete(camera)}
-                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <Icon name="Trash2" size={16} />
               </Button>
