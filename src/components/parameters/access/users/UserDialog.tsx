@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
 
@@ -36,27 +37,40 @@ interface Role {
   name: string;
 }
 
-interface UserGroup {
-  id: number;
-  name: string;
-}
-
-interface CameraGroup {
-  id: number;
-  name: string;
-}
-
 const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f';
 const ROLES_API = 'https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b';
-const USER_GROUPS_API = 'https://functions.poehali.dev/0fe36f4b-f699-4856-b0d3-a7f0b33a9759';
-const CAMERA_GROUPS_API = 'https://functions.poehali.dev/3d64a9e4-4fd9-4f35-ae50-7dd8ed88a17d';
+
+const COMPANIES = [
+  'МВД',
+  'Администрация',
+  'ФСБ',
+  'Росгвардия',
+  'МЧС',
+  'Прокуратура',
+  'Следственный комитет'
+];
+
+const USER_GROUPS = [
+  { id: 1, name: 'Администраторы' },
+  { id: 2, name: 'Операторы' },
+  { id: 3, name: 'Служба безопасности' },
+  { id: 4, name: 'Аналитики' },
+  { id: 5, name: 'Наблюдатели' }
+];
+
+const CAMERA_GROUPS = [
+  { id: 1, name: 'Все камеры' },
+  { id: 2, name: 'Входные группы' },
+  { id: 3, name: 'Парковки' },
+  { id: 4, name: 'Периметр' },
+  { id: 5, name: 'Внутренние помещения' }
+];
 
 export default function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogProps) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
-  const [userGroups, setUserGroups] = useState<UserGroup[]>([]);
-  const [cameraGroups, setCameraGroups] = useState<CameraGroup[]>([]);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -69,13 +83,12 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
     camera_group_id: '',
     work_phone: '',
     mobile_phone: '',
+    note: ''
   });
 
   useEffect(() => {
     if (open) {
       fetchRoles();
-      fetchUserGroups();
-      fetchCameraGroups();
     }
   }, [open]);
 
@@ -92,7 +105,9 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
         camera_group_id: user.camera_group_id?.toString() || '',
         work_phone: user.work_phone || '',
         mobile_phone: user.mobile_phone || '',
+        note: ''
       });
+      setAttachedFiles([]);
     } else {
       setFormData({
         full_name: '',
@@ -105,7 +120,9 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
         camera_group_id: '',
         work_phone: '',
         mobile_phone: '',
+        note: ''
       });
+      setAttachedFiles([]);
     }
   }, [user, open]);
 
@@ -118,30 +135,6 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
       }
     } catch (error) {
       console.error('Error fetching roles:', error);
-    }
-  };
-
-  const fetchUserGroups = async () => {
-    try {
-      const response = await fetch(USER_GROUPS_API);
-      if (response.ok) {
-        const data = await response.json();
-        setUserGroups(data);
-      }
-    } catch (error) {
-      console.error('Error fetching user groups:', error);
-    }
-  };
-
-  const fetchCameraGroups = async () => {
-    try {
-      const response = await fetch(CAMERA_GROUPS_API);
-      if (response.ok) {
-        const data = await response.json();
-        setCameraGroups(data);
-      }
-    } catch (error) {
-      console.error('Error fetching camera groups:', error);
     }
   };
 
@@ -168,7 +161,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
         full_name: formData.full_name.trim(),
         email: formData.email.trim(),
         login: formData.login.trim(),
-        company: formData.company.trim() || null,
+        company: formData.company || null,
         role_id: formData.role_id ? parseInt(formData.role_id) : null,
         user_group_id: formData.user_group_id ? parseInt(formData.user_group_id) : null,
         camera_group_id: formData.camera_group_id ? parseInt(formData.camera_group_id) : null,
@@ -205,15 +198,15 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>
-            {user ? 'Редактировать пользователя' : 'Добавить пользователя'}
+            {user ? 'Редактировать пользователя' : 'Новый пользователь'}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2 space-y-2">
+        <ScrollArea className="max-h-[600px]">
+          <form onSubmit={handleSubmit} className="space-y-4 py-4 pr-4">
+            <div className="space-y-2">
               <Label htmlFor="full_name">
                 ФИО <span className="text-destructive">*</span>
               </Label>
@@ -221,56 +214,84 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
                 id="full_name"
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                placeholder="Иванов Иван Иванович"
+                placeholder="Фамилия Имя Отчество"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">
-                Email <span className="text-destructive">*</span>
+              <Label htmlFor="user_group_id">
+                Группа пользователей <span className="text-destructive">*</span>
               </Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="user@example.com"
+              <Select
+                value={formData.user_group_id}
+                onValueChange={(value) => setFormData({ ...formData, user_group_id: value })}
                 required
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите группу пользователей" />
+                </SelectTrigger>
+                <SelectContent>
+                  {USER_GROUPS.map((group) => (
+                    <SelectItem key={group.id} value={group.id.toString()}>
+                      {group.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="login">
-                Логин <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="login"
-                value={formData.login}
-                onChange={(e) => setFormData({ ...formData, login: e.target.value })}
-                placeholder="ivanov"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">
+                  Email <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="user@example.com"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="login">
+                  Логин <span className="text-destructive">*</span>
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="login"
+                    value={formData.login}
+                    onChange={(e) => setFormData({ ...formData, login: e.target.value })}
+                    placeholder="username"
+                    required
+                  />
+                  <Button variant="outline" size="icon" type="button">
+                    <Icon name="RefreshCw" size={16} />
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">
                 Пароль {!user && <span className="text-destructive">*</span>}
               </Label>
-              <div className="relative">
+              <div className="flex gap-2">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder={user ? 'Оставьте пустым для сохранения текущего' : 'Введите пароль'}
+                  placeholder={user ? 'Оставьте пустым для сохранения текущего' : '••••••••'}
                   required={!user}
                 />
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3"
+                  variant="outline"
+                  size="icon"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={16} />
@@ -278,21 +299,48 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="company">Предприятие</Label>
-              <Input
-                id="company"
-                value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                placeholder="МВД"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="work_phone">Рабочий телефон</Label>
+                <Input
+                  id="work_phone"
+                  value={formData.work_phone}
+                  onChange={(e) => setFormData({ ...formData, work_phone: e.target.value })}
+                  placeholder="+7 (___) ___-__-__"
+                  type="tel"
+                  onKeyPress={(e) => {
+                    if (!/[0-9+\-() ]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mobile_phone">Сотовый телефон</Label>
+                <Input
+                  id="mobile_phone"
+                  value={formData.mobile_phone}
+                  onChange={(e) => setFormData({ ...formData, mobile_phone: e.target.value })}
+                  placeholder="+7 (___) ___-__-__"
+                  type="tel"
+                  onKeyPress={(e) => {
+                    if (!/[0-9+\-() ]/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="role_id">Роль</Label>
+              <Label htmlFor="role_id">
+                Роль <span className="text-destructive">*</span>
+              </Label>
               <Select
                 value={formData.role_id}
                 onValueChange={(value) => setFormData({ ...formData, role_id: value })}
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите роль" />
@@ -308,18 +356,18 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="user_group_id">Группа пользователей</Label>
+              <Label htmlFor="company">Предприятие</Label>
               <Select
-                value={formData.user_group_id}
-                onValueChange={(value) => setFormData({ ...formData, user_group_id: value })}
+                value={formData.company}
+                onValueChange={(value) => setFormData({ ...formData, company: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Выберите группу" />
+                  <SelectValue placeholder="Выберите предприятие" />
                 </SelectTrigger>
                 <SelectContent>
-                  {userGroups.map((group) => (
-                    <SelectItem key={group.id} value={group.id.toString()}>
-                      {group.name}
+                  {COMPANIES.map((company) => (
+                    <SelectItem key={company} value={company}>
+                      {company}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -336,7 +384,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
                   <SelectValue placeholder="Выберите группу камер" />
                 </SelectTrigger>
                 <SelectContent>
-                  {cameraGroups.map((group) => (
+                  {CAMERA_GROUPS.map((group) => (
                     <SelectItem key={group.id} value={group.id.toString()}>
                       {group.name}
                     </SelectItem>
@@ -346,40 +394,72 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="work_phone">Рабочий телефон</Label>
+              <Label htmlFor="note">Примечание</Label>
               <Input
-                id="work_phone"
-                value={formData.work_phone}
-                onChange={(e) => setFormData({ ...formData, work_phone: e.target.value })}
-                placeholder="+7 (342) 123-45-67"
+                id="note"
+                value={formData.note}
+                onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                placeholder="Дополнительная информация"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="mobile_phone">Сотовый телефон</Label>
-              <Input
-                id="mobile_phone"
-                value={formData.mobile_phone}
-                onChange={(e) => setFormData({ ...formData, mobile_phone: e.target.value })}
-                placeholder="+7 (912) 345-67-89"
-              />
-            </div>
-          </div>
+              <Label>Прикрепленные файлы</Label>
+              <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  id="file-upload"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setAttachedFiles([...attachedFiles, ...files]);
+                  }}
+                />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <Icon name="Upload" size={32} className="mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Нажмите для загрузки или перетащите файлы
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    PDF, DOCX, JPG, PNG до 10 МБ
+                  </p>
+                </label>
+              </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              Отмена
+              {attachedFiles.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Загруженные файлы:</p>
+                  <div className="space-y-1">
+                    {attachedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded">
+                        <div className="flex items-center gap-2">
+                          <Icon name="File" size={16} />
+                          <span className="text-sm">{file.name}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="button"
+                          onClick={() => {
+                            setAttachedFiles(attachedFiles.filter((_, i) => i !== index));
+                          }}
+                        >
+                          <Icon name="X" size={14} />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Button className="w-full" type="submit" disabled={loading}>
+              <Icon name="UserPlus" size={18} className="mr-2" />
+              {loading ? 'Сохранение...' : user ? 'Сохранить изменения' : 'Создать пользователя'}
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Сохранение...' : user ? 'Сохранить' : 'Создать'}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
