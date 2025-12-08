@@ -44,7 +44,7 @@ interface UserGroup {
 
 const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f';
 const ROLES_API = 'https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b';
-const USER_GROUPS_API = 'https://functions.poehali.dev/0fe36f4b-f699-4856-b0d3-a7f0b33a9759';
+const USER_GROUPS_API = 'https://functions.poehali.dev/8e8951a5-c686-4bb1-946c-23f7d5a82d44';
 
 const COMPANIES = [
   'МВД',
