@@ -42,9 +42,15 @@ interface UserGroup {
   name: string;
 }
 
+interface CameraGroup {
+  id: number;
+  name: string;
+}
+
 const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f';
 const ROLES_API = 'https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b';
 const USER_GROUPS_API = 'https://functions.poehali.dev/8e8951a5-c686-4bb1-946c-23f7d5a82d44';
+const CAMERA_GROUPS_API = 'https://functions.poehali.dev/90109919-f443-4ada-9135-696710aa2338';
 
 const COMPANIES = [
   'МВД',
@@ -58,19 +64,14 @@ const COMPANIES = [
 
 
 
-const CAMERA_GROUPS = [
-  { id: 1, name: 'Все камеры' },
-  { id: 2, name: 'Входные группы' },
-  { id: 3, name: 'Парковки' },
-  { id: 4, name: 'Периметр' },
-  { id: 5, name: 'Внутренние помещения' }
-];
+
 
 export default function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogProps) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
   const [userGroups, setUserGroups] = useState<UserGroup[]>([]);
+  const [cameraGroups, setCameraGroups] = useState<CameraGroup[]>([]);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
   const [formData, setFormData] = useState({
@@ -91,6 +92,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
     if (open) {
       fetchRoles();
       fetchUserGroups();
+      fetchCameraGroups();
     }
   }, [open]);
 
@@ -161,6 +163,31 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
         { id: 1, name: 'Администраторы' },
         { id: 2, name: 'Операторы' },
         { id: 3, name: 'Служба безопасности' }
+      ]);
+    }
+  };
+
+  const fetchCameraGroups = async () => {
+    try {
+      const response = await fetch(CAMERA_GROUPS_API);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Camera groups loaded:', data);
+        setCameraGroups(data);
+      } else {
+        console.error('Failed to fetch camera groups, status:', response.status);
+        setCameraGroups([
+          { id: 1, name: 'Все камеры' },
+          { id: 2, name: 'Входные группы' },
+          { id: 3, name: 'Парковки' }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching camera groups:', error);
+      setCameraGroups([
+        { id: 1, name: 'Все камеры' },
+        { id: 2, name: 'Входные группы' },
+        { id: 3, name: 'Парковки' }
       ]);
     }
   };
@@ -392,7 +419,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
                   <SelectValue placeholder="Выберите группу камер" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CAMERA_GROUPS.map((group) => (
+                  {cameraGroups.map((group) => (
                     <SelectItem key={group.id} value={group.id.toString()}>
                       {group.name}
                     </SelectItem>
