@@ -32,8 +32,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor()
         
         if method == 'GET':
-            path_params = event.get('pathParams', {})
-            role_id = path_params.get('id')
+            query_params = event.get('queryStringParameters', {})
+            role_id = query_params.get('id') if query_params else None
             
             if role_id:
                 cur.execute('''
@@ -122,8 +122,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'PUT':
-            path_params = event.get('pathParams', {})
-            role_id = path_params.get('id')
+            query_params = event.get('queryStringParameters', {})
+            role_id = query_params.get('id') if query_params else None
             
             if not role_id:
                 return {
@@ -191,8 +191,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'DELETE':
-            path_params = event.get('pathParams', {})
-            role_id = path_params.get('id')
+            query_params = event.get('queryStringParameters', {})
+            role_id = query_params.get('id') if query_params else None
             
             if not role_id:
                 return {

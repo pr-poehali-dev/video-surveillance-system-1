@@ -56,7 +56,7 @@ const RolesTab = ({ searchQuery, setSearchQuery }: RolesTabProps) => {
     if (!roleToDelete) return;
 
     try {
-      const response = await fetch(`${ROLES_API}/${roleToDelete.id}`, {
+      const response = await fetch(`${ROLES_API}?id=${roleToDelete.id}`, {
         method: 'DELETE',
       });
 

@@ -46,7 +46,7 @@ export const RoleDialog = ({ open, onOpenChange, role, onSuccess }: RoleDialogPr
     setLoading(true);
 
     try {
-      const url = role ? `${ROLES_API}/${role.id}` : ROLES_API;
+      const url = role ? `${ROLES_API}?id=${role.id}` : ROLES_API;
       const method = role ? 'PUT' : 'POST';
 
       const response = await fetch(url, {

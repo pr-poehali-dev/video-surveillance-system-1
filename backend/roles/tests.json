@@ -11,13 +11,13 @@
       "method": "POST",
       "path": "/",
       "body": {
-        "name": "Test Role Created",
+        "name": "Test Role Автотест",
         "description": "Test description",
         "permissions": {}
       },
       "expectedStatus": 201,
       "expectedBody": {
-        "name": "Test Role Created",
+        "name": "Test Role Автотест",
         "users_count": 0
       },
       "bodyMatcher": "partial"
