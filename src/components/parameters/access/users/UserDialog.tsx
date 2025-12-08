@@ -383,25 +383,6 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="company">Предприятие</Label>
-              <Select
-                value={formData.company}
-                onValueChange={(value) => setFormData({ ...formData, company: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите предприятие" />
-                </SelectTrigger>
-                <SelectContent>
-                  {COMPANIES.map((company) => (
-                    <SelectItem key={company} value={company}>
-                      {company}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="camera_group_id">Группа камер</Label>
               <Select
                 value={formData.camera_group_id}
