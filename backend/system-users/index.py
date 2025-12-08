@@ -45,8 +45,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                            u.role_id, r.name as role_name,
                            u.user_group_id, ug.name as user_group_name,
                            u.camera_group_id, cg.name as camera_group_name,
-                           u.work_phone, u.mobile_phone, u.is_online, 
-                           u.last_login, u.created_at, u.updated_at
+                           u.work_phone, u.mobile_phone, u.note, u.attached_files,
+                           u.is_online, u.last_login, u.created_at, u.updated_at
                     FROM system_users u
                     LEFT JOIN roles r ON u.role_id = r.id
                     LEFT JOIN user_groups ug ON u.user_group_id = ug.id
@@ -75,8 +75,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                            u.role_id, r.name as role_name,
                            u.user_group_id, ug.name as user_group_name,
                            u.camera_group_id, cg.name as camera_group_name,
-                           u.work_phone, u.mobile_phone, u.is_online, 
-                           u.last_login, u.created_at, u.updated_at
+                           u.work_phone, u.mobile_phone, u.note, u.attached_files,
+                           u.is_online, u.last_login, u.created_at, u.updated_at
                     FROM system_users u
                     LEFT JOIN roles r ON u.role_id = r.id
                     LEFT JOIN user_groups ug ON u.user_group_id = ug.id
@@ -123,11 +123,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 INSERT INTO system_users 
                 (full_name, email, login, password_hash, company, role_id, 
                  user_group_id, camera_group_id, work_phone, mobile_phone, 
-                 created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                 note, attached_files, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id, full_name, email, login, company, role_id, 
                           user_group_id, camera_group_id, work_phone, mobile_phone,
-                          is_online, last_login, created_at, updated_at
+                          note, attached_files, is_online, last_login, created_at, updated_at
             ''', (
                 body['full_name'],
                 body['email'],
@@ -139,6 +139,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 body.get('camera_group_id'),
                 body.get('work_phone'),
                 body.get('mobile_phone'),
+                body.get('note'),
+                body.get('attached_files'),
                 datetime.utcnow(),
                 datetime.utcnow()
             ))
@@ -201,6 +203,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'camera_group_id': 'camera_group_id',
                 'work_phone': 'work_phone',
                 'mobile_phone': 'mobile_phone',
+                'note': 'note',
+                'attached_files': 'attached_files',
                 'is_online': 'is_online'
             }
             

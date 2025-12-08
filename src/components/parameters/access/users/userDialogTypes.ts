@@ -12,6 +12,8 @@ export interface User {
   camera_group_name?: string;
   work_phone?: string;
   mobile_phone?: string;
+  note?: string;
+  attached_files?: string[];
   is_online: boolean;
 }
 

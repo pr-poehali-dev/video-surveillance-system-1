@@ -49,7 +49,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
         camera_group_id: user.camera_group_id?.toString() || '',
         work_phone: user.work_phone || '',
         mobile_phone: user.mobile_phone || '',
-        note: ''
+        note: user.note || ''
       });
       setAttachedFiles([]);
     } else {
@@ -99,6 +99,8 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
         camera_group_id: formData.camera_group_id ? parseInt(formData.camera_group_id) : null,
         work_phone: formData.work_phone.trim() || null,
         mobile_phone: formData.mobile_phone.trim() || null,
+        note: formData.note.trim() || null,
+        attached_files: attachedFiles.length > 0 ? attachedFiles.map(f => f.name) : null,
       };
 
       if (formData.password) {
