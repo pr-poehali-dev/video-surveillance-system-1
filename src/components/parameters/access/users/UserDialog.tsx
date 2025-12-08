@@ -145,10 +145,23 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
       const response = await fetch(USER_GROUPS_API);
       if (response.ok) {
         const data = await response.json();
+        console.log('User groups loaded:', data);
         setUserGroups(data);
+      } else {
+        console.error('Failed to fetch user groups, status:', response.status);
+        setUserGroups([
+          { id: 1, name: 'Администраторы' },
+          { id: 2, name: 'Операторы' },
+          { id: 3, name: 'Служба безопасности' }
+        ]);
       }
     } catch (error) {
       console.error('Error fetching user groups:', error);
+      setUserGroups([
+        { id: 1, name: 'Администраторы' },
+        { id: 2, name: 'Операторы' },
+        { id: 3, name: 'Служба безопасности' }
+      ]);
     }
   };
 
