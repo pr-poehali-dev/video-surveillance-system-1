@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Get all roles",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Create new role",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Test Role Created",
+        "description": "Test description",
+        "permissions": {}
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "name": "Test Role Created",
+        "users_count": 0
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
