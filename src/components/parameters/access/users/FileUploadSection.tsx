@@ -38,6 +38,27 @@ export const FileUploadSection = ({ attachedFiles, setAttachedFiles }: FileUploa
     return `(${(file.size / 1024).toFixed(1)} KB)`;
   };
 
+  const handleDownload = (file: File | string) => {
+    if (typeof file === 'string') {
+      const link = document.createElement('a');
+      link.href = file;
+      link.download = file.split('/').pop() || 'file';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      const url = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Label>Прикрепление файлов</Label>
@@ -83,14 +104,26 @@ export const FileUploadSection = ({ attachedFiles, setAttachedFiles }: FileUploa
                   </span>
                 )}
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => handleRemoveFile(index)}
-              >
-                <Icon name="X" size={16} />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDownload(file)}
+                  title="Скачать файл"
+                >
+                  <Icon name="Download" size={16} />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveFile(index)}
+                  title="Удалить файл"
+                >
+                  <Icon name="X" size={16} />
+                </Button>
+              </div>
             </div>
           ))}
         </div>
