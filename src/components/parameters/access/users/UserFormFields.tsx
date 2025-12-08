@@ -72,42 +72,17 @@ export const UserFormFields = ({
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="login">
-            Логин <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="login"
-            value={formData.login}
-            onChange={(e) => setFormData({ ...formData, login: e.target.value })}
-            placeholder="login"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="password">
-            Пароль {!isEditing && <span className="text-destructive">*</span>}
-          </Label>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder={isEditing ? 'Оставьте пустым для сохранения текущего' : 'Введите пароль'}
-              required={!isEditing}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={18} />
-            </button>
-          </div>
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="login">
+          Логин <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          id="login"
+          value={formData.login}
+          onChange={(e) => setFormData({ ...formData, login: e.target.value })}
+          placeholder="login"
+          required
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -226,6 +201,29 @@ export const UserFormFields = ({
           onChange={(e) => setFormData({ ...formData, note: e.target.value })}
           placeholder="Дополнительная информация"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="password">
+          Пароль {!isEditing && <span className="text-destructive">*</span>}
+        </Label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            placeholder={isEditing ? 'Оставьте пустым для сохранения текущего' : 'Введите пароль'}
+            required={!isEditing}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={18} />
+          </button>
+        </div>
       </div>
     </>
   );
