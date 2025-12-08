@@ -41,6 +41,16 @@ export const UserFormFields = ({
       </div>
 
       <div className="space-y-2">
+        <Label htmlFor="position">Должность</Label>
+        <Input
+          id="position"
+          value={formData.position}
+          onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+          placeholder="Введите должность"
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="user_group_id">
           Группа пользователей <span className="text-destructive">*</span>
         </Label>

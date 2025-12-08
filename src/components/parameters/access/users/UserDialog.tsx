@@ -24,6 +24,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
 
   const [formData, setFormData] = useState<UserFormData>({
     full_name: '',
+    position: '',
     email: '',
     login: '',
     password: '',
@@ -40,6 +41,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
     if (user) {
       setFormData({
         full_name: user.full_name || '',
+        position: user.position || '',
         email: user.email || '',
         login: user.login || '',
         password: '',
@@ -55,6 +57,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
     } else {
       setFormData({
         full_name: '',
+        position: '',
         email: '',
         login: '',
         password: '',

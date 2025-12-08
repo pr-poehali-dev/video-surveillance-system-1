@@ -1,6 +1,7 @@
 export interface User {
   id: number;
   full_name: string;
+  position?: string;
   email: string;
   login: string;
   company?: string;
@@ -34,6 +35,7 @@ export interface CameraGroup {
 
 export interface UserFormData {
   full_name: string;
+  position: string;
   email: string;
   login: string;
   password: string;

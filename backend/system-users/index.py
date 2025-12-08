@@ -41,7 +41,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if user_id:
                 cur.execute('''
-                    SELECT u.id, u.full_name, u.email, u.login, u.company, 
+                    SELECT u.id, u.full_name, u.position, u.email, u.login, u.company, 
                            u.role_id, r.name as role_name,
                            u.user_group_id, ug.name as user_group_name,
                            u.camera_group_id, cg.name as camera_group_name,
@@ -71,7 +71,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         result[date_field] = result[date_field].isoformat()
             else:
                 cur.execute('''
-                    SELECT u.id, u.full_name, u.email, u.login, u.company, 
+                    SELECT u.id, u.full_name, u.position, u.email, u.login, u.company, 
                            u.role_id, r.name as role_name,
                            u.user_group_id, ug.name as user_group_name,
                            u.camera_group_id, cg.name as camera_group_name,
@@ -121,15 +121,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute('''
                 INSERT INTO system_users 
-                (full_name, email, login, password_hash, company, role_id, 
+                (full_name, position, email, login, password_hash, company, role_id, 
                  user_group_id, camera_group_id, work_phone, mobile_phone, 
                  note, attached_files, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING id, full_name, email, login, company, role_id, 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id, full_name, position, email, login, company, role_id, 
                           user_group_id, camera_group_id, work_phone, mobile_phone,
                           note, attached_files, is_online, last_login, created_at, updated_at
             ''', (
                 body['full_name'],
+                body.get('position'),
                 body['email'],
                 body['login'],
                 password_hash,
@@ -195,6 +196,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             allowed_fields = {
                 'full_name': 'full_name',
+                'position': 'position',
                 'email': 'email',
                 'login': 'login',
                 'company': 'company',
