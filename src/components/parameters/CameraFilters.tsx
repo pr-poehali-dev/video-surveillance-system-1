@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { Owner, TerritorialDivision, OWNERS_API, DIVISIONS_API } from './camera-list/CameraListTypes';
 
@@ -21,6 +22,8 @@ export const CameraFilters = ({
 }: CameraFiltersProps) => {
   const [owners, setOwners] = useState<Owner[]>([]);
   const [divisions, setDivisions] = useState<TerritorialDivision[]>([]);
+  const [ownerSearchQuery, setOwnerSearchQuery] = useState('');
+  const [divisionSearchQuery, setDivisionSearchQuery] = useState('');
 
   useEffect(() => {
     fetchOwners();
@@ -72,6 +75,14 @@ export const CameraFilters = ({
 
   const activeFiltersCount = selectedOwners.length + selectedDivisions.length;
 
+  const filteredOwners = owners.filter(owner => 
+    owner.name.toLowerCase().includes(ownerSearchQuery.toLowerCase())
+  );
+
+  const filteredDivisions = divisions.filter(division => 
+    division.name.toLowerCase().includes(divisionSearchQuery.toLowerCase())
+  );
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -104,9 +115,22 @@ export const CameraFilters = ({
           <div className="space-y-3">
             <div>
               <h5 className="text-sm font-medium mb-2">Собственники</h5>
+              <div className="relative mb-2">
+                <Icon
+                  name="Search"
+                  size={16}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
+                <Input
+                  placeholder="Поиск..."
+                  value={ownerSearchQuery}
+                  onChange={(e) => setOwnerSearchQuery(e.target.value)}
+                  className="pl-8 h-8 text-sm"
+                />
+              </div>
               <ScrollArea className="h-[150px]">
                 <div className="space-y-2">
-                  {owners.map((owner) => (
+                  {filteredOwners.map((owner) => (
                     <div key={owner.name} className="flex items-center space-x-2">
                       <Checkbox
                         id={`owner-${owner.name}`}
@@ -121,15 +145,33 @@ export const CameraFilters = ({
                       </label>
                     </div>
                   ))}
+                  {filteredOwners.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Ничего не найдено
+                    </p>
+                  )}
                 </div>
               </ScrollArea>
             </div>
 
             <div>
               <h5 className="text-sm font-medium mb-2">Территориальные деления</h5>
+              <div className="relative mb-2">
+                <Icon
+                  name="Search"
+                  size={16}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
+                <Input
+                  placeholder="Поиск..."
+                  value={divisionSearchQuery}
+                  onChange={(e) => setDivisionSearchQuery(e.target.value)}
+                  className="pl-8 h-8 text-sm"
+                />
+              </div>
               <ScrollArea className="h-[150px]">
                 <div className="space-y-2">
-                  {divisions.map((division) => (
+                  {filteredDivisions.map((division) => (
                     <div key={division.name} className="flex items-center space-x-2">
                       <Checkbox
                         id={`division-${division.name}`}
@@ -144,6 +186,11 @@ export const CameraFilters = ({
                       </label>
                     </div>
                   ))}
+                  {filteredDivisions.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Ничего не найдено
+                    </p>
+                  )}
                 </div>
               </ScrollArea>
             </div>
