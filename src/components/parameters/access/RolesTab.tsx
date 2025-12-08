@@ -85,10 +85,12 @@ const RolesTab = ({ searchQuery, setSearchQuery }: RolesTabProps) => {
     setIsRoleDialogOpen(true);
   };
 
-  const filteredRoles = roles.filter((role) =>
-    role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    role.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredRoles = roles
+    .filter((role) =>
+      role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      role.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
   const getPermissionsCount = (role: Role) => {
     let count = 0;
