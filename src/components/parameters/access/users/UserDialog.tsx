@@ -37,8 +37,14 @@ interface Role {
   name: string;
 }
 
+interface UserGroup {
+  id: number;
+  name: string;
+}
+
 const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f';
 const ROLES_API = 'https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b';
+const USER_GROUPS_API = 'https://functions.poehali.dev/0fe36f4b-f699-4856-b0d3-a7f0b33a9759';
 
 const COMPANIES = [
   'МВД',
@@ -50,13 +56,7 @@ const COMPANIES = [
   'Следственный комитет'
 ];
 
-const USER_GROUPS = [
-  { id: 1, name: 'Администраторы' },
-  { id: 2, name: 'Операторы' },
-  { id: 3, name: 'Служба безопасности' },
-  { id: 4, name: 'Аналитики' },
-  { id: 5, name: 'Наблюдатели' }
-];
+
 
 const CAMERA_GROUPS = [
   { id: 1, name: 'Все камеры' },
@@ -70,6 +70,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [userGroups, setUserGroups] = useState<UserGroup[]>([]);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
   const [formData, setFormData] = useState({
@@ -89,6 +90,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
   useEffect(() => {
     if (open) {
       fetchRoles();
+      fetchUserGroups();
     }
   }, [open]);
 
@@ -135,6 +137,18 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
       }
     } catch (error) {
       console.error('Error fetching roles:', error);
+    }
+  };
+
+  const fetchUserGroups = async () => {
+    try {
+      const response = await fetch(USER_GROUPS_API);
+      if (response.ok) {
+        const data = await response.json();
+        setUserGroups(data);
+      }
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
     }
   };
 
@@ -232,7 +246,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
                   <SelectValue placeholder="Выберите группу пользователей" />
                 </SelectTrigger>
                 <SelectContent>
-                  {USER_GROUPS.map((group) => (
+                  {userGroups.map((group) => (
                     <SelectItem key={group.id} value={group.id.toString()}>
                       {group.name}
                     </SelectItem>
