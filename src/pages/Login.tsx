@@ -33,24 +33,29 @@ const Login = () => {
           const impersonateData = JSON.parse(impersonateDataStr);
           // Проверяем, что данные не устарели (не старше 30 секунд)
           if (Date.now() - impersonateData.timestamp < 30000) {
-            setLogin(impersonateData.login);
-            setPassword(impersonateData.password);
+            // Сохраняем информацию о входе в localStorage
+            localStorage.setItem("isAuthenticated", "true");
+            localStorage.setItem("userLogin", impersonateData.login);
+            localStorage.setItem("userFullName", impersonateData.fullName);
+            localStorage.setItem("userId", impersonateData.userId.toString());
+            
             // Удаляем данные из sessionStorage
             sessionStorage.removeItem(impersonateKey);
-            // Автоматически выполняем вход
-            setTimeout(() => {
-              const form = document.querySelector('form');
-              if (form) form.requestSubmit();
-            }, 500);
+            
+            // Показываем уведомление и перенаправляем
+            toast.success(`Вход выполнен как ${impersonateData.fullName}`);
+            navigate("/dashboard");
           } else {
             sessionStorage.removeItem(impersonateKey);
+            toast.error('Ссылка для входа устарела');
           }
         } catch (e) {
           console.error('Ошибка при чтении данных имперсонации:', e);
+          toast.error('Ошибка при автоматическом входе');
         }
       }
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(supportEmail);
