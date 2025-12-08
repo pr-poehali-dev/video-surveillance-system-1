@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface FileUploadSectionProps {
-  attachedFiles: File[];
-  setAttachedFiles: (files: File[]) => void;
+  attachedFiles: (File | string)[];
+  setAttachedFiles: (files: (File | string)[]) => void;
 }
 
 export const FileUploadSection = ({ attachedFiles, setAttachedFiles }: FileUploadSectionProps) => {
@@ -27,6 +27,15 @@ export const FileUploadSection = ({ attachedFiles, setAttachedFiles }: FileUploa
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+  };
+
+  const getFileName = (file: File | string): string => {
+    return typeof file === 'string' ? file : file.name;
+  };
+
+  const getFileSize = (file: File | string): string | null => {
+    if (typeof file === 'string') return null;
+    return `(${(file.size / 1024).toFixed(1)} KB)`;
   };
 
   return (
@@ -67,10 +76,12 @@ export const FileUploadSection = ({ attachedFiles, setAttachedFiles }: FileUploa
             >
               <div className="flex items-center gap-2">
                 <Icon name="File" size={16} />
-                <span className="text-sm">{file.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  ({(file.size / 1024).toFixed(1)} KB)
-                </span>
+                <span className="text-sm">{getFileName(file)}</span>
+                {getFileSize(file) && (
+                  <span className="text-xs text-muted-foreground">
+                    {getFileSize(file)}
+                  </span>
+                )}
               </div>
               <Button
                 type="button"

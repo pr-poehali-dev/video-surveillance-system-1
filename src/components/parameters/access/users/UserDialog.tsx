@@ -18,7 +18,7 @@ interface UserDialogProps {
 export default function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogProps) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [attachedFiles, setAttachedFiles] = useState<(File | string)[]>([]);
 
   const { roles, userGroups, cameraGroups } = useUserDialogData(open);
 
@@ -51,7 +51,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
         mobile_phone: user.mobile_phone || '',
         note: user.note || ''
       });
-      setAttachedFiles([]);
+      setAttachedFiles(user.attached_files || []);
     } else {
       setFormData({
         full_name: '',
@@ -100,7 +100,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
         work_phone: formData.work_phone.trim() || null,
         mobile_phone: formData.mobile_phone.trim() || null,
         note: formData.note.trim() || null,
-        attached_files: attachedFiles.length > 0 ? attachedFiles.map(f => f.name) : null,
+        attached_files: attachedFiles.length > 0 ? attachedFiles.map(f => typeof f === 'string' ? f : f.name) : null,
       };
 
       if (formData.password) {
