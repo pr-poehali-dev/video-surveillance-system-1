@@ -94,6 +94,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
 
       const body: any = {
         full_name: formData.full_name.trim(),
+        position: formData.position.trim() || null,
         email: formData.email.trim(),
         login: formData.login.trim(),
         company: formData.company || null,
