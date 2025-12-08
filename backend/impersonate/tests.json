@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Get user credentials for impersonation",
+      "method": "GET",
+      "path": "/?user_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "login": "string",
+        "password_hash": "string",
+        "full_name": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

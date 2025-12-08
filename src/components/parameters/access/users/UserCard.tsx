@@ -16,6 +16,8 @@ interface User {
   is_online: boolean;
 }
 
+const IMPERSONATE_API = 'https://functions.poehali.dev/5d7bd1cf-29e4-49bd-970e-ead118147909';
+
 interface UserCardProps {
   user: User;
   onEdit: (user: User) => void;
@@ -23,22 +25,38 @@ interface UserCardProps {
 }
 
 const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
-  const handleImpersonate = () => {
-    const impersonateData = {
-      login: user.login,
-      timestamp: Date.now()
-    };
-    
-    const impersonateKey = `impersonate_${Date.now()}`;
-    sessionStorage.setItem(impersonateKey, JSON.stringify(impersonateData));
-    
-    const newWindow = window.open(`/login?impersonate=${impersonateKey}`, '_blank');
-    
-    if (newWindow) {
-      toast.success(`Открыта новая вкладка для входа как ${user.full_name}`);
-    } else {
-      toast.error('Не удалось открыть новую вкладку. Разрешите всплывающие окна.');
-      sessionStorage.removeItem(impersonateKey);
+  const handleImpersonate = async () => {
+    try {
+      const response = await fetch(`${IMPERSONATE_API}?user_id=${user.id}`);
+      
+      if (!response.ok) {
+        throw new Error('Не удалось получить данные пользователя');
+      }
+      
+      const data = await response.json();
+      
+      const impersonateData = {
+        userId: user.id,
+        login: data.login,
+        passwordHash: data.password_hash,
+        fullName: data.full_name,
+        timestamp: Date.now()
+      };
+      
+      const impersonateKey = `impersonate_${Date.now()}`;
+      sessionStorage.setItem(impersonateKey, JSON.stringify(impersonateData));
+      
+      const newWindow = window.open(`/login?impersonate=${impersonateKey}`, '_blank');
+      
+      if (newWindow) {
+        toast.success(`Открыта новая вкладка для входа как ${user.full_name}`);
+      } else {
+        toast.error('Не удалось открыть новую вкладку. Разрешите всплывающие окна.');
+        sessionStorage.removeItem(impersonateKey);
+      }
+    } catch (error) {
+      console.error('Impersonate error:', error);
+      toast.error('Ошибка при получении данных для входа');
     }
   };
 
