@@ -1,48 +1,116 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import CreateUserDialog from './users/CreateUserDialog';
+import { toast } from 'sonner';
 import UserCard from './users/UserCard';
-import EditUserDialog from './users/EditUserDialog';
-import DeleteUserDialog from './users/DeleteUserDialog';
+import UserDialog from './users/UserDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
-interface UsersTabProps {
-  users: any[];
-  setUsers: (users: any[]) => void;
-  roles: any[];
-  searchQuery: string;
-  setSearchQuery: (value: string) => void;
-  showPassword: boolean;
-  setShowPassword: (value: boolean) => void;
-  attachedFiles: File[];
-  setAttachedFiles: (files: File[]) => void;
+interface User {
+  id: number;
+  full_name: string;
+  email: string;
+  login: string;
+  company?: string;
+  role_id?: number;
+  role_name?: string;
+  user_group_id?: number;
+  user_group_name?: string;
+  camera_group_id?: number;
+  camera_group_name?: string;
+  work_phone?: string;
+  mobile_phone?: string;
+  is_online: boolean;
+  last_login?: string;
+  created_at: string;
+  updated_at: string;
 }
 
-const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPassword, setShowPassword, attachedFiles, setAttachedFiles }: UsersTabProps) => {
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+interface UsersTabProps {
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+}
+
+const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f';
+
+const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<any>(null);
-  const [editForm, setEditForm] = useState<any>({});
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(USERS_API);
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Ошибка при загрузке пользователей');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateClick = () => {
+    setUserToEdit(null);
+    setIsUserDialogOpen(true);
+  };
+
+  const handleEditClick = (user: User) => {
+    setUserToEdit(user);
+    setIsUserDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!userToDelete) return;
+
+    try {
+      const response = await fetch(`${USERS_API}?id=${userToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Ошибка при удалении пользователя');
+      }
+
+      toast.success('Пользователь удален');
+      fetchUsers();
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка при удалении пользователя');
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setUserToDelete(null);
+    }
+  };
 
   const filteredUsers = users.filter((user) =>
-    user.fio.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.company.toLowerCase().includes(searchQuery.toLowerCase())
+    user.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.login.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleEditUser = (user: any) => {
-    setSelectedUser(user);
-    setEditForm(user);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleDeleteUser = (user: any) => {
-    setUserToDelete(user);
-    setIsDeleteDialogOpen(true);
-  };
 
   return (
     <>
@@ -54,13 +122,10 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
                 <Icon name="Users" size={20} />
                 Пользователи системы
               </CardTitle>
-              <CreateUserDialog
-                roles={roles}
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-                attachedFiles={attachedFiles}
-                setAttachedFiles={setAttachedFiles}
-              />
+              <Button onClick={handleCreateClick}>
+                <Icon name="Plus" size={18} className="mr-2" />
+                Добавить пользователя
+              </Button>
             </div>
             <div className="relative">
               <Icon
@@ -78,41 +143,56 @@ const UsersTab = ({ users, setUsers, roles, searchQuery, setSearchQuery, showPas
           </div>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[600px]">
-            <div className="space-y-3 pr-4">
-              {filteredUsers.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  onEdit={handleEditUser}
-                  onDelete={handleDeleteUser}
-                />
-              ))}
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              {searchQuery ? 'Пользователи не найдены' : 'Нет пользователей'}
             </div>
-          </ScrollArea>
+          ) : (
+            <ScrollArea className="h-[600px]">
+              <div className="space-y-3 pr-4">
+                {filteredUsers.map((user) => (
+                  <UserCard
+                    key={user.id}
+                    user={user}
+                    onEdit={handleEditClick}
+                    onDelete={(user) => {
+                      setUserToDelete(user);
+                      setIsDeleteDialogOpen(true);
+                    }}
+                  />
+                ))}
+              </div>
+            </ScrollArea>
+          )}
         </CardContent>
       </Card>
 
-      <EditUserDialog
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        editForm={editForm}
-        setEditForm={setEditForm}
-        users={users}
-        setUsers={setUsers}
-        roles={roles}
-        showPassword={showPassword}
-        setShowPassword={setShowPassword}
+      <UserDialog
+        open={isUserDialogOpen}
+        onOpenChange={setIsUserDialogOpen}
+        user={userToEdit}
+        onSuccess={fetchUsers}
       />
 
-      <DeleteUserDialog
-        isOpen={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        userToDelete={userToDelete}
-        setUserToDelete={setUserToDelete}
-        users={users}
-        setUsers={setUsers}
-      />
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить пользователя?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить пользователя "{userToDelete?.full_name}"?
+              Это действие нельзя отменить.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

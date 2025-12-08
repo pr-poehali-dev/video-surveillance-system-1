@@ -4,30 +4,38 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
+interface User {
+  id: number;
+  full_name: string;
+  email: string;
+  login: string;
+  company?: string;
+  role_name?: string;
+  work_phone?: string;
+  mobile_phone?: string;
+  is_online: boolean;
+}
+
 interface UserCardProps {
-  user: any;
-  onEdit: (user: any) => void;
-  onDelete: (user: any) => void;
+  user: User;
+  onEdit: (user: User) => void;
+  onDelete: (user: User) => void;
 }
 
 const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
   const handleImpersonate = () => {
-    // Сохраняем данные для автоматического входа
     const impersonateData = {
       login: user.login,
-      password: user.password,
       timestamp: Date.now()
     };
     
-    // Сохраняем в sessionStorage с уникальным ключом
     const impersonateKey = `impersonate_${Date.now()}`;
     sessionStorage.setItem(impersonateKey, JSON.stringify(impersonateData));
     
-    // Открываем новую вкладку с передачей ключа через URL
     const newWindow = window.open(`/login?impersonate=${impersonateKey}`, '_blank');
     
     if (newWindow) {
-      toast.success(`Открыта новая вкладка для входа как ${user.fio}`);
+      toast.success(`Открыта новая вкладка для входа как ${user.full_name}`);
     } else {
       toast.error('Не удалось открыть новую вкладку. Разрешите всплывающие окна.');
       sessionStorage.removeItem(impersonateKey);
@@ -43,12 +51,14 @@ const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
               <Icon name="User" size={20} className="text-primary" />
             </div>
             <div>
-              <h3 className="font-medium">{user.fio}</h3>
-              <p className="text-sm text-muted-foreground">{user.company}</p>
+              <h3 className="font-medium">{user.full_name}</h3>
+              {user.company && (
+                <p className="text-sm text-muted-foreground">{user.company}</p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-1">
-            {user.isOnline && (
+            {user.is_online && (
               <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
                 Онлайн
@@ -91,18 +101,18 @@ const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
           </div>
           <div>
             <p className="text-muted-foreground text-xs">Роль</p>
-            <Badge variant="outline">{user.role}</Badge>
+            <Badge variant="outline">{user.role_name || 'Не назначена'}</Badge>
           </div>
-          {user.workPhone && (
+          {user.work_phone && (
             <div>
               <p className="text-muted-foreground text-xs">Рабочий телефон</p>
-              <p className="font-medium">{user.workPhone}</p>
+              <p className="font-medium">{user.work_phone}</p>
             </div>
           )}
-          {user.mobilePhone && (
+          {user.mobile_phone && (
             <div>
               <p className="text-muted-foreground text-xs">Сотовый телефон</p>
-              <p className="font-medium">{user.mobilePhone}</p>
+              <p className="font-medium">{user.mobile_phone}</p>
             </div>
           )}
         </div>
