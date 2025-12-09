@@ -116,6 +116,13 @@ const ORD = () => {
           </TabsList>
 
           <TabsContent value="online-face" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <Button>
+                <Icon name="Plus" size={16} className="mr-2" />
+                Создать лист мониторинга
+              </Button>
+            </div>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
