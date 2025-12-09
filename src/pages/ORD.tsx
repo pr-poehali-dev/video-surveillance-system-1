@@ -14,6 +14,7 @@ const ORD = () => {
   const [plateSearch, setPlateSearch] = useState('');
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -117,12 +118,13 @@ const ORD = () => {
 
           <TabsContent value="online-face" className="space-y-6">
             <div className="flex justify-end mb-4">
-              <Button>
-                <Icon name="Plus" size={16} className="mr-2" />
-                Создать лист мониторинга
+              <Button onClick={() => setIsCreateFormOpen(!isCreateFormOpen)}>
+                <Icon name={isCreateFormOpen ? "ChevronUp" : "Plus"} size={16} className="mr-2" />
+                {isCreateFormOpen ? "Скрыть форму" : "Создать лист мониторинга"}
               </Button>
             </div>
 
+            {isCreateFormOpen && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -158,6 +160,7 @@ const ORD = () => {
                 </Button>
               </CardContent>
             </Card>
+            )}
 
             <SearchResults results={mockResults} />
           </TabsContent>
