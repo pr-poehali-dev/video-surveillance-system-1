@@ -16,8 +16,8 @@ const Navigation = () => {
     { path: '/monitoring', label: 'Мониторинг', icon: 'Map' },
     { path: '/ord', label: 'ОРД', icon: 'Search' },
     { path: '/layouts', label: 'Раскладки', icon: 'Grid3x3' },
-    { path: '/reports', label: 'Отчеты', icon: 'BarChart3' },
     { path: '/photo-archive', label: 'Фотоархив', icon: 'Image' },
+    { path: '/reports', label: 'Отчеты', icon: 'BarChart3' },
     { path: '/parameters', label: 'Параметры', icon: 'Settings' },
     { path: '/viss', label: 'ВиВС', icon: 'Network' },
   ];
