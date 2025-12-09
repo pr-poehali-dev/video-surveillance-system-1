@@ -38,15 +38,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if role_id:
                 cur.execute('''
                     SELECT id, name, description, permissions, created_at, updated_at,
-                           (SELECT COUNT(*) FROM users WHERE role_id = roles.id) as users_count
-                    FROM roles 
+                           (SELECT COUNT(*) FROM t_p76735805_video_surveillance_s.system_users WHERE role_id = roles.id) as users_count
+                    FROM t_p76735805_video_surveillance_s.roles 
                     WHERE id = %s
                 ''', (role_id,))
             else:
                 cur.execute('''
                     SELECT id, name, description, permissions, created_at, updated_at,
-                           (SELECT COUNT(*) FROM users WHERE role_id = roles.id) as users_count
-                    FROM roles
+                           (SELECT COUNT(*) FROM t_p76735805_video_surveillance_s.system_users WHERE role_id = roles.id) as users_count
+                    FROM t_p76735805_video_surveillance_s.roles
                     ORDER BY created_at DESC
                 ''')
             
@@ -98,7 +98,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute('''
-                INSERT INTO roles (name, description, permissions, created_at, updated_at)
+                INSERT INTO t_p76735805_video_surveillance_s.roles (name, description, permissions, created_at, updated_at)
                 VALUES (%s, %s, %s, %s, %s)
                 RETURNING id, name, description, permissions, created_at, updated_at
             ''', (name, description, json.dumps(permissions), datetime.utcnow(), datetime.utcnow()))
@@ -156,7 +156,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             values.append(role_id)
             
             cur.execute(f'''
-                UPDATE roles 
+                UPDATE t_p76735805_video_surveillance_s.roles 
                 SET {', '.join(updates)}
                 WHERE id = %s
                 RETURNING id, name, description, permissions, created_at, updated_at
@@ -176,7 +176,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             result['created_at'] = result['created_at'].isoformat()
             result['updated_at'] = result['updated_at'].isoformat()
             
-            cur.execute('SELECT COUNT(*) FROM users WHERE role_id = %s', (role_id,))
+            cur.execute('SELECT COUNT(*) FROM t_p76735805_video_surveillance_s.system_users WHERE role_id = %s', (role_id,))
             result['users_count'] = cur.fetchone()[0]
             
             conn.commit()
@@ -202,7 +202,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute('SELECT COUNT(*) FROM users WHERE role_id = %s', (role_id,))
+            cur.execute('SELECT COUNT(*) FROM t_p76735805_video_surveillance_s.system_users WHERE role_id = %s', (role_id,))
             users_count = cur.fetchone()[0]
             
             if users_count > 0:
@@ -213,7 +213,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute('DELETE FROM roles WHERE id = %s RETURNING id', (role_id,))
+            cur.execute('DELETE FROM t_p76735805_video_surveillance_s.roles WHERE id = %s RETURNING id', (role_id,))
             row = cur.fetchone()
             
             if not row:
