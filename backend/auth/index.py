@@ -67,17 +67,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         password_hash = hash_password(password)
         
+        login_escaped = login.replace("'", "''")
+        password_hash_escaped = password_hash.replace("'", "''")
+        
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        query = """
+        query = f"""
             SELECT id, full_name, email, login, role_id, user_group_id, 
                    camera_group_id, company, position
             FROM t_p76735805_video_surveillance_s.system_users 
-            WHERE login = %s AND password_hash = %s
+            WHERE login = '{login_escaped}' AND password_hash = '{password_hash_escaped}'
         """
         
-        cur.execute(query, (login, password_hash))
+        cur.execute(query)
         user = cur.fetchone()
         
         if not user:
@@ -93,12 +96,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        update_query = """
+        update_query = f"""
             UPDATE t_p76735805_video_surveillance_s.system_users 
             SET last_login = NOW(), is_online = true 
-            WHERE id = %s
+            WHERE id = {user['id']}
         """
-        cur.execute(update_query, (user['id'],))
+        cur.execute(update_query)
         conn.commit()
         
         cur.close()
