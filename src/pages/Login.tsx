@@ -72,18 +72,45 @@ const Login = () => {
 
     setLoading(true);
 
-    setTimeout(() => {
-      // Простая проверка - принимаем любой непустой логин/пароль
-      if (login && password) {
+    try {
+      const response = await fetch('https://functions.poehali.dev/781fed05-96cd-43c7-88cc-c4b72549f79f', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ login, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Сохраняем данные пользователя
         localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("userLogin", login);
-        toast.success(`Вход выполнен как ${login}`);
+        localStorage.setItem("userLogin", data.user.login);
+        localStorage.setItem("userFullName", data.user.full_name || login);
+        localStorage.setItem("userId", data.user.id.toString());
+        
+        if (data.user.role_id) {
+          localStorage.setItem("userRoleId", data.user.role_id.toString());
+        }
+        if (data.user.user_group_id) {
+          localStorage.setItem("userGroupId", data.user.user_group_id.toString());
+        }
+        if (data.user.camera_group_id) {
+          localStorage.setItem("cameraGroupId", data.user.camera_group_id.toString());
+        }
+
+        toast.success(`Вход выполнен как ${data.user.full_name || login}`);
         navigate("/dashboard");
       } else {
-        toast.error("Неверный логин или пароль");
+        toast.error(data.error || "Некорректный логин и/или пароль");
       }
+    } catch (error) {
+      console.error('Ошибка авторизации:', error);
+      toast.error("Ошибка подключения к серверу");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -182,9 +209,7 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Для входа используйте: admin / admin
-        </p>
+
       </div>
     </div>
   );

@@ -1,0 +1,38 @@
+{
+  "tests": [
+    {
+      "name": "Авторизация с пустыми данными",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "login": "",
+        "password": ""
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Авторизация с некорректными данными",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "login": "nonexistent",
+        "password": "wrongpassword"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Некорректный логин и/или пароль"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS запрос для CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
