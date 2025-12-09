@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import Icon from "@/components/ui/icon";
+import { createSession } from "@/hooks/useSession";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -99,6 +100,9 @@ const Login = () => {
         if (data.user.camera_group_id) {
           localStorage.setItem("cameraGroupId", data.user.camera_group_id.toString());
         }
+
+        // Создаем сессию
+        await createSession(data.user.id);
 
         toast.success(`Вход выполнен как ${data.user.full_name || login}`);
         navigate("/dashboard");

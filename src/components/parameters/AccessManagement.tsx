@@ -12,16 +12,7 @@ import UserGroupsTab from './access/UserGroupsTab';
 const AccessManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [sessions, setSessions] = useState([
-    {
-      id: 1,
-      user: 'Иванов Иван Иванович',
-      ip: '192.168.1.10',
-      page: '/monitoring',
-      startTime: new Date(Date.now() - 3600000),
-      lastActivity: new Date(),
-    },
-  ]);
+
 
   const [auditLog, setAuditLog] = useState([
     {
@@ -86,7 +77,7 @@ const AccessManagement = () => {
       </TabsContent>
 
       <TabsContent value="sessions">
-        <SessionsTab sessions={sessions} />
+        <SessionsTab />
       </TabsContent>
 
       <TabsContent value="audit">

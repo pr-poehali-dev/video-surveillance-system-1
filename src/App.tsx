@@ -19,6 +19,7 @@ import CameraRegistry from "./pages/CameraRegistry";
 import AppLayout from "./components/AppLayout";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
+import AuthenticatedLayout from "./components/AuthenticatedLayout";
 
 const queryClient = new QueryClient();
 
@@ -31,15 +32,15 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Dashboard /></div></>} />
-          <Route path="/monitoring" element={<><Header /><Navigation /><div className="container mx-auto px-0 py-0"><Monitoring /></div></>} />
-          <Route path="/ord" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><ORD /></div></>} />
-          <Route path="/layouts" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Layouts /></div></>} />
-          <Route path="/reports" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Reports /></div></>} />
-          <Route path="/photo-archive" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><PhotoArchive /></div></>} />
-          <Route path="/parameters" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><Parameters /></div></>} />
-          <Route path="/viss" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><VISS /></div></>} />
-          <Route path="/camera-registry" element={<><Header /><Navigation /><div className="container mx-auto px-4 py-6"><CameraRegistry /></div></>} />
+          <Route path="/dashboard" element={<AuthenticatedLayout><Dashboard /></AuthenticatedLayout>} />
+          <Route path="/monitoring" element={<AuthenticatedLayout containerClassName="container mx-auto px-0 py-0"><Monitoring /></AuthenticatedLayout>} />
+          <Route path="/ord" element={<AuthenticatedLayout><ORD /></AuthenticatedLayout>} />
+          <Route path="/layouts" element={<AuthenticatedLayout><Layouts /></AuthenticatedLayout>} />
+          <Route path="/reports" element={<AuthenticatedLayout><Reports /></AuthenticatedLayout>} />
+          <Route path="/photo-archive" element={<AuthenticatedLayout><PhotoArchive /></AuthenticatedLayout>} />
+          <Route path="/parameters" element={<AuthenticatedLayout><Parameters /></AuthenticatedLayout>} />
+          <Route path="/viss" element={<AuthenticatedLayout><VISS /></AuthenticatedLayout>} />
+          <Route path="/camera-registry" element={<AuthenticatedLayout><CameraRegistry /></AuthenticatedLayout>} />
           <Route path="/old" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
