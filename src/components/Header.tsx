@@ -17,6 +17,7 @@ const Header = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notifications, setNotifications] = useState(3);
+  const [userRole, setUserRole] = useState<string>('');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,6 +25,28 @@ const Header = () => {
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const roleId = localStorage.getItem('userRoleId');
+      if (!roleId) return;
+
+      try {
+        const response = await fetch('https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b');
+        if (response.ok) {
+          const roles = await response.json();
+          const role = roles.find((r: any) => r.id === parseInt(roleId));
+          if (role) {
+            setUserRole(role.name);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+
+    fetchUserRole();
   }, []);
 
   const handleLogout = () => {
@@ -148,9 +171,9 @@ const Header = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-1">
-                    <span>Администратор</span>
+                    <span>{userRole || 'Пользователь'}</span>
                     <span className="text-xs font-normal text-muted-foreground">
-                      {localStorage.getItem('userLogin') || 'admin'}
+                      {localStorage.getItem('userFullName') || localStorage.getItem('userLogin') || 'admin'}
                     </span>
                   </div>
                 </DropdownMenuLabel>
