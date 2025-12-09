@@ -80,7 +80,7 @@ export const UserFormFields = ({
           id="login"
           value={formData.login}
           onChange={(e) => setFormData({ ...formData, login: e.target.value })}
-          placeholder="login"
+          placeholder="Введите логин"
           required
         />
       </div>
