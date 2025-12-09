@@ -20,12 +20,12 @@ interface SearchResultsProps {
 
 export const SearchResults = ({ results }: SearchResultsProps) => {
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">Результаты мониторинга лиц</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[400px] pr-4">
+      <CardContent className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full pr-4">
           <div className="space-y-4">
             {results.map((result) => (
               <div
