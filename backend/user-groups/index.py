@@ -54,9 +54,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'GET':
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT id, name, description, parent_id, user_count, created_at, updated_at
-                FROM t_p76735805_video_surveillance_s.user_groups
-                ORDER BY parent_id NULLS FIRST, name
+                SELECT ug.id, ug.name, ug.description, ug.parent_id, 
+                       (SELECT COUNT(*) FROM t_p76735805_video_surveillance_s.system_users WHERE user_group_id = ug.id) as user_count,
+                       ug.created_at, ug.updated_at
+                FROM t_p76735805_video_surveillance_s.user_groups ug
+                ORDER BY ug.parent_id NULLS FIRST, ug.name
             ''')
             groups = cursor.fetchall()
             cursor.close()
