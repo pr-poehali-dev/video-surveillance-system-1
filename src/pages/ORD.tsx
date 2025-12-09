@@ -146,8 +146,8 @@ const ORD = () => {
                 />
 
                 <Button className="w-full">
-                  <Icon name="Play" size={16} className="mr-2" />
-                  Запустить поиск
+                  <Icon name="Plus" size={16} className="mr-2" />
+                  Создать лист мониторинга
                 </Button>
               </CardContent>
             </Card>
