@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
+import { usePermissions } from '@/hooks/usePermissions';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { permissions, loading } = usePermissions();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -32,6 +34,14 @@ const Dashboard = () => {
         <p className="text-sm text-muted-foreground">
           Обзор системы видеонаблюдения Пермского края
         </p>
+        <Card className="mt-4 bg-yellow-50 border-yellow-200">
+          <CardHeader>
+            <CardTitle className="text-sm">DEBUG: Права доступа</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <pre className="text-xs">{JSON.stringify({ loading, permissions }, null, 2)}</pre>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
