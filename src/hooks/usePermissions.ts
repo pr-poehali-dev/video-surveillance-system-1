@@ -37,7 +37,9 @@ export const usePermissions = () => {
         
         if (response.ok) {
           const role = await response.json();
+          console.log('Role data:', role);
           const rawPermissions = role.permissions || {};
+          console.log('Raw permissions:', rawPermissions);
           
           const mappedPermissions: Permissions = {
             monitoring: rawPermissions.monitoring?.view === true,
@@ -50,7 +52,10 @@ export const usePermissions = () => {
             cameraRegistry: rawPermissions.parameters?.camera_sources?.view === true,
           };
           
+          console.log('Mapped permissions:', mappedPermissions);
           setPermissions(mappedPermissions);
+        } else {
+          console.error('Failed to fetch role, status:', response.status);
         }
       } catch (error) {
         console.error('Error fetching permissions:', error);
