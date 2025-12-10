@@ -19,15 +19,21 @@ export const usePermissions = () => {
     const fetchPermissions = async () => {
       try {
         const userStr = localStorage.getItem('user');
+        console.log('usePermissions: userStr from localStorage:', userStr);
+        
         if (!userStr) {
+          console.log('usePermissions: No user in localStorage');
           setLoading(false);
           return;
         }
 
         const user = JSON.parse(userStr);
+        console.log('usePermissions: Parsed user:', user);
         const roleId = user.role_id;
+        console.log('usePermissions: roleId:', roleId);
 
         if (!roleId) {
+          console.log('usePermissions: No roleId, setting empty permissions');
           setPermissions({});
           setLoading(false);
           return;
