@@ -37,7 +37,20 @@ export const usePermissions = () => {
         
         if (response.ok) {
           const role = await response.json();
-          setPermissions(role.permissions || {});
+          const rawPermissions = role.permissions || {};
+          
+          const mappedPermissions: Permissions = {
+            monitoring: rawPermissions.monitoring?.view === true,
+            ord: rawPermissions.ord?.view === true,
+            layouts: rawPermissions.layouts?.view === true,
+            photoArchive: rawPermissions.photo_archive?.view === true,
+            reports: rawPermissions.reports?.view === true,
+            parameters: rawPermissions.parameters?.view === true,
+            viss: rawPermissions.parameters?.vvs?.view === true,
+            cameraRegistry: rawPermissions.parameters?.camera_sources?.view === true,
+          };
+          
+          setPermissions(mappedPermissions);
         }
       } catch (error) {
         console.error('Error fetching permissions:', error);
