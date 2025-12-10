@@ -14,6 +14,9 @@ const Navigation = () => {
   const location = useLocation();
   const { permissions, loading } = usePermissions();
 
+  console.log('Navigation permissions:', permissions);
+  console.log('Navigation loading:', loading);
+
   const navItems: NavItem[] = [
     { path: '/dashboard', label: 'Главная', icon: 'Home' },
     { path: '/monitoring', label: 'Мониторинг', icon: 'Map', permission: 'monitoring' },
@@ -27,8 +30,12 @@ const Navigation = () => {
 
   const visibleItems = navItems.filter(item => {
     if (!item.permission) return true;
-    return permissions[item.permission] === true;
+    const hasPermission = permissions[item.permission] === true;
+    console.log(`Item ${item.label} (${item.permission}):`, hasPermission);
+    return hasPermission;
   });
+
+  console.log('Visible items count:', visibleItems.length);
 
   if (loading) {
     return (
