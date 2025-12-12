@@ -23,7 +23,7 @@ const SessionsTab = () => {
 
   useEffect(() => {
     fetchSessions();
-    const interval = setInterval(fetchSessions, 10000);
+    const interval = setInterval(fetchSessions, 15000);
     return () => clearInterval(interval);
   }, []);
 
