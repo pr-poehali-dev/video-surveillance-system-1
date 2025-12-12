@@ -32,12 +32,17 @@ const SessionsTab = () => {
       const response = await fetch(SESSIONS_API);
       if (response.ok) {
         const data = await response.json();
+        console.log('SessionsTab: Received data from API:', data);
+        
         const now = new Date().getTime();
         const activeSessions = data.filter((session: Session) => {
           const lastActivity = new Date(session.last_activity).getTime();
           const timeDiff = (now - lastActivity) / 1000 / 60;
+          console.log(`SessionsTab: User ${session.full_name}, last activity: ${session.last_activity}, diff: ${timeDiff.toFixed(2)} minutes`);
           return timeDiff <= 5;
         });
+        
+        console.log('SessionsTab: Active sessions after filter:', activeSessions);
         setSessions(activeSessions);
       }
     } catch (error) {
