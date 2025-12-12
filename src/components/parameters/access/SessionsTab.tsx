@@ -32,7 +32,13 @@ const SessionsTab = () => {
       const response = await fetch(SESSIONS_API);
       if (response.ok) {
         const data = await response.json();
-        setSessions(data);
+        const now = new Date().getTime();
+        const activeSessions = data.filter((session: Session) => {
+          const lastActivity = new Date(session.last_activity).getTime();
+          const timeDiff = (now - lastActivity) / 1000 / 60;
+          return timeDiff <= 10;
+        });
+        setSessions(activeSessions);
       }
     } catch (error) {
       console.error('Error fetching sessions:', error);
