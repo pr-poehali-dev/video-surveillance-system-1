@@ -30,14 +30,21 @@ const SessionsTab = () => {
   const fetchSessions = async () => {
     try {
       const response = await fetch(SESSIONS_API);
+      console.log('SessionsTab: Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('SessionsTab: All sessions from API:', data);
+        
         const now = new Date().getTime();
         const activeSessions = data.filter((session: Session) => {
           const lastActivity = new Date(session.last_activity).getTime();
           const timeDiff = (now - lastActivity) / 1000 / 60;
+          console.log(`SessionsTab: ${session.full_name} - last_activity: ${session.last_activity}, diff: ${timeDiff.toFixed(2)} min`);
           return timeDiff <= 10;
         });
+        
+        console.log('SessionsTab: Active sessions (<=10 min):', activeSessions);
         setSessions(activeSessions);
       }
     } catch (error) {
