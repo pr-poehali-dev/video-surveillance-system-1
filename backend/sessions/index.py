@@ -61,12 +61,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             sessions = cur.fetchall()
             result = [dict(row) for row in sessions]
             
+            print(f"Found {len(result)} sessions in database")
+            
             # Преобразуем datetime в строки
             for session in result:
                 if session.get('last_activity'):
                     session['last_activity'] = session['last_activity'].isoformat()
                 if session.get('created_at'):
                     session['created_at'] = session['created_at'].isoformat()
+                print(f"Session: user_id={session.get('user_id')}, full_name={session.get('full_name')}, last_activity={session.get('last_activity')}")
             
             cur.close()
             conn.close()
