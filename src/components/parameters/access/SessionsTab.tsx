@@ -119,7 +119,7 @@ const SessionsTab = () => {
                         </span>
                         <span className="flex items-center gap-1">
                           <Icon name="Clock" size={12} />
-                          {new Date(session.last_activity).toLocaleTimeString('ru-RU')}
+                          {new Date(session.last_activity + 'Z').toLocaleTimeString('ru-RU')}
                         </span>
                       </div>
                     </div>
