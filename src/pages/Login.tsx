@@ -22,7 +22,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const supportEmail = "support@esvs-perm.rusdsad";
+  const supportEmail = "support-esvn@it.permkrai.ru";
 
   // Проверка на имперсонацию при загрузке страницы
   useEffect(() => {
