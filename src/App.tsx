@@ -16,6 +16,7 @@ import PhotoArchive from "./pages/PhotoArchive";
 import Parameters from "./pages/Parameters";
 import VISS from "./pages/VISS";
 import CameraRegistry from "./pages/CameraRegistry";
+import Changelog from "./pages/Changelog";
 import AppLayout from "./components/AppLayout";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/parameters" element={<AuthenticatedLayout><Parameters /></AuthenticatedLayout>} />
           <Route path="/viss" element={<AuthenticatedLayout><VISS /></AuthenticatedLayout>} />
           <Route path="/camera-registry" element={<AuthenticatedLayout><CameraRegistry /></AuthenticatedLayout>} />
+          <Route path="/changelog" element={<AuthenticatedLayout><Changelog /></AuthenticatedLayout>} />
           <Route path="/old" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

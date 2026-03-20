@@ -178,6 +178,10 @@ const Header = () => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/changelog')}>
+                  <Icon name="History" size={16} className="mr-2" />
+                  История изменений
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleUserGuide}>
                   <Icon name="FileText" size={16} className="mr-2" />
                   Руководство пользователя
