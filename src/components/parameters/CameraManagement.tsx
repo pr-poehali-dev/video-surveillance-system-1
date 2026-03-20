@@ -10,6 +10,7 @@ import { CameraFilters } from './CameraFilters';
 import { OwnerGroupsTree } from './OwnerGroupsTree';
 import CameraGroupsTab from './camera-groups/CameraGroupsTab';
 import { CameraModelsTab } from './CameraModelsTab';
+import { BulkAddCameraDialog } from './BulkAddCameraDialog';
 
 const CameraManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -66,6 +67,7 @@ const CameraManagement = () => {
                     onOwnersChange={setSelectedOwners}
                     onDivisionsChange={setSelectedDivisions}
                   />
+                  <BulkAddCameraDialog onSuccess={handleCameraAdded} />
                   <AddCameraDialog onSuccess={handleCameraAdded} />
                 </div>
               </CardTitle>
