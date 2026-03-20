@@ -27,9 +27,17 @@ export const UserFormFields = ({
   isEditing
 }: UserFormFieldsProps) => {
   const [groupSearch, setGroupSearch] = useState('');
+  const [roleSearch, setRoleSearch] = useState('');
+  const [cameraGroupSearch, setCameraGroupSearch] = useState('');
 
   const filteredGroups = userGroups.filter((g) =>
     g.name.toLowerCase().includes(groupSearch.toLowerCase())
+  );
+  const filteredRoles = roles.filter((r) =>
+    r.name.toLowerCase().includes(roleSearch.toLowerCase())
+  );
+  const filteredCameraGroups = cameraGroups.filter((g) =>
+    g.name.toLowerCase().includes(cameraGroupSearch.toLowerCase())
   );
 
   return (
@@ -211,11 +219,27 @@ export const UserFormFields = ({
             <SelectValue placeholder="Выберите роль" />
           </SelectTrigger>
           <SelectContent>
-            {roles.map((role) => (
-              <SelectItem key={role.id} value={role.id.toString()}>
-                {role.name}
-              </SelectItem>
-            ))}
+            <div className="px-2 pb-1 pt-1">
+              <div className="relative">
+                <Icon name="Search" size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  className="w-full rounded border border-input bg-background py-1 pl-7 pr-2 text-sm outline-none placeholder:text-muted-foreground"
+                  placeholder="Поиск..."
+                  value={roleSearch}
+                  onChange={(e) => setRoleSearch(e.target.value)}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+            {filteredRoles.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-muted-foreground">Ничего не найдено</div>
+            ) : (
+              filteredRoles.map((role) => (
+                <SelectItem key={role.id} value={role.id.toString()}>
+                  {role.name}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -230,11 +254,27 @@ export const UserFormFields = ({
             <SelectValue placeholder="Выберите группу камер" />
           </SelectTrigger>
           <SelectContent>
-            {cameraGroups.map((group) => (
-              <SelectItem key={group.id} value={group.id.toString()}>
-                {group.name}
-              </SelectItem>
-            ))}
+            <div className="px-2 pb-1 pt-1">
+              <div className="relative">
+                <Icon name="Search" size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  className="w-full rounded border border-input bg-background py-1 pl-7 pr-2 text-sm outline-none placeholder:text-muted-foreground"
+                  placeholder="Поиск..."
+                  value={cameraGroupSearch}
+                  onChange={(e) => setCameraGroupSearch(e.target.value)}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+            {filteredCameraGroups.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-muted-foreground">Ничего не найдено</div>
+            ) : (
+              filteredCameraGroups.map((group) => (
+                <SelectItem key={group.id} value={group.id.toString()}>
+                  {group.name}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
