@@ -216,6 +216,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     values.append(body[field])
             
             if 'password' in body and body['password']:
+                if 'current_password' in body:
+                    cur.execute('SELECT password_hash FROM system_users WHERE id = %s', (user_id,))
+                    row = cur.fetchone()
+                    if not row or row[0] != hash_password(body['current_password']):
+                        cur.close()
+                        conn.close()
+                        return {
+                            'statusCode': 400,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Текущий пароль указан неверно'}),
+                            'isBase64Encoded': False
+                        }
                 updates.append('password_hash = %s')
                 values.append(hash_password(body['password']))
             
