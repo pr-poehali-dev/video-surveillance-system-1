@@ -135,16 +135,16 @@ const Monitoring = () => {
   }
 
   return (
-    <div className="bg-background flex">
-      <div className="w-96 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
-          <Card>
-            <CardHeader>
+    <div className="bg-background flex h-[calc(100vh-8rem)]">
+      <div className="w-80 flex-shrink-0 flex flex-col h-full overflow-hidden">
+          <Card className="h-full flex flex-col rounded-none border-t-0 border-l-0 border-b-0">
+            <CardHeader className="flex-shrink-0">
               <CardTitle className="flex items-center gap-2">
                 <Icon name="List" size={20} />
                 Реестр камер
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="p-0 flex flex-col flex-1 overflow-hidden">
               <div className="p-4 space-y-3 border-b">
                 <div className="relative">
                   <Icon
@@ -286,7 +286,7 @@ const Monitoring = () => {
                 </Sheet>
               </div>
 
-              <ScrollArea className="h-[500px]">
+              <ScrollArea className="flex-1 h-full">
                 <div className="p-4 space-y-3">
                   {filteredCameras.map((camera) => (
                     <Card
@@ -318,10 +318,10 @@ const Monitoring = () => {
           </Card>
       </div>
 
-      <div className="flex-1">
-          <Card className="h-full">
+      <div className="flex-1 h-full">
+          <Card className="h-full rounded-none border-0">
             <CardContent className="p-0 h-full">
-              <div className="relative rounded-lg overflow-hidden h-full">
+              <div className="relative overflow-hidden h-full">
                 <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 mx-0 py-[345px]">
                   <Button
                     variant="outline"
@@ -348,7 +348,7 @@ const Monitoring = () => {
                     setSelectedCamera(camera);
                     setShowVideoDialog(true);
                   }}
-                  height="calc(100vh - 200px)"
+                  height="100%"
                   clusteringEnabled={clusteringEnabled}
                 />
               </div>
