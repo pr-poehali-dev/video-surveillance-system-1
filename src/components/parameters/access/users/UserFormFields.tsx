@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -25,6 +26,12 @@ export const UserFormFields = ({
   setShowPassword,
   isEditing
 }: UserFormFieldsProps) => {
+  const [groupSearch, setGroupSearch] = useState('');
+
+  const filteredGroups = userGroups.filter((g) =>
+    g.name.toLowerCase().includes(groupSearch.toLowerCase())
+  );
+
   return (
     <>
       <div className="space-y-2">
@@ -63,11 +70,27 @@ export const UserFormFields = ({
             <SelectValue placeholder="Выберите группу пользователей" />
           </SelectTrigger>
           <SelectContent>
-            {userGroups.map((group) => (
-              <SelectItem key={group.id} value={group.id.toString()}>
-                {group.name}
-              </SelectItem>
-            ))}
+            <div className="px-2 pb-1 pt-1">
+              <div className="relative">
+                <Icon name="Search" size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  className="w-full rounded border border-input bg-background py-1 pl-7 pr-2 text-sm outline-none placeholder:text-muted-foreground"
+                  placeholder="Поиск..."
+                  value={groupSearch}
+                  onChange={(e) => setGroupSearch(e.target.value)}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+            {filteredGroups.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-muted-foreground">Ничего не найдено</div>
+            ) : (
+              filteredGroups.map((group) => (
+                <SelectItem key={group.id} value={group.id.toString()}>
+                  {group.name}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
