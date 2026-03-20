@@ -136,7 +136,7 @@ const Monitoring = () => {
 
   return (
     <div className="bg-background flex">
-      <div className="w-96 flex-shrink-0">
+      <div className="w-96 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
