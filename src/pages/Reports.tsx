@@ -192,7 +192,7 @@ const Reports = () => {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Средняя работоспособность камер
+              Работоспособность видеоаналитики распознавания лиц
             </CardTitle>
           </CardHeader>
           <CardContent>
