@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -7,15 +7,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 
+const OWNERS = ['Все собственники', 'МВД', 'Администрация', 'ФСИН', 'Росгвардия'];
+
+const ALL_CAMERAS = [
+  { id: '1', name: 'Камера-001', owner: 'МВД', status: 'active' },
+  { id: '2', name: 'Камера-002', owner: 'МВД', status: 'active' },
+  { id: '3', name: 'Камера-003', owner: 'Администрация', status: 'inactive' },
+  { id: '4', name: 'Камера-004', owner: 'Администрация', status: 'active' },
+  { id: '5', name: 'Камера-005', owner: 'ФСИН', status: 'problem' },
+  { id: '6', name: 'Камера-006', owner: 'ФСИН', status: 'active' },
+  { id: '7', name: 'Камера-007', owner: 'Росгвардия', status: 'active' },
+  { id: '8', name: 'Камера-008', owner: 'Росгвардия', status: 'inactive' },
+  { id: '9', name: 'Камера-009', owner: 'МВД', status: 'active' },
+  { id: '10', name: 'Камера-010', owner: 'МВД', status: 'problem' },
+];
+
 const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30');
   const [selectedCamera, setSelectedCamera] = useState('all');
+  const [ownerFilter, setOwnerFilter] = useState('Все собственники');
 
   const cameras = [
     { id: 'all', name: 'Все камеры' },
-    { id: '1', name: 'Камера-001' },
-    { id: '2', name: 'Камера-002' },
-    { id: '3', name: 'Камера-003' },
+    ...ALL_CAMERAS.map(c => ({ id: c.id, name: c.name })),
   ];
 
   const stats = {
@@ -296,49 +310,71 @@ const Reports = () => {
 
       <Card className="mb-6">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <CardTitle className="flex items-center gap-2">
               <Icon name="Activity" size={20} />
               Активность камер за последние {selectedPeriod} дней
             </CardTitle>
-            <Select value={selectedCamera} onValueChange={setSelectedCamera}>
-              <SelectTrigger className="w-48">
+            <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+              <SelectTrigger className="w-52">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {cameras.map((camera) => (
-                  <SelectItem key={camera.id} value={camera.id}>
-                    {camera.name}
-                  </SelectItem>
+                {OWNERS.map((o) => (
+                  <SelectItem key={o} value={o}>{o}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="h-64 flex items-end justify-between gap-2">
-              {Array.from({ length: parseInt(selectedPeriod) }).map((_, index) => {
-                const value = 85 + Math.random() * 15;
+          <div className="space-y-3">
+            {(() => {
+              const filtered = ownerFilter === 'Все собственники'
+                ? ALL_CAMERAS
+                : ALL_CAMERAS.filter(c => c.owner === ownerFilter);
+              const days = parseInt(selectedPeriod);
+              return filtered.map((camera) => {
+                const isWorking = camera.status === 'active';
+                const seed = parseInt(camera.id);
+                const dayValues = Array.from({ length: days }, (_, i) => {
+                  const r = Math.sin(seed * 9301 + i * 49297 + 233) * 0.5 + 0.5;
+                  return isWorking ? (r > 0.1 ? 'active' : 'inactive') : (r > 0.7 ? 'active' : 'inactive');
+                });
+                const activeCount = dayValues.filter(v => v === 'active').length;
+                const pct = Math.round((activeCount / days) * 100);
                 return (
-                  <div key={index} className="flex-1 flex flex-col items-center gap-2 group">
-                    <div className="relative w-full">
-                      <div
-                        className="w-full bg-primary rounded-t-lg transition-all hover:bg-primary/80 cursor-pointer"
-                        style={{ height: `${value * 2.5}px` }}
-                        title={`День ${index + 1}: ${value.toFixed(1)}%`}
-                      />
+                  <div key={camera.id} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${isWorking ? 'bg-green-500' : 'bg-red-500'}`} />
+                        <span className="font-medium">{camera.name}</span>
+                        <span className="text-muted-foreground text-xs">{camera.owner}</span>
+                      </div>
+                      <span className={`font-semibold text-xs ${pct >= 80 ? 'text-green-600' : 'text-red-500'}`}>{pct}%</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">{index + 1}</span>
+                    <div className="flex gap-px h-5">
+                      {dayValues.map((val, i) => (
+                        <div
+                          key={i}
+                          className={`flex-1 rounded-sm ${val === 'active' ? 'bg-green-500' : 'bg-red-400'}`}
+                          title={`День ${i + 1}: ${val === 'active' ? 'Работает' : 'Не работает'}`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 );
-              })}
+              });
+            })()}
+          </div>
+          <div className="flex items-center gap-6 pt-4 mt-3 border-t">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded-sm" />
+              <span className="text-xs text-muted-foreground">Работает</span>
             </div>
-            <div className="flex items-center justify-center gap-8 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-primary rounded" />
-                <span className="text-sm text-muted-foreground">Время работы (%)</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-400 rounded-sm" />
+              <span className="text-xs text-muted-foreground">Не работает</span>
             </div>
           </div>
         </CardContent>
