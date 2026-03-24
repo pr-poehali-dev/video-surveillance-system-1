@@ -215,7 +215,7 @@ const Reports = () => {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Общее время простоя
+              Работоспособность видеоаналитики распознавания ГРЗ
             </CardTitle>
           </CardHeader>
           <CardContent>
