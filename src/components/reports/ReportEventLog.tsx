@@ -23,6 +23,7 @@ const ALL_CAMERAS = [
 ];
 
 export const ReportEventLog = () => {
+  const [pageSize, setPageSize] = useState(100);
   const [logFilters, setLogFilters] = useState({
     name: '',
     status: 'all',
@@ -163,7 +164,7 @@ export const ReportEventLog = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredLogs.map((log) => (
+              {filteredLogs.slice(0, pageSize).map((log) => (
                 <tr key={log.id} className="border-t border-border/50 hover:bg-muted/30">
                   <td className="p-2 text-muted-foreground text-xs whitespace-nowrap">{log.time}</td>
                   <td className="p-2 font-medium">{log.camera}</td>
@@ -184,7 +185,25 @@ export const ReportEventLog = () => {
             </tbody>
           </table>
         </ScrollArea>
-        <p className="text-xs text-muted-foreground mt-2">Показано записей: {filteredLogs.length}</p>
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-xs text-muted-foreground">
+            Показано записей: {Math.min(pageSize, filteredLogs.length)} из {filteredLogs.length}
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Записей на странице:</span>
+            <Select value={String(pageSize)} onValueChange={v => setPageSize(Number(v))}>
+              <SelectTrigger className="w-24 h-7 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="100">100</SelectItem>
+                <SelectItem value="250">250</SelectItem>
+                <SelectItem value="500">500</SelectItem>
+                <SelectItem value="1000">1000</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
