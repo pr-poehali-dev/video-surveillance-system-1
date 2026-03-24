@@ -71,6 +71,18 @@ export const BulkAddCameraDialog = ({ onSuccess }: BulkAddCameraDialogProps) => 
     setStep('preview');
   };
 
+  const handleDownloadTemplate = () => {
+    const header = CSV_COLUMNS.join(';');
+    const example1 = 'Камера №1;rtsp://192.168.1.1/stream;ГУ МВД;Ленинский район;58.0105;56.2502;ул. Ленина 1;;;30';
+    const example2 = 'Камера №2;rtsp://192.168.1.2/stream;ФСИН;Свердловский район;57.9985;56.2631;ул. Пушкина 5;admin;12345;7';
+    const csv = '\uFEFF' + [header, example1, example2].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'шаблон_камеры.csv'; a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Шаблон скачан');
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -164,16 +176,20 @@ export const BulkAddCameraDialog = ({ onSuccess }: BulkAddCameraDialogProps) => 
                 <p className="text-muted-foreground text-xs">* Обязательные: {REQUIRED_COLUMNS.join(', ')}</p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <Button variant="default" size="sm" onClick={handleDownloadTemplate}>
+                  <Icon name="FileDown" size={14} className="mr-1" />
+                  Скачать шаблон Excel
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
                   <Icon name="FileUp" size={14} className="mr-1" />
-                  Загрузить файл .csv
+                  Загрузить заполненный файл
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => setCsvText(EXAMPLE_CSV)}>
                   <Icon name="ClipboardList" size={14} className="mr-1" />
                   Вставить пример
                 </Button>
-                <input ref={fileRef} type="file" accept=".csv,.txt" className="hidden" onChange={handleFileUpload} />
+                <input ref={fileRef} type="file" accept=".csv,.txt,.xlsx" className="hidden" onChange={handleFileUpload} />
               </div>
 
               <Textarea
