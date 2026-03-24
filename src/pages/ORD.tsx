@@ -16,6 +16,7 @@ const ORD = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const [isCreatePlateFormOpen, setIsCreatePlateFormOpen] = useState(false);
+  const [faceEmails, setFaceEmails] = useState<string[]>(['']);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -154,6 +155,41 @@ const ORD = () => {
                   removeImage={removeImage}
                   clearImages={() => setSelectedImages([])}
                 />
+
+                <div className="space-y-2">
+                  <Label>Уведомления на e-mail</Label>
+                  <div className="space-y-2">
+                    {faceEmails.map((email, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <Input
+                          type="email"
+                          placeholder="example@mail.ru"
+                          value={email}
+                          onChange={(e) => {
+                            const updated = [...faceEmails];
+                            updated[idx] = e.target.value;
+                            setFaceEmails(updated);
+                          }}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setFaceEmails(faceEmails.filter((_, i) => i !== idx))}
+                        >
+                          <Icon name="X" size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFaceEmails([...faceEmails, ''])}
+                    >
+                      <Icon name="Plus" size={14} className="mr-1" />
+                      Добавить e-mail
+                    </Button>
+                  </div>
+                </div>
 
                 <Button className="w-full">
                   <Icon name="Plus" size={16} className="mr-2" />
