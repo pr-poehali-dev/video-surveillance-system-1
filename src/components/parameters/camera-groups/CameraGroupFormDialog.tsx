@@ -222,10 +222,16 @@ export const CameraGroupFormDialog = ({
                     </Button>
                   </div>
                 ))}
-                <Button size="sm" className="mt-2" onClick={applyRules} disabled={rules.every(r => !r.value)}>
-                  <Icon name="Zap" size={14} className="mr-1" />
-                  Применить и добавить камеры
-                </Button>
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t">
+                  <Button variant="outline" size="sm" onClick={addRule}>
+                    <Icon name="Plus" size={14} className="mr-1" />
+                    Добавить условие
+                  </Button>
+                  <Button size="sm" onClick={applyRules} disabled={rules.every(r => !r.value)}>
+                    <Icon name="Zap" size={14} className="mr-1" />
+                    Применить и добавить камеры
+                  </Button>
+                </div>
               </div>
             )}
           </div>
