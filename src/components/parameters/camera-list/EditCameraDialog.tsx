@@ -26,12 +26,14 @@ interface EditCameraDialogProps {
     longitude: string;
     territorial_division: string;
     archive_depth_days: string;
+    ptz_controllable?: boolean;
+    ptz_zoom?: boolean;
   };
   models: CameraModel[];
   owners: Owner[];
   divisions: TerritorialDivision[];
   onOpenChange: (open: boolean) => void;
-  onFormDataChange: (formData: any) => void;
+  onFormDataChange: (formData: EditCameraDialogProps['formData']) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -119,6 +121,26 @@ export const EditCameraDialog = ({
 
           <div className="border-t pt-4">
             <h4 className="font-medium mb-3">PTZ управление (опционально)</h4>
+            <div className="flex gap-6 mb-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 accent-primary"
+                  checked={!!formData.ptz_controllable}
+                  onChange={(e) => onFormDataChange({ ...formData, ptz_controllable: e.target.checked })}
+                />
+                <span className="text-sm font-medium">Управляемая камера</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 accent-primary"
+                  checked={!!formData.ptz_zoom}
+                  onChange={(e) => onFormDataChange({ ...formData, ptz_zoom: e.target.checked })}
+                />
+                <span className="text-sm font-medium">Управляемый ZOOM</span>
+              </label>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>IP адрес PTZ</Label>
