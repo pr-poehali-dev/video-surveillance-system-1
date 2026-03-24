@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { MultiSelectCombobox } from '@/components/ui/multi-select-combobox';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
@@ -37,10 +38,10 @@ export const ReportEventLog = () => {
   };
   const [logFilters, setLogFilters] = useState({
     name: '',
-    status: 'all',
-    owner: 'Все собственники',
-    group: 'all',
-    division: 'all',
+    status: [] as string[],
+    owner: [] as string[],
+    group: [] as string[],
+    division: [] as string[],
     rtsp: '',
   });
 
@@ -79,10 +80,10 @@ export const ReportEventLog = () => {
 
   const filteredLogs = RAW_LOGS.filter(l => {
     if (logFilters.name && !l.camera.toLowerCase().includes(logFilters.name.toLowerCase())) return false;
-    if (logFilters.status !== 'all' && l.status !== logFilters.status) return false;
-    if (logFilters.owner !== 'Все собственники' && l.owner !== logFilters.owner) return false;
-    if (logFilters.group !== 'all' && l.group !== logFilters.group) return false;
-    if (logFilters.division !== 'all' && l.division !== logFilters.division) return false;
+    if (logFilters.status.length > 0 && !logFilters.status.includes(l.status)) return false;
+    if (logFilters.owner.length > 0 && !logFilters.owner.includes(l.owner)) return false;
+    if (logFilters.group.length > 0 && !logFilters.group.includes(l.group)) return false;
+    if (logFilters.division.length > 0 && !logFilters.division.includes(l.division)) return false;
     if (logFilters.rtsp && !l.rtsp.includes(logFilters.rtsp)) return false;
     return true;
   });
@@ -130,39 +131,46 @@ export const ReportEventLog = () => {
             value={logFilters.name}
             onChange={e => setLogFilters(f => ({ ...f, name: e.target.value }))}
           />
-          <Select value={logFilters.status} onValueChange={v => setLogFilters(f => ({ ...f, status: v }))}>
-            <SelectTrigger><SelectValue placeholder="Статус" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Все статусы</SelectItem>
-              <SelectItem value="success">Успех</SelectItem>
-              <SelectItem value="auth_error">Ошибка авторизации</SelectItem>
-              <SelectItem value="unavailable">Недоступна</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={logFilters.owner} onValueChange={v => setLogFilters(f => ({ ...f, owner: v }))}>
-            <SelectTrigger><SelectValue placeholder="Собственник" /></SelectTrigger>
-            <SelectContent>
-              {OWNERS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={logFilters.group} onValueChange={v => setLogFilters(f => ({ ...f, group: v }))}>
-            <SelectTrigger><SelectValue placeholder="Группа" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Все группы</SelectItem>
-              <SelectItem value="Центральный">Центральный</SelectItem>
-              <SelectItem value="Ленинский">Ленинский</SelectItem>
-              <SelectItem value="Свердловский">Свердловский</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={logFilters.division} onValueChange={v => setLogFilters(f => ({ ...f, division: v }))}>
-            <SelectTrigger><SelectValue placeholder="Терр. деление" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Все</SelectItem>
-              <SelectItem value="Район 1">Район 1</SelectItem>
-              <SelectItem value="Район 2">Район 2</SelectItem>
-              <SelectItem value="Район 3">Район 3</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultiSelectCombobox
+            options={[
+              { value: 'success', label: 'Успех' },
+              { value: 'auth_error', label: 'Ошибка авторизации' },
+              { value: 'unavailable', label: 'Недоступна' },
+            ]}
+            selected={logFilters.status}
+            onChange={v => setLogFilters(f => ({ ...f, status: v }))}
+            placeholder="Статус"
+            searchPlaceholder="Поиск..."
+          />
+          <MultiSelectCombobox
+            options={OWNERS.filter(o => o !== 'Все собственники').map(o => ({ value: o, label: o }))}
+            selected={logFilters.owner}
+            onChange={v => setLogFilters(f => ({ ...f, owner: v }))}
+            placeholder="Собственник"
+            searchPlaceholder="Поиск..."
+          />
+          <MultiSelectCombobox
+            options={[
+              { value: 'Центральный', label: 'Центральный' },
+              { value: 'Ленинский', label: 'Ленинский' },
+              { value: 'Свердловский', label: 'Свердловский' },
+            ]}
+            selected={logFilters.group}
+            onChange={v => setLogFilters(f => ({ ...f, group: v }))}
+            placeholder="Группа"
+            searchPlaceholder="Поиск..."
+          />
+          <MultiSelectCombobox
+            options={[
+              { value: 'Район 1', label: 'Район 1' },
+              { value: 'Район 2', label: 'Район 2' },
+              { value: 'Район 3', label: 'Район 3' },
+            ]}
+            selected={logFilters.division}
+            onChange={v => setLogFilters(f => ({ ...f, division: v }))}
+            placeholder="Терр. деление"
+            searchPlaceholder="Поиск..."
+          />
           <input
             className="h-9 rounded-md border border-input bg-transparent px-3 text-sm font-mono"
             placeholder="RTSP адрес"
