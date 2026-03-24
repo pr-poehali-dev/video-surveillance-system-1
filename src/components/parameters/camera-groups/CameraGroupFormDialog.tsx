@@ -86,6 +86,39 @@ export const CameraGroupFormDialog = ({
   const [divisionSearchOpen, setDivisionSearchOpen] = useState(false);
   const [divisionSearchQuery, setDivisionSearchQuery] = useState('');
 
+  type RuleField = 'territorial_division' | 'owner';
+  type Rule = { field: RuleField; value: string };
+  const [rules, setRules] = useState<Rule[]>([]);
+  const [ruleMatch, setRuleMatch] = useState<'all' | 'any'>('all');
+
+  const RULE_FIELDS: { value: RuleField; label: string }[] = [
+    { value: 'territorial_division', label: 'Территориальное деление' },
+    { value: 'owner', label: 'Собственник' },
+  ];
+
+  const getRuleOptions = (field: RuleField) => {
+    if (field === 'territorial_division') return divisions.map(d => d.name);
+    if (field === 'owner') return owners.map(o => o.name);
+    return [];
+  };
+
+  const addRule = () => setRules(r => [...r, { field: 'territorial_division', value: '' }]);
+  const removeRule = (i: number) => setRules(r => r.filter((_, idx) => idx !== i));
+  const updateRule = (i: number, patch: Partial<Rule>) =>
+    setRules(r => r.map((rule, idx) => idx === i ? { ...rule, ...patch } : rule));
+
+  const applyRules = () => {
+    const activeRules = rules.filter(r => r.value);
+    if (activeRules.length === 0) return;
+    const matched = cameras.filter(cam => {
+      const results = activeRules.map(rule => cam[rule.field] === rule.value);
+      return ruleMatch === 'all' ? results.every(Boolean) : results.some(Boolean);
+    });
+    const matchedIds = matched.map(c => c.id);
+    const newIds = [...new Set([...formData.camera_ids, ...matchedIds])];
+    onFormDataChange({ ...formData, camera_ids: newIds });
+  };
+
   const filteredOwners = owners.filter(owner =>
     owner.name.toLowerCase().includes(ownerSearchQuery.toLowerCase())
   );
@@ -132,6 +165,69 @@ export const CameraGroupFormDialog = ({
               placeholder="Описание группы (опционально)"
               rows={3}
             />
+          </div>
+
+          <div className="space-y-3 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2">
+                <Icon name="Wand2" size={16} />
+                Конструктор условий автодобавления
+              </Label>
+              <Button variant="ghost" size="sm" onClick={addRule}>
+                <Icon name="Plus" size={14} className="mr-1" />
+                Добавить условие
+              </Button>
+            </div>
+
+            {rules.length > 0 && (
+              <div className="space-y-2 rounded-md border p-3 bg-muted/30">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                  <span>Добавлять камеры, если совпадают</span>
+                  <Select value={ruleMatch} onValueChange={(v) => setRuleMatch(v as 'all' | 'any')}>
+                    <SelectTrigger className="h-6 w-24 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">все</SelectItem>
+                      <SelectItem value="any">любое</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span>из условий:</span>
+                </div>
+                {rules.map((rule, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Select value={rule.field} onValueChange={(v) => updateRule(i, { field: v as RuleField, value: '' })}>
+                      <SelectTrigger className="w-52 h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {RULE_FIELDS.map(f => (
+                          <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <span className="text-xs text-muted-foreground">равно</span>
+                    <Select value={rule.value} onValueChange={(v) => updateRule(i, { value: v })}>
+                      <SelectTrigger className="flex-1 h-8 text-sm">
+                        <SelectValue placeholder="Выберите значение..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getRuleOptions(rule.field).map(opt => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeRule(i)}>
+                      <Icon name="X" size={14} />
+                    </Button>
+                  </div>
+                ))}
+                <Button size="sm" className="mt-2" onClick={applyRules} disabled={rules.every(r => !r.value)}>
+                  <Icon name="Zap" size={14} className="mr-1" />
+                  Применить и добавить камеры
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-3 border-t pt-4">
