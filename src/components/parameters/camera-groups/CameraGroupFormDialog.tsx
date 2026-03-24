@@ -207,16 +207,34 @@ export const CameraGroupFormDialog = ({
                       </SelectContent>
                     </Select>
                     <span className="text-xs text-muted-foreground">равно</span>
-                    <Select value={rule.value} onValueChange={(v) => updateRule(i, { value: v })}>
-                      <SelectTrigger className="flex-1 h-8 text-sm">
-                        <SelectValue placeholder="Выберите значение..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getRuleOptions(rule.field).map(opt => (
-                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="flex-1 h-8 text-sm justify-between font-normal">
+                          {rule.value || <span className="text-muted-foreground">Выберите значение...</span>}
+                          <Icon name="ChevronsUpDown" size={14} className="ml-2 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0 w-64" align="start">
+                        <Command>
+                          <CommandInput placeholder="Поиск..." />
+                          <CommandList>
+                            <CommandEmpty>Ничего не найдено</CommandEmpty>
+                            <CommandGroup>
+                              {getRuleOptions(rule.field).map(opt => (
+                                <CommandItem
+                                  key={opt}
+                                  value={opt}
+                                  onSelect={() => updateRule(i, { value: opt })}
+                                >
+                                  <Icon name="Check" size={14} className={`mr-2 ${rule.value === opt ? 'opacity-100' : 'opacity-0'}`} />
+                                  {opt}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeRule(i)}>
                       <Icon name="X" size={14} />
                     </Button>
