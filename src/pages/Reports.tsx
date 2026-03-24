@@ -235,7 +235,7 @@ const Reports = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Icon name="Users" size={20} />
-              Распознавание лиц и людей
+              Распознавание лиц
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -250,21 +250,11 @@ const Reports = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
-                <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
-                  <Icon name="Users" size={24} className="text-secondary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Обнаружено людей</p>
-                  <p className="text-2xl font-bold">{stats.peopleDetected.toLocaleString('ru-RU')}</p>
-                </div>
-              </div>
-
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Среднее в день</span>
                   <span className="font-semibold">
-                    {Math.round((stats.facesDetected + stats.peopleDetected) / parseInt(selectedPeriod)).toLocaleString('ru-RU')}
+                    {Math.round(stats.facesDetected / parseInt(selectedPeriod)).toLocaleString('ru-RU')}
                   </span>
                 </div>
               </div>
