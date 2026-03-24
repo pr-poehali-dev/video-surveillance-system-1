@@ -5,13 +5,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { MultiSelectCombobox } from '@/components/ui/multi-select-combobox';
 import {
   Dialog,
   DialogContent,
@@ -36,11 +30,11 @@ const Monitoring = () => {
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [clusteringEnabled, setClusteringEnabled] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [ownerFilter, setOwnerFilter] = useState<string>('all');
-  const [groupFilter, setGroupFilter] = useState<string>('all');
-  const [divisionFilter, setDivisionFilter] = useState<string>('all');
-  const [tagFilter, setTagFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [ownerFilter, setOwnerFilter] = useState<string[]>([]);
+  const [groupFilter, setGroupFilter] = useState<string[]>([]);
+  const [divisionFilter, setDivisionFilter] = useState<string[]>([]);
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [cameras, setCameras] = useState<Camera[]>([]);
@@ -107,20 +101,20 @@ const Monitoring = () => {
     const matchesSearch =
       camera.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       camera.address.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || camera.status === statusFilter;
-    const matchesOwner = ownerFilter === 'all' || camera.owner === ownerFilter;
-    const matchesGroup = groupFilter === 'all' || camera.group === groupFilter;
-    const matchesDivision = divisionFilter === 'all' || camera.territorial_division === divisionFilter;
-    const matchesTag = tagFilter === 'all' || (camera.tags && camera.tags.includes(tagFilter));
+    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(camera.status);
+    const matchesOwner = ownerFilter.length === 0 || ownerFilter.includes(camera.owner);
+    const matchesGroup = groupFilter.length === 0 || groupFilter.includes(camera.group);
+    const matchesDivision = divisionFilter.length === 0 || divisionFilter.includes(camera.territorial_division);
+    const matchesTag = tagFilter.length === 0 || (camera.tags && tagFilter.some(t => camera.tags.includes(t)));
     return matchesSearch && matchesStatus && matchesOwner && matchesGroup && matchesDivision && matchesTag;
   });
 
   const activeFiltersCount = [
-    statusFilter !== 'all',
-    ownerFilter !== 'all',
-    groupFilter !== 'all',
-    divisionFilter !== 'all',
-    tagFilter !== 'all'
+    statusFilter.length > 0,
+    ownerFilter.length > 0,
+    groupFilter.length > 0,
+    divisionFilter.length > 0,
+    tagFilter.length > 0,
   ].filter(Boolean).length;
 
   if (loading) {
@@ -184,85 +178,85 @@ const Monitoring = () => {
                     <div className="space-y-6 mt-6">
                       <div className="space-y-2">
                         <Label>Статус камеры</Label>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Выберите статус" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Все статусы</SelectItem>
-                            <SelectItem value="active">Активные</SelectItem>
-                            <SelectItem value="inactive">Неактивные</SelectItem>
-                            <SelectItem value="problem">Проблемные</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <MultiSelectCombobox
+                          options={[
+                            { value: 'active', label: 'Активные' },
+                            { value: 'inactive', label: 'Неактивные' },
+                            { value: 'problem', label: 'Проблемные' },
+                          ]}
+                          selected={statusFilter}
+                          onChange={setStatusFilter}
+                          placeholder="Выберите статус"
+                          searchPlaceholder="Поиск статуса..."
+                        />
                       </div>
 
                       <div className="space-y-2">
                         <Label>Собственник</Label>
-                        <Select value={ownerFilter} onValueChange={setOwnerFilter}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Выберите собственника" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Все собственники</SelectItem>
-                            <SelectItem value="МВД">МВД</SelectItem>
-                            <SelectItem value="Администрация">Администрация</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <MultiSelectCombobox
+                          options={[
+                            { value: 'МВД', label: 'МВД' },
+                            { value: 'Администрация', label: 'Администрация' },
+                          ]}
+                          selected={ownerFilter}
+                          onChange={setOwnerFilter}
+                          placeholder="Выберите собственника"
+                          searchPlaceholder="Поиск собственника..."
+                        />
                       </div>
 
                       <div className="space-y-2">
                         <Label>Группа камер</Label>
-                        <Select value={groupFilter} onValueChange={setGroupFilter}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Выберите группу" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Все группы</SelectItem>
-                            <SelectItem value="Центральный район">Центральный район</SelectItem>
-                            <SelectItem value="Дзержинский район">Дзержинский район</SelectItem>
-                            <SelectItem value="Индустриальный район">Индустриальный район</SelectItem>
-                            <SelectItem value="Ленинский район">Ленинский район</SelectItem>
-                            <SelectItem value="Мотовилихинский район">Мотовилихинский район</SelectItem>
-                            <SelectItem value="Свердловский район">Свердловский район</SelectItem>
-                            <SelectItem value="Кировский район">Кировский район</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <MultiSelectCombobox
+                          options={[
+                            { value: 'Центральный район', label: 'Центральный район' },
+                            { value: 'Дзержинский район', label: 'Дзержинский район' },
+                            { value: 'Индустриальный район', label: 'Индустриальный район' },
+                            { value: 'Ленинский район', label: 'Ленинский район' },
+                            { value: 'Мотовилихинский район', label: 'Мотовилихинский район' },
+                            { value: 'Свердловский район', label: 'Свердловский район' },
+                            { value: 'Кировский район', label: 'Кировский район' },
+                          ]}
+                          selected={groupFilter}
+                          onChange={setGroupFilter}
+                          placeholder="Выберите группу"
+                          searchPlaceholder="Поиск группы..."
+                        />
                       </div>
 
                       <div className="space-y-2">
                         <Label>Территориальное деление</Label>
-                        <Select value={divisionFilter} onValueChange={setDivisionFilter}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Выберите территорию" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Все территории</SelectItem>
-                            <SelectItem value="Центральный район">Центральный район</SelectItem>
-                            <SelectItem value="Дзержинский район">Дзержинский район</SelectItem>
-                            <SelectItem value="Индустриальный район">Индустриальный район</SelectItem>
-                            <SelectItem value="Ленинский район">Ленинский район</SelectItem>
-                            <SelectItem value="Мотовилихинский район">Мотовилихинский район</SelectItem>
-                            <SelectItem value="Свердловский район">Свердловский район</SelectItem>
-                            <SelectItem value="Кировский район">Кировский район</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <MultiSelectCombobox
+                          options={[
+                            { value: 'Центральный район', label: 'Центральный район' },
+                            { value: 'Дзержинский район', label: 'Дзержинский район' },
+                            { value: 'Индустриальный район', label: 'Индустриальный район' },
+                            { value: 'Ленинский район', label: 'Ленинский район' },
+                            { value: 'Мотовилихинский район', label: 'Мотовилихинский район' },
+                            { value: 'Свердловский район', label: 'Свердловский район' },
+                            { value: 'Кировский район', label: 'Кировский район' },
+                          ]}
+                          selected={divisionFilter}
+                          onChange={setDivisionFilter}
+                          placeholder="Выберите территорию"
+                          searchPlaceholder="Поиск территории..."
+                        />
                       </div>
 
                       <div className="space-y-2">
                         <Label>Теги</Label>
-                        <Select value={tagFilter} onValueChange={setTagFilter}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Выберите тег" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Все теги</SelectItem>
-                            <SelectItem value="Важная">Важная</SelectItem>
-                            <SelectItem value="Проблемная">Проблемная</SelectItem>
-                            <SelectItem value="Новая">Новая</SelectItem>
-                            <SelectItem value="На проверке">На проверке</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <MultiSelectCombobox
+                          options={[
+                            { value: 'Важная', label: 'Важная' },
+                            { value: 'Проблемная', label: 'Проблемная' },
+                            { value: 'Новая', label: 'Новая' },
+                            { value: 'На проверке', label: 'На проверке' },
+                          ]}
+                          selected={tagFilter}
+                          onChange={setTagFilter}
+                          placeholder="Выберите тег"
+                          searchPlaceholder="Поиск тега..."
+                        />
                       </div>
 
                       <div className="pt-4 border-t">
@@ -270,11 +264,11 @@ const Monitoring = () => {
                           variant="outline"
                           className="w-full"
                           onClick={() => {
-                            setStatusFilter('all');
-                            setOwnerFilter('all');
-                            setGroupFilter('all');
-                            setDivisionFilter('all');
-                            setTagFilter('all');
+                            setStatusFilter([]);
+                            setOwnerFilter([]);
+                            setGroupFilter([]);
+                            setDivisionFilter([]);
+                            setTagFilter([]);
                           }}
                         >
                           <Icon name="X" size={16} className="mr-2" />
