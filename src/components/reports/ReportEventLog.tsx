@@ -24,6 +24,17 @@ const ALL_CAMERAS = [
 
 export const ReportEventLog = () => {
   const [pageSize, setPageSize] = useState(100);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      setLastUpdated(new Date());
+      toast.success('Данные обновлены');
+    }, 800);
+  };
   const [logFilters, setLogFilters] = useState({
     name: '',
     status: 'all',
@@ -92,14 +103,25 @@ export const ReportEventLog = () => {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="ScrollText" size={20} />
-            Журнал событий камер
-          </CardTitle>
-          <Button variant="outline" size="sm" onClick={handleDownload}>
-            <Icon name="Download" size={14} className="mr-1" />
-            Скачать CSV
-          </Button>
+          <div className="flex items-center gap-3">
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="ScrollText" size={20} />
+              Журнал событий камер
+            </CardTitle>
+            <span className="text-xs text-muted-foreground">
+              Обновлено: {lastUpdated.toLocaleTimeString('ru-RU')}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+              <Icon name="RefreshCw" size={14} className={`mr-1 ${refreshing ? 'animate-spin' : ''}`} />
+              Обновить
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleDownload}>
+              <Icon name="Download" size={14} className="mr-1" />
+              Скачать CSV
+            </Button>
+          </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mt-4">
           <input
