@@ -124,21 +124,33 @@ export const EditCameraDialog = ({
             <div className="flex gap-6 mb-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
-                  type="checkbox"
+                  type="radio"
+                  name="ptz_mode"
                   className="w-4 h-4 accent-primary"
-                  checked={!!formData.ptz_controllable}
-                  onChange={(e) => onFormDataChange({ ...formData, ptz_controllable: e.target.checked })}
+                  checked={!!formData.ptz_controllable && !formData.ptz_zoom}
+                  onChange={() => onFormDataChange({ ...formData, ptz_controllable: true, ptz_zoom: false })}
                 />
                 <span className="text-sm font-medium">Управляемая камера</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
-                  type="checkbox"
+                  type="radio"
+                  name="ptz_mode"
                   className="w-4 h-4 accent-primary"
-                  checked={!!formData.ptz_zoom}
-                  onChange={(e) => onFormDataChange({ ...formData, ptz_zoom: e.target.checked })}
+                  checked={!!formData.ptz_zoom && !formData.ptz_controllable}
+                  onChange={() => onFormDataChange({ ...formData, ptz_zoom: true, ptz_controllable: false })}
                 />
                 <span className="text-sm font-medium">Управляемый ZOOM</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="ptz_mode"
+                  className="w-4 h-4 accent-primary"
+                  checked={!formData.ptz_controllable && !formData.ptz_zoom}
+                  onChange={() => onFormDataChange({ ...formData, ptz_controllable: false, ptz_zoom: false })}
+                />
+                <span className="text-sm font-medium">Не выбрано</span>
               </label>
             </div>
             <div className="grid grid-cols-2 gap-4">
