@@ -41,7 +41,7 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
 
       <Card className="border-border/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Обнаружено транспортных средств (24ч)</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">Камер с распознаванием ГРЗ</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
