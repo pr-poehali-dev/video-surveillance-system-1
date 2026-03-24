@@ -266,7 +266,7 @@ const Reports = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Icon name="CarFront" size={20} />
-              Распознавание ГРЗ и транспорта
+              Распознавание ГРЗ
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -281,21 +281,11 @@ const Reports = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Icon name="CarFront" size={24} className="text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Обнаружено ТС</p>
-                  <p className="text-2xl font-bold">{stats.vehiclesDetected.toLocaleString('ru-RU')}</p>
-                </div>
-              </div>
-
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Среднее в день</span>
                   <span className="font-semibold">
-                    {Math.round((stats.platesDetected + stats.vehiclesDetected) / parseInt(selectedPeriod)).toLocaleString('ru-RU')}
+                    {Math.round(stats.platesDetected / parseInt(selectedPeriod)).toLocaleString('ru-RU')}
                   </span>
                 </div>
               </div>
