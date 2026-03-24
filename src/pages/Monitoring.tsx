@@ -35,6 +35,7 @@ const Monitoring = () => {
   const [groupFilter, setGroupFilter] = useState<string[]>([]);
   const [divisionFilter, setDivisionFilter] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
+  const [analyticsFilter, setAnalyticsFilter] = useState<string[]>([]);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [cameras, setCameras] = useState<Camera[]>([]);
@@ -106,7 +107,11 @@ const Monitoring = () => {
     const matchesGroup = groupFilter.length === 0 || groupFilter.includes(camera.group);
     const matchesDivision = divisionFilter.length === 0 || divisionFilter.includes(camera.territorial_division);
     const matchesTag = tagFilter.length === 0 || (camera.tags && tagFilter.some(t => camera.tags.includes(t)));
-    return matchesSearch && matchesStatus && matchesOwner && matchesGroup && matchesDivision && matchesTag;
+    const matchesAnalytics = analyticsFilter.length === 0 || (
+      (analyticsFilter.includes('face') && camera.face_recognition) ||
+      (analyticsFilter.includes('grz') && camera.grz_recognition)
+    );
+    return matchesSearch && matchesStatus && matchesOwner && matchesGroup && matchesDivision && matchesTag && matchesAnalytics;
   });
 
   const activeFiltersCount = [
@@ -115,6 +120,7 @@ const Monitoring = () => {
     groupFilter.length > 0,
     divisionFilter.length > 0,
     tagFilter.length > 0,
+    analyticsFilter.length > 0,
   ].filter(Boolean).length;
 
   if (loading) {
@@ -259,6 +265,20 @@ const Monitoring = () => {
                         />
                       </div>
 
+                      <div className="space-y-2">
+                        <Label>Видеоаналитика</Label>
+                        <MultiSelectCombobox
+                          options={[
+                            { value: 'face', label: 'Распознавание лиц' },
+                            { value: 'grz', label: 'Распознавание ГРЗ' },
+                          ]}
+                          selected={analyticsFilter}
+                          onChange={setAnalyticsFilter}
+                          placeholder="Выберите тип аналитики"
+                          searchPlaceholder="Поиск..."
+                        />
+                      </div>
+
                       <div className="pt-4 border-t">
                         <Button
                           variant="outline"
@@ -269,6 +289,7 @@ const Monitoring = () => {
                             setGroupFilter([]);
                             setDivisionFilter([]);
                             setTagFilter([]);
+                            setAnalyticsFilter([]);
                           }}
                         >
                           <Icon name="X" size={16} className="mr-2" />
