@@ -24,10 +24,10 @@ interface SearchResultsProps {
 
 const QUERY_IMAGE = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face';
 
-const MOCK_MAP_POINTS = [
-  { lat: 56.8389, lng: 60.6057, label: 'Камера-001', time: '2024-11-21 14:32:15' },
-  { lat: 56.8412, lng: 60.6124, label: 'Камера-003', time: '2024-11-21 14:45:02' },
-  { lat: 56.8350, lng: 60.5990, label: 'Камера-007', time: '2024-11-21 15:01:38' },
+const MOCK_DETECTIONS = [
+  { lat: 56.8389, lng: 60.6057, label: 'Камера-001', time: '2024-11-21 14:32:15', address: 'ул. Ленина, 50', match: 94.5, image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face' },
+  { lat: 56.8412, lng: 60.6124, label: 'Камера-003', time: '2024-11-21 14:45:02', address: 'пр. Мира, 12', match: 88.2, image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face' },
+  { lat: 56.8350, lng: 60.5990, label: 'Камера-007', time: '2024-11-21 15:01:38', address: 'ул. Пушкина, 3', match: 91.7, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face' },
 ];
 
 export const SearchResults = ({ results }: SearchResultsProps) => {
@@ -149,40 +149,45 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
               </TabsList>
 
               <TabsContent value="info" className="space-y-4 mt-4">
-                <div className="flex gap-4">
-                  <div className="space-y-2 flex-shrink-0 w-40">
+                <div className="flex gap-4 items-start">
+                  <div className="space-y-1 flex-shrink-0">
                     <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Искомое</p>
-                    <div className="w-40 h-40 rounded-lg overflow-hidden bg-muted">
+                    <div className="w-28 h-28 rounded-lg overflow-hidden bg-muted">
                       <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
                     </div>
                   </div>
-                  <div className="flex-1 space-y-2 min-w-0">
+                  <div className="flex-1 min-w-0 space-y-1">
                     <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-                      Найденные изображения ({MOCK_MAP_POINTS.length})
+                      Найдено совпадений: {MOCK_DETECTIONS.length}
                     </p>
-                    <ScrollArea className="h-40">
-                      <div className="flex gap-2 pr-2">
-                        {MOCK_MAP_POINTS.map((point, index) => (
-                          <div key={index} className="flex-shrink-0 space-y-1">
-                            <div className="w-36 h-32 rounded-lg overflow-hidden bg-muted relative">
-                              {selected.image ? (
-                                <img src={selected.image} alt={point.label} className="w-full h-full object-cover" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                  <Icon name="ImageOff" size={24} />
-                                </div>
-                              )}
-                              <div className="absolute top-1 left-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    <ScrollArea className="h-48">
+                      <div className="space-y-2 pr-2">
+                        {MOCK_DETECTIONS.map((det, index) => (
+                          <div key={index} className="flex gap-3 border border-border/50 rounded-lg p-2">
+                            <div className="relative flex-shrink-0">
+                              <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
+                                {det.image ? (
+                                  <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                    <Icon name="ImageOff" size={18} />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="absolute -top-1 -left-1 bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
                                 {index + 1}
                               </div>
-                              <Badge
-                                className="absolute bottom-1 right-1 text-xs py-0"
-                                variant={selected.match > 95 ? 'default' : 'secondary'}
-                              >
-                                {selected.match}%
-                              </Badge>
                             </div>
-                            <p className="text-xs text-muted-foreground text-center truncate w-36">{point.label}</p>
+                            <div className="flex-1 min-w-0 text-xs space-y-0.5">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium">{det.label}</span>
+                                <Badge className="text-xs py-0" variant={det.match > 92 ? 'default' : 'secondary'}>
+                                  {det.match}%
+                                </Badge>
+                              </div>
+                              <p className="text-muted-foreground">{det.address}</p>
+                              <p className="text-muted-foreground">{det.time}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -190,47 +195,34 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 text-sm border-t pt-4">
-                  <div>
-                    <span className="text-muted-foreground text-xs">Время обнаружения</span>
-                    <p className="font-medium">{selected.time}</p>
+                {selected.plate && (
+                  <div className="border-t pt-3">
+                    <span className="text-muted-foreground text-xs">Государственный регистрационный знак</span>
+                    <p className="font-medium font-mono text-lg">{selected.plate}</p>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground text-xs">Камера</span>
-                    <p className="font-medium">{selected.camera}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-muted-foreground text-xs">Адрес</span>
-                    <p className="font-medium">{selected.address}</p>
-                  </div>
-                  {selected.plate && (
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground text-xs">Государственный регистрационный знак</span>
-                      <p className="font-medium font-mono text-lg">{selected.plate}</p>
-                    </div>
-                  )}
-                </div>
+                )}
               </TabsContent>
 
               <TabsContent value="map" className="mt-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Icon name="Info" size={14} />
-                    <span>Обнаружено на {MOCK_MAP_POINTS.length} камерах. Маршрут показан пунктирной линией.</span>
+                    <span>Обнаружено на {MOCK_DETECTIONS.length} камерах. Маршрут показан пунктирной линией.</span>
                   </div>
                   <div className="h-80">
-                    <YandexMap points={MOCK_MAP_POINTS} />
+                    <YandexMap points={MOCK_DETECTIONS} />
                   </div>
                   <div className="space-y-2">
-                    {MOCK_MAP_POINTS.map((point, index) => (
+                    {MOCK_DETECTIONS.map((det, index) => (
                       <div key={index} className="flex items-center gap-3 text-sm p-2 rounded-md bg-muted/50">
                         <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                           {index + 1}
                         </div>
                         <div className="flex-1">
-                          <span className="font-medium">{point.label}</span>
+                          <span className="font-medium">{det.label}</span>
+                          <span className="text-muted-foreground ml-2">{det.address}</span>
                         </div>
-                        <span className="text-muted-foreground text-xs">{point.time}</span>
+                        <span className="text-muted-foreground text-xs">{det.time}</span>
                       </div>
                     ))}
                   </div>
@@ -243,14 +235,15 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                     <Icon name="Info" size={14} />
                     <span>Фрагменты видеоархива с момента обнаружения</span>
                   </div>
-                  {MOCK_MAP_POINTS.map((point, index) => (
+                  {MOCK_DETECTIONS.map((det, index) => (
                     <div key={index} className="border border-border rounded-lg overflow-hidden">
                       <div className="flex items-center justify-between px-3 py-2 bg-muted/50">
                         <div className="flex items-center gap-2 text-sm font-medium">
                           <Icon name="Video" size={14} className="text-primary" />
-                          {point.label}
+                          {det.label}
+                          <span className="text-muted-foreground font-normal text-xs">{det.address}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground">{point.time}</span>
+                        <span className="text-xs text-muted-foreground">{det.time}</span>
                       </div>
                       <div className="bg-black aspect-video flex items-center justify-center relative">
                         <div className="text-center text-white/60">
@@ -259,7 +252,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                           <p className="text-xs mt-1">Фрагмент: ±30 сек от момента обнаружения</p>
                         </div>
                         <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                          {point.label} • {point.time}
+                          {det.label} • {det.time}
                         </div>
                       </div>
                     </div>
