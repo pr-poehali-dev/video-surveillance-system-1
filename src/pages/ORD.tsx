@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { StatsCards } from '@/components/ord/StatsCards';
 import { ImageUploadZone } from '@/components/ord/ImageUploadZone';
 import { SearchResults } from '@/components/ord/SearchResults';
+import { CAMERAS_API } from '@/components/parameters/camera-list/CameraListTypes';
+
+interface CameraOption {
+  id: number;
+  name: string;
+  address?: string;
+}
 
 const ORD = () => {
   const [plateSearch, setPlateSearch] = useState('');
@@ -18,6 +27,27 @@ const ORD = () => {
   const [isCreatePlateFormOpen, setIsCreatePlateFormOpen] = useState(false);
   const [faceEmails, setFaceEmails] = useState<string[]>(['']);
   const [plateEmails, setPlateEmails] = useState<string[]>(['']);
+  const [cameras, setCameras] = useState<CameraOption[]>([]);
+  const [selectedCameraIds, setSelectedCameraIds] = useState<number[]>([]);
+  const [cameraSearch, setCameraSearch] = useState('');
+
+  useEffect(() => {
+    fetch(CAMERAS_API)
+      .then(r => r.json())
+      .then(data => setCameras(Array.isArray(data) ? data : []))
+      .catch(() => setCameras([]));
+  }, []);
+
+  const toggleCamera = (id: number) => {
+    setSelectedCameraIds(prev =>
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  };
+
+  const filteredCameras = cameras.filter(c =>
+    c.name.toLowerCase().includes(cameraSearch.toLowerCase()) ||
+    (c.address || '').toLowerCase().includes(cameraSearch.toLowerCase())
+  );
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -307,6 +337,68 @@ const ORD = () => {
                     <Label htmlFor="date-to">Период до</Label>
                     <Input id="date-to" type="datetime-local" />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Камеры для поиска</Label>
+                    <div className="flex gap-2">
+                      {selectedCameraIds.length > 0 && (
+                        <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setSelectedCameraIds([])}>
+                          Сбросить
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setSelectedCameraIds(cameras.map(c => c.id))}>
+                        Выбрать все
+                      </Button>
+                    </div>
+                  </div>
+                  <Input
+                    placeholder="Поиск камеры..."
+                    value={cameraSearch}
+                    onChange={e => setCameraSearch(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                  <ScrollArea className="h-40 border rounded-lg p-2">
+                    <div className="space-y-1">
+                      {filteredCameras.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-4">Камеры не найдены</p>
+                      ) : (
+                        filteredCameras.map(camera => (
+                          <div
+                            key={camera.id}
+                            className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-muted transition-colors ${selectedCameraIds.includes(camera.id) ? 'bg-muted' : ''}`}
+                            onClick={() => toggleCamera(camera.id)}
+                          >
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 pointer-events-none"
+                              checked={selectedCameraIds.includes(camera.id)}
+                              readOnly
+                            />
+                            <Icon name="Video" size={14} className="text-muted-foreground shrink-0" />
+                            <span className="text-sm truncate">{camera.name}</span>
+                            {camera.address && (
+                              <span className="text-xs text-muted-foreground truncate ml-auto">{camera.address}</span>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                  {selectedCameraIds.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {selectedCameraIds.map(id => {
+                        const cam = cameras.find(c => c.id === id);
+                        return cam ? (
+                          <Badge key={id} variant="secondary" className="text-xs">
+                            {cam.name}
+                            <button className="ml-1 hover:text-destructive" onClick={() => toggleCamera(id)}>×</button>
+                          </Badge>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <ImageUploadZone
