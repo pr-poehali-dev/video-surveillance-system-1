@@ -133,9 +133,9 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
               {selected?.type === 'face' ? 'Распознавание лица' : 'Распознавание ГРЗ'}
               <Badge
                 className="ml-2 text-sm px-3 py-1"
-                variant={selected && selected.match > 95 ? 'default' : selected && selected.match > 85 ? 'secondary' : 'outline'}
+                variant="secondary"
               >
-                {selected?.match}% совпадение
+                {MOCK_DETECTIONS.length} совпадений
               </Badge>
             </DialogTitle>
           </DialogHeader>
