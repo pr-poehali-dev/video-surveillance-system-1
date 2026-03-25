@@ -1,15 +1,10 @@
 {
-  "sessions": "https://functions.poehali.dev/16e39082-42c6-4aa9-9d08-b1ba9520eb50",
   "auth": "https://functions.poehali.dev/781fed05-96cd-43c7-88cc-c4b72549f79f",
   "impersonate": "https://functions.poehali.dev/5d7bd1cf-29e4-49bd-970e-ead118147909",
   "system-users": "https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f",
-  "roles": "https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b",
   "camera-groups": "https://functions.poehali.dev/90109919-f443-4ada-9135-696710aa2338",
-  "user-groups": "https://functions.poehali.dev/8e8951a5-c686-4bb1-946c-23f7d5a82d44",
-  "camera-registry": "https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7",
   "camera-owners": "https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641",
   "territorial-divisions": "https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674",
-  "models": "https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171",
   "groups": "https://functions.poehali.dev/82081c1b-ac10-4aa3-aaa8-a7cc4a6fad84",
   "tags": "https://functions.poehali.dev/57f01bad-6313-43f1-95bc-81189e167383",
   "cameras-stats": "https://functions.poehali.dev/493b6ec7-24af-42b5-993a-00cb298c4ef7"

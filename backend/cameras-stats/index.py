@@ -46,19 +46,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur.execute('''
             SELECT 
                 COUNT(*) as total,
-                COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
-                COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive,
-                COUNT(CASE WHEN status = 'problem' THEN 1 END) as problem,
-                COALESCE(SUM(traffic), 0) as total_traffic,
-                COALESCE(AVG(fps), 0) as avg_fps
-            FROM t_p76735805_video_surveillance_s.cameras
+                0 as active,
+                0 as inactive,
+                0 as problem,
+                0 as total_traffic,
+                0 as avg_fps
+            FROM t_p76735805_video_surveillance_s.cameras_registry
         ''')
         
         stats = cur.fetchone()
         
         cur.execute('''
             SELECT owner, COUNT(*) as count
-            FROM t_p76735805_video_surveillance_s.cameras
+            FROM t_p76735805_video_surveillance_s.cameras_registry
+            WHERE owner IS NOT NULL
             GROUP BY owner
             ORDER BY count DESC
         ''')
@@ -66,9 +67,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         owners = cur.fetchall()
         
         cur.execute('''
-            SELECT "group", COUNT(*) as count
-            FROM t_p76735805_video_surveillance_s.cameras
-            GROUP BY "group"
+            SELECT territorial_division as group, COUNT(*) as count
+            FROM t_p76735805_video_surveillance_s.cameras_registry
+            WHERE territorial_division IS NOT NULL
+            GROUP BY territorial_division
             ORDER BY count DESC
         ''')
         
