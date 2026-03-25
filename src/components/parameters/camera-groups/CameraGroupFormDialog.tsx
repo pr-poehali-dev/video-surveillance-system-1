@@ -249,6 +249,18 @@ export const CameraGroupFormDialog = ({
                     <Icon name="Zap" size={14} className="mr-1" />
                     Применить и добавить камеры
                   </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      const allIds = cameras.map(c => c.id);
+                      const newIds = [...new Set([...formData.camera_ids, ...allIds])];
+                      onFormDataChange({ ...formData, camera_ids: newIds });
+                    }}
+                  >
+                    <Icon name="CheckCheck" size={14} className="mr-1" />
+                    Добавить все ({cameras.length})
+                  </Button>
                 </div>
               </div>
             )}
