@@ -13,6 +13,8 @@ export interface Camera {
   resolution: string;
   fps: number;
   traffic: string | number;
+  rtsp_url?: string;
+  hls_url?: string;
   created_at?: string;
   updated_at?: string;
 }

@@ -382,11 +382,51 @@ const Monitoring = () => {
 
           {selectedCamera && (
             <div className="space-y-4">
-              <div className="aspect-video bg-black rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <Icon name="Play" size={64} className="text-white mx-auto mb-2" />
-                  <p className="text-white">Видеопоток</p>
-                  <p className="text-white/60 text-sm">{selectedCamera.resolution} • {selectedCamera.fps} FPS</p>
+              <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
+                {selectedCamera.hls_url ? (
+                  <video
+                    key={selectedCamera.hls_url}
+                    src={selectedCamera.hls_url}
+                    autoPlay
+                    controls
+                    muted
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLVideoElement).style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center"
+                  style={{ display: selectedCamera.hls_url ? 'none' : 'flex' }}
+                >
+                  {selectedCamera.rtsp_url ? (
+                    <div className="text-center px-6">
+                      <Icon name="Video" size={48} className="text-white/60 mx-auto mb-3" />
+                      <p className="text-white font-medium mb-1">RTSP-поток</p>
+                      <p className="text-white/50 text-xs mb-3 font-mono break-all">{selectedCamera.rtsp_url}</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-white border-white/30 hover:bg-white/10"
+                        onClick={() => {
+                          navigator.clipboard.writeText(selectedCamera.rtsp_url!);
+                          toast.success('Ссылка скопирована');
+                        }}
+                      >
+                        <Icon name="Copy" size={14} className="mr-1" />
+                        Скопировать ссылку
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Icon name="VideoOff" size={48} className="text-white/40 mx-auto mb-2" />
+                      <p className="text-white/60">Поток не настроен</p>
+                      <p className="text-white/40 text-sm">{selectedCamera.resolution} • {selectedCamera.fps} FPS</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
