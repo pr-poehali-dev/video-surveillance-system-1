@@ -1,23 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { StatsCards } from '@/components/ord/StatsCards';
-import { ImageUploadZone } from '@/components/ord/ImageUploadZone';
-import { SearchResults } from '@/components/ord/SearchResults';
+import { OnlineFaceTab } from '@/components/ord/OnlineFaceTab';
+import { OnlinePlateTab } from '@/components/ord/OnlinePlateTab';
+import { HistoryFaceTab } from '@/components/ord/HistoryFaceTab';
+import { HistoryPlateTab } from '@/components/ord/HistoryPlateTab';
+import { CameraOption } from '@/components/ord/CameraMultiSelect';
 import { CAMERAS_API } from '@/components/parameters/camera-list/CameraListTypes';
-
-interface CameraOption {
-  id: number;
-  name: string;
-  address?: string;
-}
 
 const ORD = () => {
   const [plateSearch, setPlateSearch] = useState('');
@@ -29,9 +20,7 @@ const ORD = () => {
   const [plateEmails, setPlateEmails] = useState<string[]>(['']);
   const [cameras, setCameras] = useState<CameraOption[]>([]);
   const [selectedCameraIds, setSelectedCameraIds] = useState<number[]>([]);
-  const [cameraSearch, setCameraSearch] = useState('');
   const [selectedPlateCameraIds, setSelectedPlateCameraIds] = useState<number[]>([]);
-  const [plateCameraSearch, setPlateCameraSearch] = useState('');
 
   useEffect(() => {
     fetch(CAMERAS_API)
@@ -51,16 +40,6 @@ const ORD = () => {
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
   };
-
-  const filteredPlateCameras = cameras.filter(c =>
-    c.name.toLowerCase().includes(plateCameraSearch.toLowerCase()) ||
-    (c.address || '').toLowerCase().includes(plateCameraSearch.toLowerCase())
-  );
-
-  const filteredCameras = cameras.filter(c =>
-    c.name.toLowerCase().includes(cameraSearch.toLowerCase()) ||
-    (c.address || '').toLowerCase().includes(cameraSearch.toLowerCase())
-  );
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -83,11 +62,9 @@ const ORD = () => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
-    const files = Array.from(e.dataTransfer.files).filter(file => 
+    const files = Array.from(e.dataTransfer.files).filter(file =>
       file.type.startsWith('image/')
     );
-    
     if (files.length > 0) {
       setSelectedImages(prev => [...prev, ...files]);
       toast.success(`Загружено ${files.length} изображений`);
@@ -162,385 +139,68 @@ const ORD = () => {
             <TabsTrigger value="history-plate">Исторический поиск ГРЗ</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="online-face" className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button onClick={() => setIsCreateFormOpen(!isCreateFormOpen)}>
-                <Icon name={isCreateFormOpen ? "ChevronUp" : "Plus"} size={16} className="mr-2" />
-                {isCreateFormOpen ? "Скрыть форму" : "Создать лист мониторинга"}
-              </Button>
-            </div>
-
-            {isCreateFormOpen && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="UserSearch" size={20} />
-                  Создать лист мониторинга лиц
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="face-name">Наименование <span className="text-destructive">*</span></Label>
-                  <Input id="face-name" placeholder="Введите название листа мониторинга" required />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="face-description">Описание</Label>
-                  <Input id="face-description" placeholder="Описание листа мониторинга" />
-                </div>
-
-                <ImageUploadZone
-                  selectedImages={selectedImages}
-                  isDragging={isDragging}
-                  onImageUpload={handleImageUpload}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  removeImage={removeImage}
-                  clearImages={() => setSelectedImages([])}
-                />
-
-                <div className="space-y-2">
-                  <Label>Уведомления на e-mail</Label>
-                  <div className="space-y-2">
-                    {faceEmails.map((email, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <Input
-                          type="email"
-                          placeholder="example@mail.ru"
-                          value={email}
-                          onChange={(e) => {
-                            const updated = [...faceEmails];
-                            updated[idx] = e.target.value;
-                            setFaceEmails(updated);
-                          }}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setFaceEmails(faceEmails.filter((_, i) => i !== idx))}
-                        >
-                          <Icon name="X" size={16} />
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setFaceEmails([...faceEmails, ''])}
-                    >
-                      <Icon name="Plus" size={14} className="mr-1" />
-                      Добавить e-mail
-                    </Button>
-                  </div>
-                </div>
-
-                <Button className="w-full">
-                  <Icon name="Plus" size={16} className="mr-2" />
-                  Создать лист мониторинга
-                </Button>
-              </CardContent>
-            </Card>
-            )}
-
-            <SearchResults results={mockResults} />
+          <TabsContent value="online-face">
+            <OnlineFaceTab
+              isCreateFormOpen={isCreateFormOpen}
+              setIsCreateFormOpen={setIsCreateFormOpen}
+              faceEmails={faceEmails}
+              setFaceEmails={setFaceEmails}
+              selectedImages={selectedImages}
+              isDragging={isDragging}
+              onImageUpload={handleImageUpload}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              removeImage={removeImage}
+              clearImages={() => setSelectedImages([])}
+              mockResults={mockResults}
+            />
           </TabsContent>
 
-          <TabsContent value="online-plate" className="space-y-6">
-            <div className="flex justify-end mb-4">
-              <Button onClick={() => setIsCreatePlateFormOpen(!isCreatePlateFormOpen)}>
-                <Icon name={isCreatePlateFormOpen ? "ChevronUp" : "Plus"} size={16} className="mr-2" />
-                {isCreatePlateFormOpen ? "Скрыть форму" : "Создать лист мониторинга ГРЗ"}
-              </Button>
-            </div>
-
-            {isCreatePlateFormOpen && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">Создать лист мониторинга ГРЗ</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="plate-name">Наименование <span className="text-destructive">*</span></Label>
-                  <Input id="plate-name" placeholder="Введите название листа мониторинга" required />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="plate-description">Описание</Label>
-                  <Input id="plate-description" placeholder="Описание листа мониторинга" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="plate-search">Государственный регистрационный знак <span className="text-destructive">*</span></Label>
-                  <Input
-                    id="plate-search"
-                    placeholder="Например: А123ВС159"
-                    value={plateSearch}
-                    onChange={(e) => {
-                      const value = e.target.value.toUpperCase();
-                      const filtered = value.replace(/[^АВЕКМНОРСТУХ0-9]/g, '');
-                      setPlateSearch(filtered);
-                    }}
-                    className="font-mono"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Уведомления на e-mail</Label>
-                  <div className="space-y-2">
-                    {plateEmails.map((email, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <Input
-                          type="email"
-                          placeholder="example@mail.ru"
-                          value={email}
-                          onChange={(e) => {
-                            const updated = [...plateEmails];
-                            updated[idx] = e.target.value;
-                            setPlateEmails(updated);
-                          }}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setPlateEmails(plateEmails.filter((_, i) => i !== idx))}
-                        >
-                          <Icon name="X" size={16} />
-                        </Button>
-                      </div>
-                    ))}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPlateEmails([...plateEmails, ''])}
-                    >
-                      <Icon name="Plus" size={14} className="mr-1" />
-                      Добавить e-mail
-                    </Button>
-                  </div>
-                </div>
-
-                <Button onClick={handlePlateSearch} className="w-full">
-                  <Icon name="Plus" size={16} className="mr-2" />
-                  Создать лист мониторинга
-                </Button>
-              </CardContent>
-            </Card>
-            )}
-
-            <SearchResults results={mockResults.filter((r) => r.type === 'plate')} />
+          <TabsContent value="online-plate">
+            <OnlinePlateTab
+              isCreatePlateFormOpen={isCreatePlateFormOpen}
+              setIsCreatePlateFormOpen={setIsCreatePlateFormOpen}
+              plateSearch={plateSearch}
+              setPlateSearch={setPlateSearch}
+              plateEmails={plateEmails}
+              setPlateEmails={setPlateEmails}
+              handlePlateSearch={handlePlateSearch}
+              mockResults={mockResults}
+            />
           </TabsContent>
 
-          <TabsContent value="history-face" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="History" size={20} />
-                  Исторический поиск лиц
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="date-from">Период от</Label>
-                    <Input id="date-from" type="datetime-local" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="date-to">Период до</Label>
-                    <Input id="date-to" type="datetime-local" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Камеры для поиска</Label>
-                    <div className="flex gap-2">
-                      {selectedCameraIds.length > 0 && (
-                        <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setSelectedCameraIds([])}>
-                          Сбросить
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setSelectedCameraIds(cameras.map(c => c.id))}>
-                        Выбрать все
-                      </Button>
-                    </div>
-                  </div>
-                  <Input
-                    placeholder="Поиск камеры..."
-                    value={cameraSearch}
-                    onChange={e => setCameraSearch(e.target.value)}
-                    className="h-8 text-sm"
-                  />
-                  <ScrollArea className="h-40 border rounded-lg p-2">
-                    <div className="space-y-1">
-                      {filteredCameras.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">Камеры не найдены</p>
-                      ) : (
-                        filteredCameras.map(camera => (
-                          <div
-                            key={camera.id}
-                            className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-muted transition-colors ${selectedCameraIds.includes(camera.id) ? 'bg-muted' : ''}`}
-                            onClick={() => toggleCamera(camera.id)}
-                          >
-                            <input
-                              type="checkbox"
-                              className="w-4 h-4 pointer-events-none"
-                              checked={selectedCameraIds.includes(camera.id)}
-                              readOnly
-                            />
-                            <Icon name="Video" size={14} className="text-muted-foreground shrink-0" />
-                            <span className="text-sm truncate">{camera.name}</span>
-                            {camera.address && (
-                              <span className="text-xs text-muted-foreground truncate ml-auto">{camera.address}</span>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                  {selectedCameraIds.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {selectedCameraIds.map(id => {
-                        const cam = cameras.find(c => c.id === id);
-                        return cam ? (
-                          <Badge key={id} variant="secondary" className="text-xs">
-                            {cam.name}
-                            <button className="ml-1 hover:text-destructive" onClick={() => toggleCamera(id)}>×</button>
-                          </Badge>
-                        ) : null;
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <ImageUploadZone
-                  selectedImages={selectedImages}
-                  isDragging={isDragging}
-                  onImageUpload={handleImageUpload}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  removeImage={removeImage}
-                  clearImages={() => setSelectedImages([])}
-                />
-
-                <Button className="w-full">
-                  <Icon name="Play" size={16} className="mr-2" />
-                  Запустить исторический поиск
-                </Button>
-              </CardContent>
-            </Card>
-
-            <SearchResults results={mockResults} />
+          <TabsContent value="history-face">
+            <HistoryFaceTab
+              cameras={cameras}
+              selectedCameraIds={selectedCameraIds}
+              onToggleCamera={toggleCamera}
+              onSelectAllCameras={() => setSelectedCameraIds(cameras.map(c => c.id))}
+              onResetCameras={() => setSelectedCameraIds([])}
+              selectedImages={selectedImages}
+              isDragging={isDragging}
+              onImageUpload={handleImageUpload}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              removeImage={removeImage}
+              clearImages={() => setSelectedImages([])}
+              mockResults={mockResults}
+            />
           </TabsContent>
 
-          <TabsContent value="history-plate" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="History" size={20} />
-                  Исторический поиск по ГРЗ
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="history-plate-search">Государственный регистрационный знак <span className="text-destructive">*</span></Label>
-                  <Input
-                    id="history-plate-search"
-                    placeholder="Например: А123ВС159"
-                    value={plateSearch}
-                    onChange={(e) => {
-                      const value = e.target.value.toUpperCase();
-                      const filtered = value.replace(/[^АВЕКМНОРСТУХ0-9]/g, '');
-                      setPlateSearch(filtered);
-                    }}
-                    className="font-mono"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="history-date-from">Период от</Label>
-                    <Input id="history-date-from" type="datetime-local" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="history-date-to">Период до</Label>
-                    <Input id="history-date-to" type="datetime-local" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Камеры для поиска</Label>
-                    <div className="flex gap-2">
-                      {selectedPlateCameraIds.length > 0 && (
-                        <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setSelectedPlateCameraIds([])}>
-                          Сбросить
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setSelectedPlateCameraIds(cameras.map(c => c.id))}>
-                        Выбрать все
-                      </Button>
-                    </div>
-                  </div>
-                  <Input
-                    placeholder="Поиск камеры..."
-                    value={plateCameraSearch}
-                    onChange={e => setPlateCameraSearch(e.target.value)}
-                    className="h-8 text-sm"
-                  />
-                  <ScrollArea className="h-40 border rounded-lg p-2">
-                    <div className="space-y-1">
-                      {filteredPlateCameras.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">Камеры не найдены</p>
-                      ) : (
-                        filteredPlateCameras.map(camera => (
-                          <div
-                            key={camera.id}
-                            className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-muted transition-colors ${selectedPlateCameraIds.includes(camera.id) ? 'bg-muted' : ''}`}
-                            onClick={() => togglePlateCamera(camera.id)}
-                          >
-                            <input
-                              type="checkbox"
-                              className="w-4 h-4 pointer-events-none"
-                              checked={selectedPlateCameraIds.includes(camera.id)}
-                              readOnly
-                            />
-                            <Icon name="Video" size={14} className="text-muted-foreground shrink-0" />
-                            <span className="text-sm truncate">{camera.name}</span>
-                            {camera.address && (
-                              <span className="text-xs text-muted-foreground truncate ml-auto">{camera.address}</span>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                  {selectedPlateCameraIds.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {selectedPlateCameraIds.map(id => {
-                        const cam = cameras.find(c => c.id === id);
-                        return cam ? (
-                          <Badge key={id} variant="secondary" className="text-xs">
-                            {cam.name}
-                            <button className="ml-1 hover:text-destructive" onClick={() => togglePlateCamera(id)}>×</button>
-                          </Badge>
-                        ) : null;
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <Button className="w-full" onClick={handlePlateSearch}>
-                  <Icon name="Search" size={16} className="mr-2" />
-                  Найти в истории
-                </Button>
-              </CardContent>
-            </Card>
-
-            <SearchResults results={mockResults.filter((r) => r.type === 'plate')} />
+          <TabsContent value="history-plate">
+            <HistoryPlateTab
+              cameras={cameras}
+              selectedPlateCameraIds={selectedPlateCameraIds}
+              onTogglePlateCamera={togglePlateCamera}
+              onSelectAllPlateCameras={() => setSelectedPlateCameraIds(cameras.map(c => c.id))}
+              onResetPlateCameras={() => setSelectedPlateCameraIds([])}
+              plateSearch={plateSearch}
+              setPlateSearch={setPlateSearch}
+              handlePlateSearch={handlePlateSearch}
+              mockResults={mockResults}
+            />
           </TabsContent>
         </Tabs>
       </div>
