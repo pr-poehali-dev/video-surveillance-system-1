@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,6 +33,14 @@ const MOCK_DETECTIONS = [
 
 export const SearchResults = ({ results }: SearchResultsProps) => {
   const [selected, setSelected] = useState<SearchResult | null>(null);
+  const [activeTab, setActiveTab] = useState('info');
+  const [focusedDetIndex, setFocusedDetIndex] = useState<number | null>(null);
+
+  const openTab = useCallback((tab: string, detIndex?: number) => {
+    setActiveTab(tab);
+    if (detIndex !== undefined) setFocusedDetIndex(detIndex);
+    else setFocusedDetIndex(null);
+  }, []);
 
   return (
     <>
@@ -112,7 +121,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
         </CardContent>
       </Card>
 
-      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setActiveTab('info'); setFocusedDetIndex(null); } }}>
         <DialogContent className="max-w-5xl w-[90vw] max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl">
@@ -132,7 +141,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
           </DialogHeader>
 
           {selected && (
-            <Tabs defaultValue="info" className="w-full">
+            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setFocusedDetIndex(null); }} className="w-full">
               <TabsList className="grid w-full grid-cols-3 h-12">
                 <TabsTrigger value="info" className="text-base">
                   <Icon name="Info" size={16} className="mr-2" />
@@ -181,10 +190,30 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                               {det.match}%
                             </Badge>
                           </div>
-                          <div className="space-y-0.5 px-1">
+                          <div className="space-y-1 px-1">
                             <p className="font-semibold text-sm">{det.label}</p>
                             <p className="text-xs text-muted-foreground">{det.address}</p>
                             <p className="text-xs text-muted-foreground">{det.time}</p>
+                            <div className="flex gap-1 pt-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-7 text-xs"
+                                onClick={() => openTab('map', index)}
+                              >
+                                <Icon name="MapPin" size={12} className="mr-1" />
+                                На карте
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-7 text-xs"
+                                onClick={() => openTab('archive', index)}
+                              >
+                                <Icon name="Video" size={12} className="mr-1" />
+                                Архив
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -211,7 +240,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                   </div>
                   <div className="space-y-2">
                     {MOCK_DETECTIONS.map((det, index) => (
-                      <div key={index} className="flex items-center gap-3 text-base p-3 rounded-lg bg-muted/50">
+                      <div key={index} className={`flex items-center gap-3 text-base p-3 rounded-lg transition-all ${focusedDetIndex === index ? 'bg-primary/10 border border-primary/40' : 'bg-muted/50'}`}>
                         <div className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                           {index + 1}
                         </div>
@@ -233,7 +262,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                     <span>Фрагменты видеоархива с момента обнаружения</span>
                   </div>
                   {MOCK_DETECTIONS.map((det, index) => (
-                    <div key={index} className="border border-border rounded-xl overflow-hidden">
+                    <div key={index} className={`border rounded-xl overflow-hidden transition-all ${focusedDetIndex === index ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}>
                       <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
                         <div className="flex items-center gap-3 text-base font-medium">
                           <Icon name="Video" size={16} className="text-primary" />
