@@ -148,50 +148,47 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info" className="space-y-6 mt-6">
-                <div className="flex gap-6 items-start">
-                  <div className="space-y-2 flex-shrink-0">
+              <TabsContent value="info" className="space-y-4 mt-4">
+                <div className="grid grid-cols-[1fr_2fr] gap-6">
+                  <div className="space-y-2">
                     <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">Искомое</p>
-                    <div className="w-40 h-40 rounded-xl overflow-hidden bg-muted">
+                    <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-muted">
                       <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0 space-y-3">
+                  <div className="space-y-3">
                     <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
                       Найдено совпадений: {MOCK_DETECTIONS.length}
                     </p>
-                    <ScrollArea className="h-64">
-                      <div className="space-y-3 pr-2">
-                        {MOCK_DETECTIONS.map((det, index) => (
-                          <div key={index} className="flex gap-4 border border-border/50 rounded-xl p-3">
-                            <div className="relative flex-shrink-0">
-                              <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted">
-                                {det.image ? (
-                                  <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                    <Icon name="ImageOff" size={24} />
-                                  </div>
-                                )}
+                    <div className="grid grid-cols-3 gap-3">
+                      {MOCK_DETECTIONS.map((det, index) => (
+                        <div key={index} className="space-y-2">
+                          <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-muted">
+                            {det.image ? (
+                              <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                <Icon name="ImageOff" size={32} />
                               </div>
-                              <div className="absolute -top-1.5 -left-1.5 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                                {index + 1}
-                              </div>
+                            )}
+                            <div className="absolute top-2 left-2 bg-red-500 text-white text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center shadow">
+                              {index + 1}
                             </div>
-                            <div className="flex-1 min-w-0 space-y-1">
-                              <div className="flex items-center justify-between">
-                                <span className="font-semibold text-base">{det.label}</span>
-                                <Badge className="text-sm px-3 py-1" variant={det.match > 92 ? 'default' : 'secondary'}>
-                                  {det.match}%
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground">{det.address}</p>
-                              <p className="text-sm text-muted-foreground">{det.time}</p>
-                            </div>
+                            <Badge
+                              className="absolute bottom-2 right-2 text-sm px-2 py-0.5"
+                              variant={det.match > 92 ? 'default' : 'secondary'}
+                            >
+                              {det.match}%
+                            </Badge>
                           </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                          <div className="space-y-0.5 px-1">
+                            <p className="font-semibold text-sm">{det.label}</p>
+                            <p className="text-xs text-muted-foreground">{det.address}</p>
+                            <p className="text-xs text-muted-foreground">{det.time}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
