@@ -21,6 +21,10 @@ export interface OwnerGroup {
   responsible_phone?: string;
   responsible_email?: string;
   responsible_position?: string;
+  head_full_name?: string;
+  head_position?: string;
+  head_phone?: string;
+  head_email?: string;
 }
 
 const API_URL = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
@@ -36,14 +40,19 @@ export const OwnerGroupsTree = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [groupSearchQuery, setGroupSearchQuery] = useState('');
-  const [formData, setFormData] = useState({ 
-    name: '', 
+  const emptyForm = {
+    name: '',
     description: '',
     responsible_full_name: '',
     responsible_phone: '',
     responsible_email: '',
-    responsible_position: ''
-  });
+    responsible_position: '',
+    head_full_name: '',
+    head_position: '',
+    head_phone: '',
+    head_email: '',
+  };
+  const [formData, setFormData] = useState(emptyForm);
 
   const fetchOwners = async () => {
     try {
@@ -140,6 +149,10 @@ export const OwnerGroupsTree = () => {
           responsible_phone: formData.responsible_phone || null,
           responsible_email: formData.responsible_email || null,
           responsible_position: formData.responsible_position || null,
+          head_full_name: formData.head_full_name || null,
+          head_position: formData.head_position || null,
+          head_phone: formData.head_phone || null,
+          head_email: formData.head_email || null,
         }),
       });
 
@@ -147,7 +160,7 @@ export const OwnerGroupsTree = () => {
 
       await fetchOwners();
       setIsAddDialogOpen(false);
-      setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
+      setFormData(emptyForm);
       setNewGroupParentId(null);
       toast.success(`Собственник "${formData.name}" создан`);
     } catch (error) {
@@ -175,6 +188,10 @@ export const OwnerGroupsTree = () => {
           responsible_phone: formData.responsible_phone || null,
           responsible_email: formData.responsible_email || null,
           responsible_position: formData.responsible_position || null,
+          head_full_name: formData.head_full_name || null,
+          head_position: formData.head_position || null,
+          head_phone: formData.head_phone || null,
+          head_email: formData.head_email || null,
         }),
       });
 
@@ -183,7 +200,7 @@ export const OwnerGroupsTree = () => {
       await fetchOwners();
       setIsEditDialogOpen(false);
       setEditingGroup(null);
-      setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
+      setFormData(emptyForm);
       toast.success('Собственник обновлен');
     } catch (error) {
       console.error('Error updating owner:', error);
@@ -241,12 +258,16 @@ export const OwnerGroupsTree = () => {
             responsible_phone: g.responsible_phone || '',
             responsible_email: g.responsible_email || '',
             responsible_position: g.responsible_position || '',
+            head_full_name: g.head_full_name || '',
+            head_position: g.head_position || '',
+            head_phone: g.head_phone || '',
+            head_email: g.head_email || '',
           });
           setIsEditDialogOpen(true);
         }}
         onAddChild={(parentId) => {
           setNewGroupParentId(parentId);
-          setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
+          setFormData(emptyForm);
           setIsAddDialogOpen(true);
         }}
         onDelete={(g) => {

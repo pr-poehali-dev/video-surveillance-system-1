@@ -15,6 +15,10 @@ interface OwnerGroupFormDialogProps {
     responsible_phone: string;
     responsible_email: string;
     responsible_position: string;
+    head_full_name: string;
+    head_position: string;
+    head_phone: string;
+    head_email: string;
   };
   onFormChange: (field: string, value: string) => void;
   title: string;
@@ -56,6 +60,55 @@ export const OwnerGroupFormDialog = ({
               onChange={(e) => onFormChange('description', e.target.value)}
               placeholder="Краткое описание (необязательно)"
             />
+          </div>
+
+          <div className="border-t pt-4">
+            <h4 className="font-medium mb-3 flex items-center gap-2">
+              <Icon name="UserCog" size={18} />
+              Руководитель учреждения
+            </h4>
+
+            <div className="space-y-3 mb-4">
+              <div className="space-y-2">
+                <Label>ФИО руководителя</Label>
+                <Input
+                  value={formData.head_full_name}
+                  onChange={(e) => onFormChange('head_full_name', e.target.value)}
+                  placeholder="Иванов Иван Иванович"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Должность</Label>
+                <Input
+                  value={formData.head_position}
+                  onChange={(e) => onFormChange('head_position', e.target.value)}
+                  placeholder="Директор, Генеральный директор..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>Телефон</Label>
+                  <Input
+                    value={formData.head_phone}
+                    onChange={(e) => onFormChange('head_phone', e.target.value)}
+                    placeholder="+7 (999) 123-45-67"
+                    type="tel"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input
+                    value={formData.head_email}
+                    onChange={(e) => onFormChange('head_email', e.target.value)}
+                    placeholder="email@example.com"
+                    type="email"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="border-t pt-4">
