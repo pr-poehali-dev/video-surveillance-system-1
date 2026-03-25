@@ -317,6 +317,17 @@ const VISS = () => {
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(integration)}>
                               <Icon name="Pencil" size={14} />
                             </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => {
+                                setIntegrations(prev => prev.filter(i => i.id !== integration.id));
+                                toast.success(`Интеграция "${integration.name}" удалена`);
+                              }}
+                            >
+                              <Icon name="Trash2" size={14} />
+                            </Button>
                           </div>
                         </div>
                         {integration.url && (
