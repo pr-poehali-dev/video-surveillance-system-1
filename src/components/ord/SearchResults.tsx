@@ -149,24 +149,44 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
               </TabsList>
 
               <TabsContent value="info" className="space-y-4 mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Искомое изображение</p>
-                    <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted">
+                <div className="flex gap-4">
+                  <div className="space-y-2 flex-shrink-0 w-40">
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Искомое</p>
+                    <div className="w-40 h-40 rounded-lg overflow-hidden bg-muted">
                       <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Найденное изображение</p>
-                    <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted">
-                      {selected.image ? (
-                        <img src={selected.image} alt="Найденное изображение" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          <Icon name="ImageOff" size={32} />
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex-1 space-y-2 min-w-0">
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                      Найденные изображения ({MOCK_MAP_POINTS.length})
+                    </p>
+                    <ScrollArea className="h-40">
+                      <div className="flex gap-2 pr-2">
+                        {MOCK_MAP_POINTS.map((point, index) => (
+                          <div key={index} className="flex-shrink-0 space-y-1">
+                            <div className="w-36 h-32 rounded-lg overflow-hidden bg-muted relative">
+                              {selected.image ? (
+                                <img src={selected.image} alt={point.label} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                  <Icon name="ImageOff" size={24} />
+                                </div>
+                              )}
+                              <div className="absolute top-1 left-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                                {index + 1}
+                              </div>
+                              <Badge
+                                className="absolute bottom-1 right-1 text-xs py-0"
+                                variant={selected.match > 95 ? 'default' : 'secondary'}
+                              >
+                                {selected.match}%
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground text-center truncate w-36">{point.label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
                   </div>
                 </div>
 
