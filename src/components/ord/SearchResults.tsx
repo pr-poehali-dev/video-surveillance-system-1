@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
 interface SearchResult {
@@ -18,83 +20,164 @@ interface SearchResultsProps {
   results: SearchResult[];
 }
 
+const QUERY_IMAGE = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face';
+
 export const SearchResults = ({ results }: SearchResultsProps) => {
+  const [selected, setSelected] = useState<SearchResult | null>(null);
+
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">Результаты мониторинга лиц</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full pr-4">
-          <div className="space-y-4">
-            {results.map((result) => (
-              <div
-                key={result.id}
-                className="border border-border rounded-lg p-4 hover:border-primary transition-colors"
+    <>
+      <Card className="flex flex-col h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">Результаты мониторинга лиц</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full pr-4">
+            <div className="space-y-4">
+              {results.map((result) => (
+                <div
+                  key={result.id}
+                  className="border border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer"
+                  onClick={() => setSelected(result)}
+                >
+                  <div className="flex gap-4">
+                    {result.image && (
+                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                        <img
+                          src={result.image}
+                          alt="Кадр распознавания"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {result.type === 'face' ? (
+                            <Icon name="User" size={18} className="text-secondary" />
+                          ) : (
+                            <Icon name="Hash" size={18} className="text-primary" />
+                          )}
+                          <span className="font-medium">
+                            {result.type === 'face' ? 'Распознано лицо' : 'Распознан ГРЗ'}
+                          </span>
+                        </div>
+                        <Badge
+                          variant={result.match > 95 ? 'default' : result.match > 85 ? 'secondary' : 'outline'}
+                        >
+                          {result.match}% совпадение
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Время:</span>
+                        <p className="font-medium">{result.time}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Камера:</span>
+                        <p className="font-medium">{result.camera}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground">Адрес:</span>
+                        <p className="font-medium">{result.address}</p>
+                      </div>
+                      {result.plate && (
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground">ГРЗ:</span>
+                          <p className="font-medium font-mono">{result.plate}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {results.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Icon name="Search" size={48} className="mx-auto mb-4 opacity-50" />
+                  <p>Результаты поиска появятся здесь</p>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selected?.type === 'face' ? (
+                <Icon name="User" size={18} className="text-secondary" />
+              ) : (
+                <Icon name="Hash" size={18} className="text-primary" />
+              )}
+              {selected?.type === 'face' ? 'Распознавание лица' : 'Распознавание ГРЗ'}
+              <Badge
+                className="ml-2"
+                variant={selected && selected.match > 95 ? 'default' : selected && selected.match > 85 ? 'secondary' : 'outline'}
               >
-                <div className="flex gap-4">
-                  {result.image && (
-                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                {selected?.match}% совпадение
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+
+          {selected && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Искомое изображение</p>
+                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted">
+                    <img
+                      src={QUERY_IMAGE}
+                      alt="Искомое изображение"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Найденное изображение</p>
+                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted">
+                    {selected.image ? (
                       <img
-                        src={result.image}
-                        alt="Кадр распознавания"
+                        src={selected.image}
+                        alt="Найденное изображение"
                         className="w-full h-full object-cover"
                       />
-                    </div>
-                  )}
-                  <div className="flex-1">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {result.type === 'face' ? (
-                      <Icon name="User" size={18} className="text-secondary" />
                     ) : (
-                      <Icon name="Hash" size={18} className="text-primary" />
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        <Icon name="ImageOff" size={32} />
+                      </div>
                     )}
-                    <span className="font-medium">
-                      {result.type === 'face' ? 'Распознано лицо' : 'Распознан ГРЗ'}
-                    </span>
                   </div>
-                  <Badge
-                    variant={result.match > 95 ? 'default' : result.match > 85 ? 'secondary' : 'outline'}
-                  >
-                    {result.match}% совпадение
-                  </Badge>
                 </div>
+              </div>
 
-                  </div>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Время:</span>
-                    <p className="font-medium">{result.time}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Камера:</span>
-                    <p className="font-medium">{result.camera}</p>
-                  </div>
+              <div className="grid grid-cols-2 gap-3 text-sm border-t pt-4">
+                <div>
+                  <span className="text-muted-foreground text-xs">Время обнаружения</span>
+                  <p className="font-medium">{selected.time}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs">Камера</span>
+                  <p className="font-medium">{selected.camera}</p>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-muted-foreground text-xs">Адрес</span>
+                  <p className="font-medium">{selected.address}</p>
+                </div>
+                {selected.plate && (
                   <div className="col-span-2">
-                    <span className="text-muted-foreground">Адрес:</span>
-                    <p className="font-medium">{result.address}</p>
+                    <span className="text-muted-foreground text-xs">Государственный регистрационный знак</span>
+                    <p className="font-medium font-mono text-lg">{selected.plate}</p>
                   </div>
-                  {result.plate && (
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground">ГРЗ:</span>
-                      <p className="font-medium font-mono">{result.plate}</p>
-                    </div>
-                  )}
-                </div>
-                </div>
+                )}
               </div>
-            ))}
-
-            {results.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <Icon name="Search" size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Результаты поиска появятся здесь</p>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
