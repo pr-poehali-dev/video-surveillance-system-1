@@ -115,15 +115,15 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="max-w-5xl w-[90vw] max-h-[92vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-3 text-xl">
               {selected?.type === 'face' ? (
-                <Icon name="User" size={18} className="text-secondary" />
+                <Icon name="User" size={22} className="text-secondary" />
               ) : (
-                <Icon name="Hash" size={18} className="text-primary" />
+                <Icon name="Hash" size={22} className="text-primary" />
               )}
               {selected?.type === 'face' ? 'Распознавание лица' : 'Распознавание ГРЗ'}
               <Badge
-                className="ml-2"
+                className="ml-2 text-sm px-3 py-1"
                 variant={selected && selected.match > 95 ? 'default' : selected && selected.match > 85 ? 'secondary' : 'outline'}
               >
                 {selected?.match}% совпадение
@@ -133,60 +133,60 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
 
           {selected && (
             <Tabs defaultValue="info" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="info">
-                  <Icon name="Info" size={14} className="mr-1" />
+              <TabsList className="grid w-full grid-cols-3 h-12">
+                <TabsTrigger value="info" className="text-base">
+                  <Icon name="Info" size={16} className="mr-2" />
                   Информация
                 </TabsTrigger>
-                <TabsTrigger value="map">
-                  <Icon name="MapPin" size={14} className="mr-1" />
+                <TabsTrigger value="map" className="text-base">
+                  <Icon name="MapPin" size={16} className="mr-2" />
                   На карте
                 </TabsTrigger>
-                <TabsTrigger value="archive">
-                  <Icon name="Video" size={14} className="mr-1" />
+                <TabsTrigger value="archive" className="text-base">
+                  <Icon name="Video" size={16} className="mr-2" />
                   Видеоархив
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info" className="space-y-4 mt-4">
-                <div className="flex gap-4 items-start">
-                  <div className="space-y-1 flex-shrink-0">
-                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Искомое</p>
-                    <div className="w-28 h-28 rounded-lg overflow-hidden bg-muted">
+              <TabsContent value="info" className="space-y-6 mt-6">
+                <div className="flex gap-6 items-start">
+                  <div className="space-y-2 flex-shrink-0">
+                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">Искомое</p>
+                    <div className="w-40 h-40 rounded-xl overflow-hidden bg-muted">
                       <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
                       Найдено совпадений: {MOCK_DETECTIONS.length}
                     </p>
-                    <ScrollArea className="h-48">
-                      <div className="space-y-2 pr-2">
+                    <ScrollArea className="h-64">
+                      <div className="space-y-3 pr-2">
                         {MOCK_DETECTIONS.map((det, index) => (
-                          <div key={index} className="flex gap-3 border border-border/50 rounded-lg p-2">
+                          <div key={index} className="flex gap-4 border border-border/50 rounded-xl p-3">
                             <div className="relative flex-shrink-0">
-                              <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
+                              <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted">
                                 {det.image ? (
                                   <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                    <Icon name="ImageOff" size={18} />
+                                    <Icon name="ImageOff" size={24} />
                                   </div>
                                 )}
                               </div>
-                              <div className="absolute -top-1 -left-1 bg-red-500 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                              <div className="absolute -top-1.5 -left-1.5 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
                                 {index + 1}
                               </div>
                             </div>
-                            <div className="flex-1 min-w-0 text-xs space-y-0.5">
+                            <div className="flex-1 min-w-0 space-y-1">
                               <div className="flex items-center justify-between">
-                                <span className="font-medium">{det.label}</span>
-                                <Badge className="text-xs py-0" variant={det.match > 92 ? 'default' : 'secondary'}>
+                                <span className="font-semibold text-base">{det.label}</span>
+                                <Badge className="text-sm px-3 py-1" variant={det.match > 92 ? 'default' : 'secondary'}>
                                   {det.match}%
                                 </Badge>
                               </div>
-                              <p className="text-muted-foreground">{det.address}</p>
-                              <p className="text-muted-foreground">{det.time}</p>
+                              <p className="text-sm text-muted-foreground">{det.address}</p>
+                              <p className="text-sm text-muted-foreground">{det.time}</p>
                             </div>
                           </div>
                         ))}
@@ -196,9 +196,9 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 </div>
 
                 {selected.plate && (
-                  <div className="border-t pt-3">
-                    <span className="text-muted-foreground text-xs">Государственный регистрационный знак</span>
-                    <p className="font-medium font-mono text-lg">{selected.plate}</p>
+                  <div className="border-t pt-4">
+                    <span className="text-sm text-muted-foreground">Государственный регистрационный знак</span>
+                    <p className="font-medium font-mono text-2xl mt-1">{selected.plate}</p>
                   </div>
                 )}
               </TabsContent>
@@ -214,44 +214,44 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                   </div>
                   <div className="space-y-2">
                     {MOCK_DETECTIONS.map((det, index) => (
-                      <div key={index} className="flex items-center gap-3 text-sm p-2 rounded-md bg-muted/50">
-                        <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                      <div key={index} className="flex items-center gap-3 text-base p-3 rounded-lg bg-muted/50">
+                        <div className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                           {index + 1}
                         </div>
                         <div className="flex-1">
-                          <span className="font-medium">{det.label}</span>
-                          <span className="text-muted-foreground ml-2">{det.address}</span>
+                          <span className="font-semibold">{det.label}</span>
+                          <span className="text-muted-foreground ml-3 text-sm">{det.address}</span>
                         </div>
-                        <span className="text-muted-foreground text-xs">{det.time}</span>
+                        <span className="text-muted-foreground text-sm">{det.time}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </TabsContent>
 
-              <TabsContent value="archive" className="mt-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Icon name="Info" size={14} />
+              <TabsContent value="archive" className="mt-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-base text-muted-foreground">
+                    <Icon name="Info" size={16} />
                     <span>Фрагменты видеоархива с момента обнаружения</span>
                   </div>
                   {MOCK_DETECTIONS.map((det, index) => (
-                    <div key={index} className="border border-border rounded-lg overflow-hidden">
-                      <div className="flex items-center justify-between px-3 py-2 bg-muted/50">
-                        <div className="flex items-center gap-2 text-sm font-medium">
-                          <Icon name="Video" size={14} className="text-primary" />
+                    <div key={index} className="border border-border rounded-xl overflow-hidden">
+                      <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
+                        <div className="flex items-center gap-3 text-base font-medium">
+                          <Icon name="Video" size={16} className="text-primary" />
                           {det.label}
-                          <span className="text-muted-foreground font-normal text-xs">{det.address}</span>
+                          <span className="text-muted-foreground font-normal text-sm">{det.address}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground">{det.time}</span>
+                        <span className="text-sm text-muted-foreground">{det.time}</span>
                       </div>
                       <div className="bg-black aspect-video flex items-center justify-center relative">
                         <div className="text-center text-white/60">
-                          <Icon name="PlayCircle" size={48} className="mx-auto mb-2" />
-                          <p className="text-sm">Видеоархив недоступен</p>
-                          <p className="text-xs mt-1">Фрагмент: ±30 сек от момента обнаружения</p>
+                          <Icon name="PlayCircle" size={64} className="mx-auto mb-3" />
+                          <p className="text-base">Видеоархив недоступен</p>
+                          <p className="text-sm mt-1">Фрагмент: ±30 сек от момента обнаружения</p>
                         </div>
-                        <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                        <div className="absolute bottom-3 right-3 bg-black/60 text-white text-sm px-3 py-1.5 rounded">
                           {det.label} • {det.time}
                         </div>
                       </div>
