@@ -259,7 +259,7 @@ export const CameraGroupFormDialog = ({
                     }}
                   >
                     <Icon name="CheckCheck" size={14} className="mr-1" />
-                    Добавить все ({cameras.length})
+                    Добавить все
                   </Button>
                 </div>
               </div>
