@@ -321,32 +321,14 @@ const VISS = () => {
                   <Card key={index} className="border-border/50">
                     <CardContent className="p-4">
                       <h4 className="font-semibold mb-3">{detection.camera}</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-secondary/20 rounded-full flex items-center justify-center">
                             <Icon name="User" size={20} className="text-secondary" />
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Лица</p>
+                            <p className="text-xs text-muted-foreground">Распознавание лиц</p>
                             <p className="text-lg font-bold">{detection.faces.toLocaleString('ru-RU')}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-secondary/20 rounded-full flex items-center justify-center">
-                            <Icon name="Users" size={20} className="text-secondary" />
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Люди</p>
-                            <p className="text-lg font-bold">{detection.people.toLocaleString('ru-RU')}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                            <Icon name="CarFront" size={20} className="text-primary" />
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">ТС</p>
-                            <p className="text-lg font-bold">{detection.vehicles.toLocaleString('ru-RU')}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -354,7 +336,7 @@ const VISS = () => {
                             <Icon name="Hash" size={20} className="text-primary" />
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">ГРЗ</p>
+                            <p className="text-xs text-muted-foreground">Распознавание ГРЗ</p>
                             <p className="text-lg font-bold">{detection.plates.toLocaleString('ru-RU')}</p>
                           </div>
                         </div>
