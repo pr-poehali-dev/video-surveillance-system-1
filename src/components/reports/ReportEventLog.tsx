@@ -63,6 +63,9 @@ export const ReportEventLog = () => {
       const e = events[Math.floor(Math.abs(Math.sin(id * 7)) * events.length)];
       const h = String(Math.floor(Math.abs(Math.sin(id * 3)) * 24)).padStart(2, '0');
       const m = String(Math.floor(Math.abs(Math.sin(id * 5)) * 60)).padStart(2, '0');
+      const fps = e.status === 'success'
+        ? Math.round(5 + Math.abs(Math.sin(id * 11)) * 25)
+        : 0;
       logs.push({
         id: id++,
         time: `24.03.2026 ${h}:${m}`,
@@ -73,6 +76,7 @@ export const ReportEventLog = () => {
         rtsp: `rtsp://192.168.${i % 10}.${(i * 3) % 255}/stream`,
         status: e.status,
         event: e.event,
+        fps,
       });
     }
     return logs;
@@ -190,6 +194,7 @@ export const ReportEventLog = () => {
                 <th className="text-left p-2 font-medium text-muted-foreground">Группа</th>
                 <th className="text-left p-2 font-medium text-muted-foreground">RTSP</th>
                 <th className="text-left p-2 font-medium text-muted-foreground">Статус</th>
+                <th className="text-left p-2 font-medium text-muted-foreground">Кадров/мин</th>
                 <th className="text-left p-2 font-medium text-muted-foreground">Событие</th>
               </tr>
             </thead>
@@ -206,11 +211,16 @@ export const ReportEventLog = () => {
                     {log.status === 'auth_error' && <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 text-xs">Ошибка авт.</Badge>}
                     {log.status === 'unavailable' && <Badge className="bg-red-100 text-red-700 border-red-200 text-xs">Недоступна</Badge>}
                   </td>
+                  <td className="p-2 text-xs text-center">
+                    {log.fps > 0
+                      ? <span className="font-mono text-green-700">{log.fps}</span>
+                      : <span className="text-muted-foreground">—</span>}
+                  </td>
                   <td className="p-2 text-xs">{log.event}</td>
                 </tr>
               ))}
               {filteredLogs.length === 0 && (
-                <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Записей не найдено</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Записей не найдено</td></tr>
               )}
             </tbody>
           </table>
