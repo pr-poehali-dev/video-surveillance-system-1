@@ -30,6 +30,8 @@ const ORD = () => {
   const [cameras, setCameras] = useState<CameraOption[]>([]);
   const [selectedCameraIds, setSelectedCameraIds] = useState<number[]>([]);
   const [cameraSearch, setCameraSearch] = useState('');
+  const [selectedPlateCameraIds, setSelectedPlateCameraIds] = useState<number[]>([]);
+  const [plateCameraSearch, setPlateCameraSearch] = useState('');
 
   useEffect(() => {
     fetch(CAMERAS_API)
@@ -43,6 +45,17 @@ const ORD = () => {
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
   };
+
+  const togglePlateCamera = (id: number) => {
+    setSelectedPlateCameraIds(prev =>
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  };
+
+  const filteredPlateCameras = cameras.filter(c =>
+    c.name.toLowerCase().includes(plateCameraSearch.toLowerCase()) ||
+    (c.address || '').toLowerCase().includes(plateCameraSearch.toLowerCase())
+  );
 
   const filteredCameras = cameras.filter(c =>
     c.name.toLowerCase().includes(cameraSearch.toLowerCase()) ||
@@ -456,6 +469,68 @@ const ORD = () => {
                     <Label htmlFor="history-date-to">Период до</Label>
                     <Input id="history-date-to" type="datetime-local" />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Камеры для поиска</Label>
+                    <div className="flex gap-2">
+                      {selectedPlateCameraIds.length > 0 && (
+                        <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setSelectedPlateCameraIds([])}>
+                          Сбросить
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setSelectedPlateCameraIds(cameras.map(c => c.id))}>
+                        Выбрать все
+                      </Button>
+                    </div>
+                  </div>
+                  <Input
+                    placeholder="Поиск камеры..."
+                    value={plateCameraSearch}
+                    onChange={e => setPlateCameraSearch(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                  <ScrollArea className="h-40 border rounded-lg p-2">
+                    <div className="space-y-1">
+                      {filteredPlateCameras.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-4">Камеры не найдены</p>
+                      ) : (
+                        filteredPlateCameras.map(camera => (
+                          <div
+                            key={camera.id}
+                            className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-muted transition-colors ${selectedPlateCameraIds.includes(camera.id) ? 'bg-muted' : ''}`}
+                            onClick={() => togglePlateCamera(camera.id)}
+                          >
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 pointer-events-none"
+                              checked={selectedPlateCameraIds.includes(camera.id)}
+                              readOnly
+                            />
+                            <Icon name="Video" size={14} className="text-muted-foreground shrink-0" />
+                            <span className="text-sm truncate">{camera.name}</span>
+                            {camera.address && (
+                              <span className="text-xs text-muted-foreground truncate ml-auto">{camera.address}</span>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                  {selectedPlateCameraIds.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {selectedPlateCameraIds.map(id => {
+                        const cam = cameras.find(c => c.id === id);
+                        return cam ? (
+                          <Badge key={id} variant="secondary" className="text-xs">
+                            {cam.name}
+                            <button className="ml-1 hover:text-destructive" onClick={() => togglePlateCamera(id)}>×</button>
+                          </Badge>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <Button className="w-full" onClick={handlePlateSearch}>
