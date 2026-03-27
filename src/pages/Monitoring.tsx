@@ -377,6 +377,14 @@ const Monitoring = () => {
             <DialogTitle className="flex items-center gap-2">
               <Icon name="Video" size={20} />
               {selectedCamera?.name}
+              <div className="ml-auto flex items-center gap-1">
+                <Button size="icon" variant="secondary" title="Распознать лица">
+                  <Icon name="ScanFace" size={18} />
+                </Button>
+                <Button size="icon" variant="secondary" title="Распознать ГРЗ">
+                  <Icon name="CarFront" size={18} />
+                </Button>
+              </div>
             </DialogTitle>
           </DialogHeader>
 
@@ -470,16 +478,7 @@ const Monitoring = () => {
                   Скачать фрагмент
                 </Button>
               </div>
-              <div className="flex items-center gap-2 border-t pt-3">
-                <Button variant="secondary" className="flex-1">
-                  <Icon name="ScanFace" size={18} className="mr-2" />
-                  Распознать лица
-                </Button>
-                <Button variant="secondary" className="flex-1">
-                  <Icon name="CarFront" size={18} className="mr-2" />
-                  Распознать ГРЗ
-                </Button>
-              </div>
+
             </div>
           )}
         </DialogContent>
