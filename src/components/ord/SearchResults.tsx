@@ -166,10 +166,10 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                     <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
                       Найдено совпадений: {MOCK_DETECTIONS.length}
                     </p>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-3">
                       {MOCK_DETECTIONS.map((det, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-muted">
+                        <div key={index} className="flex gap-3 items-start">
+                          <div className="relative w-24 h-32 rounded-xl overflow-hidden bg-muted flex-shrink-0">
                             {det.image ? (
                               <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
                             ) : (
@@ -177,17 +177,17 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                                 <Icon name="ImageOff" size={32} />
                               </div>
                             )}
-                            <div className="absolute top-2 left-2 bg-red-500 text-white text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center shadow">
+                            <div className="absolute top-1 left-1 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow">
                               {index + 1}
                             </div>
                             <Badge
-                              className="absolute bottom-2 right-2 text-sm px-2 py-0.5"
+                              className="absolute bottom-1 right-1 text-xs px-1.5 py-0"
                               variant={det.match > 92 ? 'default' : 'secondary'}
                             >
                               {det.match}%
                             </Badge>
                           </div>
-                          <div className="space-y-1 px-1">
+                          <div className="space-y-1 flex-1">
                             <p className="font-semibold text-sm">{det.label}</p>
                             <p className="text-xs text-muted-foreground">{det.address}</p>
                             <p className="text-xs text-muted-foreground">{det.time}</p>
@@ -195,7 +195,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="flex-1 h-7 text-xs"
+                                className="h-7 text-xs"
                                 onClick={() => openTab('map', index)}
                               >
                                 <Icon name="MapPin" size={12} className="mr-1" />
