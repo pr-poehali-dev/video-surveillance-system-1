@@ -162,50 +162,52 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                       <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
                     </div>
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-3 min-w-0">
                     <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
                       Найдено совпадений: {MOCK_DETECTIONS.length}
                     </p>
-                    <div className="flex flex-col gap-3">
-                      {MOCK_DETECTIONS.map((det, index) => (
-                        <div key={index} className="flex gap-3 items-start">
-                          <div className="relative w-24 h-32 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                            {det.image ? (
-                              <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                <Icon name="ImageOff" size={32} />
+                    <ScrollArea className="h-[420px] pr-2">
+                      <div className="flex flex-col gap-4">
+                        {MOCK_DETECTIONS.map((det, index) => (
+                          <div key={index} className="flex gap-4 items-start border border-border rounded-xl p-2">
+                            <div className="relative w-36 h-48 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                              {det.image ? (
+                                <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                  <Icon name="ImageOff" size={32} />
+                                </div>
+                              )}
+                              <div className="absolute top-1.5 left-1.5 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow">
+                                {index + 1}
                               </div>
-                            )}
-                            <div className="absolute top-1 left-1 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow">
-                              {index + 1}
-                            </div>
-                            <Badge
-                              className="absolute bottom-1 right-1 text-xs px-1.5 py-0"
-                              variant={det.match > 92 ? 'default' : 'secondary'}
-                            >
-                              {det.match}%
-                            </Badge>
-                          </div>
-                          <div className="space-y-1 flex-1">
-                            <p className="font-semibold text-sm">{det.label}</p>
-                            <p className="text-xs text-muted-foreground">{det.address}</p>
-                            <p className="text-xs text-muted-foreground">{det.time}</p>
-                            <div className="flex gap-1 pt-1">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-xs"
-                                onClick={() => openTab('map', index)}
+                              <Badge
+                                className="absolute bottom-1.5 right-1.5 text-xs px-1.5 py-0"
+                                variant={det.match > 92 ? 'default' : 'secondary'}
                               >
-                                <Icon name="MapPin" size={12} className="mr-1" />
-                                На карте
-                              </Button>
+                                {det.match}%
+                              </Badge>
+                            </div>
+                            <div className="space-y-1.5 flex-1 py-1">
+                              <p className="font-semibold text-sm">{det.label}</p>
+                              <p className="text-xs text-muted-foreground">{det.address}</p>
+                              <p className="text-xs text-muted-foreground">{det.time}</p>
+                              <div className="flex gap-1 pt-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs"
+                                  onClick={() => openTab('map', index)}
+                                >
+                                  <Icon name="MapPin" size={12} className="mr-1" />
+                                  На карте
+                                </Button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
                   </div>
                 </div>
 
