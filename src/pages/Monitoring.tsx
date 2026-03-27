@@ -470,6 +470,16 @@ const Monitoring = () => {
                   Скачать фрагмент
                 </Button>
               </div>
+              <div className="flex items-center gap-2 border-t pt-3">
+                <Button variant="secondary" className="flex-1">
+                  <Icon name="ScanFace" size={18} className="mr-2" />
+                  Распознать лица
+                </Button>
+                <Button variant="secondary" className="flex-1">
+                  <Icon name="CarFront" size={18} className="mr-2" />
+                  Распознать ГРЗ
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
