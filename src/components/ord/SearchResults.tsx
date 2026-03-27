@@ -35,6 +35,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
   const [selected, setSelected] = useState<SearchResult | null>(null);
   const [activeTab, setActiveTab] = useState('info');
   const [focusedDetIndex, setFocusedDetIndex] = useState<number | null>(null);
+  const [currentDetIndex, setCurrentDetIndex] = useState(0);
 
   const openTab = useCallback((tab: string, detIndex?: number) => {
     setActiveTab(tab);
@@ -157,77 +158,81 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="info" className="space-y-4 mt-4">
-                <div className="grid grid-cols-[1fr_2fr] gap-6">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">Искомое</p>
-                    <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-muted">
-                      <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
-                      Найдено совпадений: {MOCK_DETECTIONS.length}
-                    </p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {MOCK_DETECTIONS.map((det, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-muted">
-                            {det.image ? (
-                              <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                <Icon name="ImageOff" size={32} />
-                              </div>
-                            )}
-                            <div className="absolute top-2 left-2 bg-red-500 text-white text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center shadow">
-                              {index + 1}
-                            </div>
-                            <Badge
-                              className="absolute bottom-2 right-2 text-sm px-2 py-0.5"
-                              variant={det.match > 92 ? 'default' : 'secondary'}
-                            >
-                              {det.match}%
-                            </Badge>
-                          </div>
-                          <div className="space-y-1 px-1">
-                            <p className="font-semibold text-sm">{det.label}</p>
-                            <p className="text-xs text-muted-foreground">{det.address}</p>
-                            <p className="text-xs text-muted-foreground">{det.time}</p>
-                            <div className="flex gap-1 pt-1">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 h-7 text-xs"
-                                onClick={() => openTab('map', index)}
-                              >
-                                <Icon name="MapPin" size={12} className="mr-1" />
-                                На карте
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 h-7 text-xs"
-                                onClick={() => openTab('archive', index)}
-                              >
-                                <Icon name="Video" size={12} className="mr-1" />
-                                Архив
-                              </Button>
-                            </div>
-                          </div>
+              <TabsContent value="info" className="mt-0">
+                {(() => {
+                  const det = MOCK_DETECTIONS[currentDetIndex];
+                  const matchColor = det.match >= 90 ? 'text-green-400' : det.match >= 75 ? 'text-yellow-400' : 'text-red-400';
+                  const matchLabel = det.match >= 90 ? 'Высокое' : det.match >= 75 ? 'Среднее' : 'Низкое';
+                  return (
+                    <div className="bg-[#0d1b2e] rounded-xl overflow-hidden">
+                      <div className="grid grid-cols-2 min-h-[400px]">
+                        <div className="bg-black flex items-center justify-center">
+                          <img src={QUERY_IMAGE} alt="Искомое" className="max-h-[400px] w-full object-contain" />
                         </div>
-                      ))}
+                        <div className="bg-[#0a1520] relative flex flex-col">
+                          <div className="absolute top-3 left-3 z-10 bg-[#0d1b2e]/80 rounded p-1">
+                            <Icon name="Image" size={18} className="text-blue-300" />
+                          </div>
+                          {det.image && (
+                            <img src={det.image} alt={det.label} className="w-full flex-1 object-cover" />
+                          )}
+                          {currentDetIndex > 0 && (
+                            <button
+                              className="absolute left-2 top-1/2 -translate-y-1/2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                              onClick={() => setCurrentDetIndex(i => i - 1)}
+                            >
+                              <Icon name="ChevronLeft" size={18} />
+                            </button>
+                          )}
+                          {currentDetIndex < MOCK_DETECTIONS.length - 1 && (
+                            <button
+                              className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                              onClick={() => setCurrentDetIndex(i => i + 1)}
+                            >
+                              <Icon name="ChevronRight" size={18} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="px-5 py-4 flex items-end justify-between border-t border-white/10">
+                        <div className="space-y-0.5">
+                          <p className="text-white text-sm">
+                            Соответствие:{' '}
+                            <span className={`font-semibold ${matchColor}`}>{matchLabel} ({det.match}%)</span>
+                          </p>
+                          <p className="text-white/80 text-sm">Мужчина</p>
+                          <p className="text-white/60 text-sm">{det.time}</p>
+                          <p className="text-blue-400 text-sm mt-1">{det.label} • {det.address}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="text-xs border-white/20 text-white/70 hover:text-white" onClick={() => openTab('map', currentDetIndex)}>
+                            <Icon name="MapPin" size={13} className="mr-1" />На карте
+                          </Button>
+                          <Button size="sm" variant="outline" className="text-xs border-white/20 text-white/70 hover:text-white" onClick={() => openTab('archive', currentDetIndex)}>
+                            <Icon name="Video" size={13} className="mr-1" />Архив
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="px-5 pb-3 flex gap-2">
+                        {MOCK_DETECTIONS.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setCurrentDetIndex(i)}
+                            className={`w-2 h-2 rounded-full transition-all ${i === currentDetIndex ? 'bg-blue-400 w-4' : 'bg-white/30 hover:bg-white/50'}`}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </div>
-
+                  );
+                })()}
                 {selected.plate && (
-                  <div className="border-t pt-4">
+                  <div className="border-t pt-4 mt-4">
                     <span className="text-sm text-muted-foreground">Государственный регистрационный знак</span>
                     <p className="font-medium font-mono text-2xl mt-1">{selected.plate}</p>
                   </div>
                 )}
               </TabsContent>
+
 
               <TabsContent value="map" className="mt-4">
                 <div className="space-y-3">
