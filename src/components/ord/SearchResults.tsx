@@ -143,7 +143,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
 
           {selected && (
             <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setFocusedDetIndex(null); }} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 h-12">
+              <TabsList className="grid w-full grid-cols-2 h-12">
                 <TabsTrigger value="info" className="text-base">
                   <Icon name="Info" size={16} className="mr-2" />
                   Информация
@@ -151,10 +151,6 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 <TabsTrigger value="map" className="text-base">
                   <Icon name="MapPin" size={16} className="mr-2" />
                   На карте
-                </TabsTrigger>
-                <TabsTrigger value="archive" className="text-base">
-                  <Icon name="Video" size={16} className="mr-2" />
-                  Видеоархив
                 </TabsTrigger>
               </TabsList>
 
@@ -205,15 +201,6 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                                 <Icon name="MapPin" size={12} className="mr-1" />
                                 На карте
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 h-7 text-xs"
-                                onClick={() => openTab('archive', index)}
-                              >
-                                <Icon name="Video" size={12} className="mr-1" />
-                                Архив
-                              </Button>
                             </div>
                           </div>
                         </div>
@@ -257,36 +244,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="archive" className="mt-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-base text-muted-foreground">
-                    <Icon name="Info" size={16} />
-                    <span>Фрагменты видеоархива с момента обнаружения</span>
-                  </div>
-                  {MOCK_DETECTIONS.map((det, index) => (
-                    <div key={index} className={`border rounded-xl overflow-hidden transition-all ${focusedDetIndex === index ? 'border-primary ring-2 ring-primary/30' : 'border-border'}`}>
-                      <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
-                        <div className="flex items-center gap-3 text-base font-medium">
-                          <Icon name="Video" size={16} className="text-primary" />
-                          {det.label}
-                          <span className="text-muted-foreground font-normal text-sm">{det.address}</span>
-                        </div>
-                        <span className="text-sm text-muted-foreground">{det.time}</span>
-                      </div>
-                      <div className="bg-black aspect-video flex items-center justify-center relative">
-                        <div className="text-center text-white/60">
-                          <Icon name="PlayCircle" size={64} className="mx-auto mb-3" />
-                          <p className="text-base">Видеоархив недоступен</p>
-                          <p className="text-sm mt-1">Фрагмент: ±30 сек от момента обнаружения</p>
-                        </div>
-                        <div className="absolute bottom-3 right-3 bg-black/60 text-white text-sm px-3 py-1.5 rounded">
-                          {det.label} • {det.time}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
+
             </Tabs>
           )}
         </DialogContent>
