@@ -166,11 +166,11 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                     <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
                       Найдено совпадений: {MOCK_DETECTIONS.length}
                     </p>
-                    <ScrollArea className="h-[420px] pr-2">
+                    <ScrollArea className="h-[600px] pr-2">
                       <div className="flex flex-col gap-4">
                         {MOCK_DETECTIONS.map((det, index) => (
-                          <div key={index} className="flex gap-4 items-start border border-border rounded-xl p-2">
-                            <div className="relative w-36 h-48 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                          <div key={index} className="flex gap-4 items-start border border-border rounded-xl p-4">
+                            <div className="relative w-56 h-72 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                               {det.image ? (
                                 <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
                               ) : (
