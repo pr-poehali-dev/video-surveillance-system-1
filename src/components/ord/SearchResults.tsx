@@ -123,7 +123,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
       </Card>
 
       <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setActiveTab('info'); setFocusedDetIndex(null); } }}>
-        <DialogContent className="max-w-5xl w-[90vw] max-h-[92vh] overflow-y-auto">
+        <DialogContent className="w-screen h-screen max-w-none max-h-none m-0 rounded-none overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl">
               {selected?.type === 'face' ? (
