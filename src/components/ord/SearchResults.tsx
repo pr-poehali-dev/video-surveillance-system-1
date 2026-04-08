@@ -155,22 +155,23 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
               </TabsList>
 
               <TabsContent value="info" className="space-y-4 mt-4">
-                <div className="grid grid-cols-[1fr_2fr] gap-6">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">Искомое</p>
-                    <div className="w-full aspect-[3/4] rounded-xl overflow-hidden bg-muted">
-                      <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                  <div className="space-y-3 min-w-0">
-                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
-                      Найдено совпадений: {MOCK_DETECTIONS.length}
-                    </p>
-                    <ScrollArea className="h-[600px] pr-2">
-                      <div className="flex flex-col gap-4">
-                        {MOCK_DETECTIONS.map((det, index) => (
-                          <div key={index} className="flex gap-4 items-start border border-border rounded-xl p-4">
-                            <div className="relative w-56 h-72 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
+                    Найдено совпадений: {MOCK_DETECTIONS.length}
+                  </p>
+                  <ScrollArea className="h-[600px] pr-2">
+                    <div className="flex flex-col gap-4">
+                      {MOCK_DETECTIONS.map((det, index) => (
+                        <div key={index} className="flex gap-4 items-start border border-border rounded-xl p-4">
+                          <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide">Искомое</p>
+                            <div className="relative w-56 h-72 rounded-lg overflow-hidden bg-muted">
+                              <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide">Найдено</p>
+                            <div className="relative w-56 h-72 rounded-lg overflow-hidden bg-muted">
                               {det.image ? (
                                 <img src={det.image} alt={det.label} className="w-full h-full object-cover" />
                               ) : (
@@ -188,27 +189,27 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                                 {det.match}%
                               </Badge>
                             </div>
-                            <div className="space-y-1.5 flex-1 py-1">
-                              <p className="font-semibold text-sm">{det.label}</p>
-                              <p className="text-xs text-muted-foreground">{det.address}</p>
-                              <p className="text-xs text-muted-foreground">{det.time}</p>
-                              <div className="flex gap-1 pt-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-7 text-xs"
-                                  onClick={() => openTab('map', index)}
-                                >
-                                  <Icon name="MapPin" size={12} className="mr-1" />
-                                  На карте
-                                </Button>
-                              </div>
+                          </div>
+                          <div className="space-y-1.5 flex-1 py-1">
+                            <p className="font-semibold text-sm">{det.label}</p>
+                            <p className="text-xs text-muted-foreground">{det.address}</p>
+                            <p className="text-xs text-muted-foreground">{det.time}</p>
+                            <div className="flex gap-1 pt-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs"
+                                onClick={() => openTab('map', index)}
+                              >
+                                <Icon name="MapPin" size={12} className="mr-1" />
+                                На карте
+                              </Button>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 </div>
 
                 {selected.plate && (
