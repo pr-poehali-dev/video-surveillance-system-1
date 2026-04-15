@@ -13,6 +13,15 @@ const MINISTRY_STATS = [
   { id: 5, name: 'Министерство обороны', total: 92, active: 95, inactive: 2, problem: 0 },
 ];
 
+const OMSU_STATS = [
+  { id: 1, name: 'Администрация г. Пермь', total: 384, active: 362, inactive: 15, problem: 7 },
+  { id: 2, name: 'Администрация Березниковского округа', total: 210, active: 198, inactive: 8, problem: 4 },
+  { id: 3, name: 'Администрация Соликамского округа', total: 175, active: 164, inactive: 7, problem: 4 },
+  { id: 4, name: 'Администрация Чайковского округа', total: 143, active: 136, inactive: 5, problem: 2 },
+  { id: 5, name: 'Администрация Лысьвенского округа', total: 118, active: 112, inactive: 4, problem: 2 },
+  { id: 6, name: 'Администрация Кунгурского округа', total: 97, active: 91, inactive: 4, problem: 2 },
+];
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -170,6 +179,42 @@ const Dashboard = () => {
                     <div className="bg-yellow-500/10 rounded-lg p-2 text-center">
                       <p className="text-xs text-yellow-600">Проблемных</p>
                       <p className="text-lg font-bold text-yellow-600">{ministry.problem}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+      <Card className="border-border/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Landmark" size={20} />
+              Дашборд по ОМСУ
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {OMSU_STATS.map((omsu) => (
+                <div key={omsu.id} className="border border-border rounded-xl p-4 space-y-3">
+                  <p className="font-semibold text-sm leading-tight">{omsu.name}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-muted/50 rounded-lg p-2 text-center">
+                      <p className="text-xs text-muted-foreground">Всего</p>
+                      <p className="text-lg font-bold">{omsu.total}</p>
+                    </div>
+                    <div className="bg-green-500/10 rounded-lg p-2 text-center">
+                      <p className="text-xs text-green-600">Активных</p>
+                      <p className="text-lg font-bold text-green-600">{omsu.active}</p>
+                    </div>
+                    <div className="bg-red-500/10 rounded-lg p-2 text-center">
+                      <p className="text-xs text-red-500">Неактивных</p>
+                      <p className="text-lg font-bold text-red-500">{omsu.inactive}</p>
+                    </div>
+                    <div className="bg-yellow-500/10 rounded-lg p-2 text-center">
+                      <p className="text-xs text-yellow-600">Проблемных</p>
+                      <p className="text-lg font-bold text-yellow-600">{omsu.problem}</p>
                     </div>
                   </div>
                 </div>
