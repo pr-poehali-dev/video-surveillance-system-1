@@ -163,13 +163,13 @@ const Dashboard = () => {
                       <p className="text-xs text-green-600">Активных</p>
                       <p className="text-lg font-bold text-green-600">{ministry.active}</p>
                     </div>
-                    <div className="bg-muted/50 rounded-lg p-2 text-center">
-                      <p className="text-xs text-muted-foreground">Неактивных</p>
-                      <p className="text-lg font-bold">{ministry.inactive}</p>
-                    </div>
                     <div className="bg-red-500/10 rounded-lg p-2 text-center">
-                      <p className="text-xs text-red-500">Проблемных</p>
-                      <p className="text-lg font-bold text-red-500">{ministry.problem}</p>
+                      <p className="text-xs text-red-500">Неактивных</p>
+                      <p className="text-lg font-bold text-red-500">{ministry.inactive}</p>
+                    </div>
+                    <div className="bg-yellow-500/10 rounded-lg p-2 text-center">
+                      <p className="text-xs text-yellow-600">Проблемных</p>
+                      <p className="text-lg font-bold text-yellow-600">{ministry.problem}</p>
                     </div>
                   </div>
                 </div>
