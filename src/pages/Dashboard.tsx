@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 
+const MINISTRY_STATS = [
+  { id: 1, name: 'МВД', total: 420, active: 398, inactive: 14, problem: 8 },
+  { id: 2, name: 'Министерство транспорта', total: 310, active: 295, inactive: 10, problem: 5 },
+  { id: 3, name: 'Министерство внутренних дел регионов', total: 280, active: 261, inactive: 12, problem: 7 },
+  { id: 4, name: 'ФСБ', total: 145, active: 140, inactive: 4, problem: 1 },
+  { id: 5, name: 'Министерство обороны', total: 92, active: 95, inactive: 2, problem: 0 },
+];
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -137,21 +145,33 @@ const Dashboard = () => {
       <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Icon name="BarChart3" size={20} />
-              Активность камер
+              <Icon name="Building2" size={20} />
+              Дашборд по министерствам
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64 flex items-end justify-between gap-2">
-              {[85, 92, 88, 95, 90, 87, 93, 89, 94, 91, 96, 95].map((value, index) => (
-                <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                  <div 
-                    className="w-full bg-primary rounded-t-lg transition-all hover:bg-primary/80"
-                    style={{ height: `${value}%` }}
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    {index + 1}
-                  </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {MINISTRY_STATS.map((ministry) => (
+                <div key={ministry.id} className="border border-border rounded-xl p-4 space-y-3">
+                  <p className="font-semibold text-sm leading-tight">{ministry.name}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-muted/50 rounded-lg p-2 text-center">
+                      <p className="text-xs text-muted-foreground">Всего</p>
+                      <p className="text-lg font-bold">{ministry.total}</p>
+                    </div>
+                    <div className="bg-green-500/10 rounded-lg p-2 text-center">
+                      <p className="text-xs text-green-600">Активных</p>
+                      <p className="text-lg font-bold text-green-600">{ministry.active}</p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-2 text-center">
+                      <p className="text-xs text-muted-foreground">Неактивных</p>
+                      <p className="text-lg font-bold">{ministry.inactive}</p>
+                    </div>
+                    <div className="bg-red-500/10 rounded-lg p-2 text-center">
+                      <p className="text-xs text-red-500">Проблемных</p>
+                      <p className="text-lg font-bold text-red-500">{ministry.problem}</p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
