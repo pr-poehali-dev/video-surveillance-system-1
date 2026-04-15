@@ -191,7 +191,7 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Icon name="Landmark" size={20} />
-              Дашборд по ОМСУ
+              Органы местного самоуправления
             </CardTitle>
           </CardHeader>
           <CardContent>
