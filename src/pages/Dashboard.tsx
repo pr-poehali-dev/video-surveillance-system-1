@@ -99,9 +99,9 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-4xl font-bold text-orange-500">{stats.problematic}</div>
-                <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center">
-                  <Icon name="AlertTriangle" className="text-orange-500" size={24} />
+                <div className="text-4xl font-bold text-yellow-500">{stats.problematic}</div>
+                <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center">
+                  <Icon name="AlertTriangle" className="text-yellow-500" size={24} />
                 </div>
               </div>
             </CardContent>
