@@ -143,17 +143,6 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
 
           {selected && (
             <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setFocusedDetIndex(null); }} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 h-12">
-                <TabsTrigger value="info" className="text-base">
-                  <Icon name="Info" size={16} className="mr-2" />
-                  Информация
-                </TabsTrigger>
-                <TabsTrigger value="map" className="text-base">
-                  <Icon name="MapPin" size={16} className="mr-2" />
-                  На карте
-                </TabsTrigger>
-              </TabsList>
-
               <TabsContent value="info" className="space-y-4 mt-4">
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
@@ -221,31 +210,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
               </TabsContent>
 
 
-              <TabsContent value="map" className="mt-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Icon name="Info" size={14} />
-                    <span>Обнаружено на {MOCK_DETECTIONS.length} камерах. Маршрут показан пунктирной линией.</span>
-                  </div>
-                  <div className="h-80">
-                    <YandexMap points={MOCK_DETECTIONS} />
-                  </div>
-                  <div className="space-y-2">
-                    {MOCK_DETECTIONS.map((det, index) => (
-                      <div key={index} className={`flex items-center gap-3 text-base p-3 rounded-lg transition-all ${focusedDetIndex === index ? 'bg-primary/10 border border-primary/40' : 'bg-muted/50'}`}>
-                        <div className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                          {index + 1}
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-semibold">{det.label}</span>
-                          <span className="text-muted-foreground ml-3 text-sm">{det.address}</span>
-                        </div>
-                        <span className="text-muted-foreground text-sm">{det.time}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </TabsContent>
+
 
 
             </Tabs>
