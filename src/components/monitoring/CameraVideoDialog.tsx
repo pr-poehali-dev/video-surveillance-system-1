@@ -86,7 +86,7 @@ const CameraVideoDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent ref={dialogContentRef} className={`max-w-4xl transition-all ${isDialogFullscreen ? 'w-screen h-screen max-w-none max-h-none rounded-none overflow-auto' : ''}`}>
+      <DialogContent ref={dialogContentRef} className={`max-w-4xl transition-all ${isDialogFullscreen ? 'w-screen h-screen max-w-none max-h-none rounded-none overflow-hidden' : ''}`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon name="Video" size={20} />
