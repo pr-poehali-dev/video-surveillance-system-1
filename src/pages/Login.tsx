@@ -215,12 +215,14 @@ const Login = () => {
                   variant="outline"
                   size="sm"
                   className="gap-2"
-                  asChild
+                  onClick={() => {
+                    navigator.clipboard.writeText('control@esvn.permkrai.ru');
+                    toast.success('Email скопирован');
+                  }}
                 >
-                  <a href="mailto:control@esvn.permkrai.ru">
-                    <Icon name="Mail" size={16} />
-                    control@esvn.permkrai.ru
-                  </a>
+                  <Icon name="Mail" size={16} />
+                  control@esvn.permkrai.ru
+                  <Icon name="Copy" size={14} />
                 </Button>
               </div>
             </div>
