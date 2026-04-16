@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { YandexMap } from './YandexMap';
@@ -138,6 +138,11 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
               >
                 {MOCK_DETECTIONS.length} совпадений
               </Badge>
+              <DialogClose asChild className="ml-auto">
+                <Button size="icon" variant="secondary" title="Закрыть">
+                  <Icon name="X" size={18} />
+                </Button>
+              </DialogClose>
             </DialogTitle>
           </DialogHeader>
 
