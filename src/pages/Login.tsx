@@ -209,6 +209,15 @@ const Login = () => {
                   <Icon name="Copy" size={14} />
                 </Button>
               </div>
+              <div className="text-center mt-4">
+                <p className="text-sm text-muted-foreground">Забыл пароль:</p>
+                <a
+                  href="mailto:control@esvn.permkrai.ru"
+                  className="text-sm text-primary hover:underline"
+                >
+                  control@esvn.permkrai.ru
+                </a>
+              </div>
             </div>
           </CardContent>
         </Card>
