@@ -122,7 +122,7 @@ const CameraVideoDialog = ({
         {camera && (
           <div className={`space-y-4 ${isDialogFullscreen ? 'flex-1 overflow-y-auto' : ''}`}>
             <div className="flex gap-3">
-              <div ref={videoContainerRef} className="flex-1 aspect-video bg-black rounded-lg overflow-hidden relative">
+              <div ref={videoContainerRef} className="flex-1 bg-black rounded-lg overflow-hidden relative" style={{ height: '300px' }}>
                 {camera.hls_url ? (
                   <video
                     key={camera.hls_url}
