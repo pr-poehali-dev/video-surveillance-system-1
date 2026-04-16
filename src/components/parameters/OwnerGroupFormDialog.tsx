@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 
 interface OwnerGroupFormDialogProps {
@@ -19,8 +20,9 @@ interface OwnerGroupFormDialogProps {
     head_position: string;
     head_phone: string;
     head_email: string;
+    show_on_dashboard: boolean;
   };
-  onFormChange: (field: string, value: string) => void;
+  onFormChange: (field: string, value: string | boolean) => void;
   title: string;
   submitLabel: string;
 }
@@ -38,7 +40,16 @@ export const OwnerGroupFormDialog = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle className="flex items-center justify-between pr-8">
+            <span>{title}</span>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={formData.show_on_dashboard}
+                onCheckedChange={(checked) => onFormChange('show_on_dashboard', !!checked)}
+              />
+              <span className="text-sm font-normal">На дашборде</span>
+            </label>
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">

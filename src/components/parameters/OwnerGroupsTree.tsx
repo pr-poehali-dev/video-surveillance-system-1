@@ -25,6 +25,7 @@ export interface OwnerGroup {
   head_position?: string;
   head_phone?: string;
   head_email?: string;
+  show_on_dashboard?: boolean;
 }
 
 const API_URL = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
@@ -51,6 +52,7 @@ export const OwnerGroupsTree = () => {
     head_position: '',
     head_phone: '',
     head_email: '',
+    show_on_dashboard: false,
   };
   const [formData, setFormData] = useState(emptyForm);
 
@@ -153,6 +155,7 @@ export const OwnerGroupsTree = () => {
           head_position: formData.head_position || null,
           head_phone: formData.head_phone || null,
           head_email: formData.head_email || null,
+          show_on_dashboard: formData.show_on_dashboard,
         }),
       });
 
@@ -192,6 +195,7 @@ export const OwnerGroupsTree = () => {
           head_position: formData.head_position || null,
           head_phone: formData.head_phone || null,
           head_email: formData.head_email || null,
+          show_on_dashboard: formData.show_on_dashboard,
         }),
       });
 
@@ -262,6 +266,7 @@ export const OwnerGroupsTree = () => {
             head_position: g.head_position || '',
             head_phone: g.head_phone || '',
             head_email: g.head_email || '',
+            show_on_dashboard: g.show_on_dashboard || false,
           });
           setIsEditDialogOpen(true);
         }}
@@ -282,7 +287,7 @@ export const OwnerGroupsTree = () => {
   const tree = buildTree(ownerGroups);
   const filteredTree = filterGroups(tree);
 
-  const handleFormChange = (field: string, value: string) => {
+  const handleFormChange = (field: string, value: string | boolean) => {
     setFormData({ ...formData, [field]: value });
   };
 
