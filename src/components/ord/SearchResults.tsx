@@ -148,7 +148,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                   <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
                     Найдено совпадений: {MOCK_DETECTIONS.length}
                   </p>
-                  <ScrollArea className="h-[600px] pr-2">
+                  <ScrollArea className="h-[calc(90vh-180px)] pr-2">
                     <div className="flex flex-col gap-4">
                       {MOCK_DETECTIONS.map((det, index) => (
                         <div key={index} className="flex gap-4 items-start border border-border rounded-xl p-4">
