@@ -86,7 +86,7 @@ const CameraVideoDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent ref={dialogContentRef} className={`max-w-4xl transition-all ${isDialogFullscreen ? 'w-screen h-screen max-w-none max-h-none rounded-none overflow-hidden flex flex-col' : ''}`}>
+      <DialogContent ref={dialogContentRef} className={`max-w-4xl flex flex-col transition-all ${isDialogFullscreen ? 'w-screen h-screen max-w-none max-h-none rounded-none' : 'h-[90vh]'}`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon name="Video" size={20} />
@@ -120,9 +120,9 @@ const CameraVideoDialog = ({
         </DialogHeader>
 
         {camera && (
-          <div className={`space-y-4 ${isDialogFullscreen ? 'flex-1 overflow-y-auto' : ''}`}>
-            <div className="flex gap-3">
-              <div ref={videoContainerRef} className="flex-1 bg-black rounded-lg overflow-hidden relative h-[280px] sm:h-[360px] md:h-[440px] lg:h-[520px]">
+          <div className="flex flex-col flex-1 space-y-4 overflow-hidden">
+            <div className="flex gap-3 flex-1 min-h-0">
+              <div ref={videoContainerRef} className="flex-1 bg-black rounded-lg overflow-hidden relative">
                 {camera.hls_url ? (
                   <video
                     key={camera.hls_url}
