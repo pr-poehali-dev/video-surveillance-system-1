@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import {
@@ -26,6 +27,18 @@ const CameraVideoDialog = ({
   getStatusColor,
   getStatusLabel,
 }: CameraVideoDialogProps) => {
+  const videoContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleFullscreen = () => {
+    const el = videoContainerRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().catch(() => toast.error('Не удалось открыть полноэкранный режим'));
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl">
@@ -58,7 +71,7 @@ const CameraVideoDialog = ({
 
         {camera && (
           <div className="space-y-4">
-            <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
+            <div ref={videoContainerRef} className="aspect-video bg-black rounded-lg overflow-hidden relative">
               {camera.hls_url ? (
                 <video
                   key={camera.hls_url}
@@ -114,6 +127,10 @@ const CameraVideoDialog = ({
               <Button variant="outline" className="flex-1">
                 <Icon name="Download" size={18} className="mr-2" />
                 Скачать фрагмент
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={handleFullscreen}>
+                <Icon name="Maximize" size={18} className="mr-2" />
+                На весь экран
               </Button>
             </div>
           </div>
