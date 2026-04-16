@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Camera } from '@/lib/api';
@@ -105,6 +106,11 @@ const CameraVideoDialog = ({
               <Button size="icon" variant="secondary" title="Настройки" onClick={onOpenSettings}>
                 <Icon name="Settings" size={18} />
               </Button>
+              <DialogClose asChild>
+                <Button size="icon" variant="secondary" title="Закрыть">
+                  <Icon name="X" size={18} />
+                </Button>
+              </DialogClose>
             </div>
           </DialogTitle>
         </DialogHeader>
