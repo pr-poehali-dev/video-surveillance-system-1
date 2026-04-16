@@ -376,7 +376,12 @@ const Monitoring = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Icon name="Video" size={20} />
-              {selectedCamera?.name}
+              <div className="flex flex-col">
+                <span>{selectedCamera?.name}</span>
+                {selectedCamera?.address && (
+                  <span className="text-sm font-normal text-muted-foreground">{selectedCamera.address}</span>
+                )}
+              </div>
               <div className="ml-auto flex items-center gap-1">
                 <Button size="icon" variant="secondary" title="Распознать лица">
                   <Icon name="ScanFace" size={18} />
@@ -439,10 +444,6 @@ const Monitoring = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Адрес</p>
-                  <p className="font-medium">{selectedCamera.address}</p>
-                </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Статус</p>
                   <div className="flex items-center gap-2">
