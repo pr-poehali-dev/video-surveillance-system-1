@@ -38,6 +38,7 @@ const Monitoring = () => {
   const [analyticsFilter, setAnalyticsFilter] = useState<string[]>([]);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [showSettingsSheet, setShowSettingsSheet] = useState(false);
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [stats, setStats] = useState<CameraStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -393,6 +394,9 @@ const Monitoring = () => {
                 <Button size="icon" variant="secondary" title="Распознать ГРЗ">
                   <Icon name="CarFront" size={18} />
                 </Button>
+                <Button size="icon" variant="secondary" title="Настройки" onClick={() => setShowSettingsSheet(true)}>
+                  <Icon name="Settings" size={18} />
+                </Button>
               </div>
             </DialogTitle>
           </DialogHeader>
@@ -447,25 +451,6 @@ const Monitoring = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Разрешение</p>
-                  <p className="font-medium">{selectedCamera.resolution}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">FPS</p>
-                  <p className="font-medium">{selectedCamera.fps}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Трафик</p>
-                  <p className="font-medium">{selectedCamera.traffic} Мбит/с</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Собственник</p>
-                  <p className="font-medium">{selectedCamera.owner}</p>
-                </div>
-              </div>
-
               <div className="flex items-center gap-2">
                 <Button className="flex-1">
                   <Icon name="Archive" size={18} className="mr-2" />
@@ -481,6 +466,35 @@ const Monitoring = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Sheet open={showSettingsSheet} onOpenChange={setShowSettingsSheet}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Параметры камеры</SheetTitle>
+            <SheetDescription>{selectedCamera?.name}</SheetDescription>
+          </SheetHeader>
+          {selectedCamera && (
+            <div className="mt-6 space-y-4">
+              <div className="flex justify-between items-center border-b pb-3">
+                <span className="text-sm text-muted-foreground">Разрешение</span>
+                <span className="font-medium">{selectedCamera.resolution}</span>
+              </div>
+              <div className="flex justify-between items-center border-b pb-3">
+                <span className="text-sm text-muted-foreground">FPS</span>
+                <span className="font-medium">{selectedCamera.fps}</span>
+              </div>
+              <div className="flex justify-between items-center border-b pb-3">
+                <span className="text-sm text-muted-foreground">Трафик</span>
+                <span className="font-medium">{selectedCamera.traffic} Мбит/с</span>
+              </div>
+              <div className="flex justify-between items-center border-b pb-3">
+                <span className="text-sm text-muted-foreground">Кол-во кадров</span>
+                <span className="font-medium">{selectedCamera.fps * 60} кадр/мин</span>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
