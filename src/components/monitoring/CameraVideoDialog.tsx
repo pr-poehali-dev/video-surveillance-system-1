@@ -64,15 +64,19 @@ const CameraVideoDialog = ({
   getStatusLabel,
 }: CameraVideoDialogProps) => {
   const videoContainerRef = useRef<HTMLDivElement>(null);
+  const dialogContentRef = useRef<HTMLDivElement>(null);
   const [ptzVisible, setPtzVisible] = useState(false);
+  const [isDialogFullscreen, setIsDialogFullscreen] = useState(false);
 
   const handleFullscreen = () => {
-    const el = videoContainerRef.current;
+    const el = dialogContentRef.current;
     if (!el) return;
     if (!document.fullscreenElement) {
       el.requestFullscreen().catch(() => toast.error('Не удалось открыть полноэкранный режим'));
+      setIsDialogFullscreen(true);
     } else {
       document.exitFullscreen();
+      setIsDialogFullscreen(false);
     }
   };
 
@@ -82,7 +86,7 @@ const CameraVideoDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent ref={dialogContentRef} className={`max-w-4xl transition-all ${isDialogFullscreen ? 'w-screen h-screen max-w-none max-h-none rounded-none overflow-auto' : ''}`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon name="Video" size={20} />
@@ -190,9 +194,9 @@ const CameraVideoDialog = ({
                 <Icon name="Gamepad2" size={18} className="mr-2" />
                 Управление PTZ
               </Button>
-              <Button variant="outline" className="flex-1" onClick={handleFullscreen}>
-                <Icon name="Maximize" size={18} className="mr-2" />
-                На весь экран
+              <Button variant={isDialogFullscreen ? 'secondary' : 'outline'} className="flex-1" onClick={handleFullscreen}>
+                <Icon name={isDialogFullscreen ? 'Minimize' : 'Maximize'} size={18} className="mr-2" />
+                {isDialogFullscreen ? 'Свернуть' : 'На весь экран'}
               </Button>
             </div>
           </div>
