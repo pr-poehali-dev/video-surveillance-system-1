@@ -209,14 +209,19 @@ const Login = () => {
                   <Icon name="Copy" size={14} />
                 </Button>
               </div>
-              <div className="text-center mt-4">
+              <div className="text-center space-y-3 mt-4">
                 <p className="text-sm text-muted-foreground">Забыл пароль:</p>
-                <a
-                  href="mailto:control@esvn.permkrai.ru"
-                  className="text-sm text-primary hover:underline"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  asChild
                 >
-                  control@esvn.permkrai.ru
-                </a>
+                  <a href="mailto:control@esvn.permkrai.ru">
+                    <Icon name="Mail" size={16} />
+                    control@esvn.permkrai.ru
+                  </a>
+                </Button>
               </div>
             </div>
           </CardContent>
