@@ -382,6 +382,10 @@ const Monitoring = () => {
                   <span className="text-sm font-normal text-muted-foreground">{selectedCamera.address}</span>
                 )}
               </div>
+              <div className="flex items-center gap-2 mx-auto">
+                <div className={`w-3 h-3 ${getStatusColor(selectedCamera?.status)} rounded-full`} />
+                <span className="text-sm font-normal">{getStatusLabel(selectedCamera?.status)}</span>
+              </div>
               <div className="ml-auto flex items-center gap-1">
                 <Button size="icon" variant="secondary" title="Распознать лица">
                   <Icon name="ScanFace" size={18} />
@@ -444,13 +448,6 @@ const Monitoring = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Статус</p>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 ${getStatusColor(selectedCamera.status)} rounded-full`} />
-                    <span className="font-medium">{getStatusLabel(selectedCamera.status)}</span>
-                  </div>
-                </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Разрешение</p>
                   <p className="font-medium">{selectedCamera.resolution}</p>
