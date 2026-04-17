@@ -22,6 +22,8 @@ interface OnlineFaceTabProps {
   setIsCreateFormOpen: (v: boolean) => void;
   faceEmails: string[];
   setFaceEmails: (emails: string[]) => void;
+  faceMaxNicknames?: string[];
+  setFaceMaxNicknames?: (nicknames: string[]) => void;
   selectedImages: File[];
   isDragging: boolean;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -38,6 +40,8 @@ export const OnlineFaceTab = ({
   setIsCreateFormOpen,
   faceEmails,
   setFaceEmails,
+  faceMaxNicknames = [],
+  setFaceMaxNicknames = () => {},
   selectedImages,
   isDragging,
   onImageUpload,
@@ -87,38 +91,74 @@ export const OnlineFaceTab = ({
               clearImages={clearImages}
             />
 
-            <div className="space-y-2">
-              <Label>Уведомления на e-mail</Label>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                {faceEmails.map((email, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <Input
-                      type="email"
-                      placeholder="example@mail.ru"
-                      value={email}
-                      onChange={(e) => {
-                        const updated = [...faceEmails];
-                        updated[idx] = e.target.value;
-                        setFaceEmails(updated);
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setFaceEmails(faceEmails.filter((_, i) => i !== idx))}
-                    >
-                      <Icon name="X" size={16} />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setFaceEmails([...faceEmails, ''])}
-                >
-                  <Icon name="Plus" size={14} className="mr-1" />
-                  Добавить e-mail
-                </Button>
+                <Label>Уведомления на e-mail</Label>
+                <div className="space-y-2">
+                  {faceEmails.map((email, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <Input
+                        type="email"
+                        placeholder="example@mail.ru"
+                        value={email}
+                        onChange={(e) => {
+                          const updated = [...faceEmails];
+                          updated[idx] = e.target.value;
+                          setFaceEmails(updated);
+                        }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setFaceEmails(faceEmails.filter((_, i) => i !== idx))}
+                      >
+                        <Icon name="X" size={16} />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFaceEmails([...faceEmails, ''])}
+                  >
+                    <Icon name="Plus" size={14} className="mr-1" />
+                    Добавить e-mail
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Уведомления в MAX</Label>
+                <div className="space-y-2">
+                  {faceMaxNicknames.map((nick, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <Input
+                        placeholder="@никнейм"
+                        value={nick}
+                        onChange={(e) => {
+                          const updated = [...faceMaxNicknames];
+                          updated[idx] = e.target.value;
+                          setFaceMaxNicknames(updated);
+                        }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setFaceMaxNicknames(faceMaxNicknames.filter((_, i) => i !== idx))}
+                      >
+                        <Icon name="X" size={16} />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFaceMaxNicknames([...faceMaxNicknames, ''])}
+                  >
+                    <Icon name="Plus" size={14} className="mr-1" />
+                    Добавить никнейм
+                  </Button>
+                </div>
               </div>
             </div>
 
