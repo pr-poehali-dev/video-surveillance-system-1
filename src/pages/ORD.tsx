@@ -17,6 +17,7 @@ const ORD = () => {
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const [isCreatePlateFormOpen, setIsCreatePlateFormOpen] = useState(false);
   const [faceEmails, setFaceEmails] = useState<string[]>(['']);
+  const [faceMaxNicknames, setFaceMaxNicknames] = useState<string[]>(['']);
   const [plateEmails, setPlateEmails] = useState<string[]>(['']);
   const [cameras, setCameras] = useState<CameraOption[]>([]);
   const [selectedCameraIds, setSelectedCameraIds] = useState<number[]>([]);
@@ -145,6 +146,8 @@ const ORD = () => {
               setIsCreateFormOpen={setIsCreateFormOpen}
               faceEmails={faceEmails}
               setFaceEmails={setFaceEmails}
+              faceMaxNicknames={faceMaxNicknames}
+              setFaceMaxNicknames={setFaceMaxNicknames}
               selectedImages={selectedImages}
               isDragging={isDragging}
               onImageUpload={handleImageUpload}
