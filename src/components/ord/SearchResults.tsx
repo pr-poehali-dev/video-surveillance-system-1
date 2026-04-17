@@ -83,7 +83,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                         <Badge
                           variant={result.match > 95 ? 'default' : result.match > 85 ? 'secondary' : 'outline'}
                         >
-                          {result.match}% совпадение
+                          {Math.round(result.match)} новых совпадений
                         </Badge>
                       </div>
                     </div>
