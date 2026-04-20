@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Camera } from '@/lib/api';
+import { DetectionSettings } from '@/components/monitoring/CameraSettingsSheet';
 
 interface CameraVideoDialogProps {
   camera: Camera | null;
@@ -18,7 +19,22 @@ interface CameraVideoDialogProps {
   onOpenSettings: () => void;
   getStatusColor: (status: string) => string;
   getStatusLabel: (status: string) => string;
+  detectionSettings: DetectionSettings;
 }
+
+const MOCK_DETECTIONS = {
+  face: [
+    { x: '12%', y: '20%', w: '14%', h: '22%', label: 'Лицо 94%' },
+    { x: '62%', y: '30%', w: '12%', h: '20%', label: 'Лицо 87%' },
+  ],
+  plate: [
+    { x: '35%', y: '65%', w: '22%', h: '10%', label: 'А123ВС159' },
+  ],
+  car: [
+    { x: '28%', y: '50%', w: '30%', h: '35%', label: 'Авто 98%' },
+    { x: '70%', y: '55%', w: '22%', h: '28%', label: 'Авто 91%' },
+  ],
+};
 
 const PTZControl = ({ onCommand }: { onCommand: (cmd: string) => void }) => (
   <div className="flex flex-col items-center gap-1">
@@ -62,7 +78,9 @@ const CameraVideoDialog = ({
   onOpenSettings,
   getStatusColor,
   getStatusLabel,
+  detectionSettings,
 }: CameraVideoDialogProps) => {
+  const hasDetection = detectionSettings.faceDetection || detectionSettings.plateDetection || detectionSettings.carDetection;
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const [ptzVisible, setPtzVisible] = useState(false);
@@ -168,6 +186,38 @@ const CameraVideoDialog = ({
                     </div>
                   )}
                 </div>
+
+                {hasDetection && (
+                  <div className="absolute inset-0 pointer-events-none">
+                    {detectionSettings.faceDetection && MOCK_DETECTIONS.face.map((box, i) => (
+                      <div
+                        key={`face-${i}`}
+                        className="absolute border-2 border-blue-400"
+                        style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
+                      >
+                        <span className="absolute -top-5 left-0 text-xs bg-blue-500 text-white px-1 rounded whitespace-nowrap">{box.label}</span>
+                      </div>
+                    ))}
+                    {detectionSettings.plateDetection && MOCK_DETECTIONS.plate.map((box, i) => (
+                      <div
+                        key={`plate-${i}`}
+                        className="absolute border-2 border-yellow-400"
+                        style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
+                      >
+                        <span className="absolute -top-5 left-0 text-xs bg-yellow-500 text-black px-1 rounded whitespace-nowrap">{box.label}</span>
+                      </div>
+                    ))}
+                    {detectionSettings.carDetection && MOCK_DETECTIONS.car.map((box, i) => (
+                      <div
+                        key={`car-${i}`}
+                        className="absolute border-2 border-green-400"
+                        style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
+                      >
+                        <span className="absolute -top-5 left-0 text-xs bg-green-500 text-white px-1 rounded whitespace-nowrap">{box.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {ptzVisible && (

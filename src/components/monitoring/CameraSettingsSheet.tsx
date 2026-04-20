@@ -5,15 +5,31 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Camera } from '@/lib/api';
+
+interface DetectionSettings {
+  faceDetection: boolean;
+  plateDetection: boolean;
+  carDetection: boolean;
+}
 
 interface CameraSettingsSheetProps {
   camera: Camera | null;
   open: boolean;
   onOpenChange: (value: boolean) => void;
+  detectionSettings: DetectionSettings;
+  onDetectionChange: (key: keyof DetectionSettings, value: boolean) => void;
 }
 
-const CameraSettingsSheet = ({ camera, open, onOpenChange }: CameraSettingsSheetProps) => {
+const CameraSettingsSheet = ({
+  camera,
+  open,
+  onOpenChange,
+  detectionSettings,
+  onDetectionChange,
+}: CameraSettingsSheetProps) => {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
@@ -51,6 +67,36 @@ const CameraSettingsSheet = ({ camera, open, onOpenChange }: CameraSettingsSheet
               <span className="text-sm text-muted-foreground">Максимальное кол-во кадров</span>
               <span className="font-medium">{camera.fps * 2} кадр/мин</span>
             </div>
+
+            <div className="pt-2">
+              <p className="text-sm font-semibold mb-3">Нейросетевая детекция</p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="face-detection"
+                    checked={detectionSettings.faceDetection}
+                    onCheckedChange={(v) => onDetectionChange('faceDetection', !!v)}
+                  />
+                  <Label htmlFor="face-detection" className="cursor-pointer">Распознавание лиц</Label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="plate-detection"
+                    checked={detectionSettings.plateDetection}
+                    onCheckedChange={(v) => onDetectionChange('plateDetection', !!v)}
+                  />
+                  <Label htmlFor="plate-detection" className="cursor-pointer">Распознавание номеров (ГРЗ)</Label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="car-detection"
+                    checked={detectionSettings.carDetection}
+                    onCheckedChange={(v) => onDetectionChange('carDetection', !!v)}
+                  />
+                  <Label htmlFor="car-detection" className="cursor-pointer">Детекция автомобилей</Label>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </SheetContent>
@@ -58,4 +104,5 @@ const CameraSettingsSheet = ({ camera, open, onOpenChange }: CameraSettingsSheet
   );
 };
 
+export { type DetectionSettings };
 export default CameraSettingsSheet;

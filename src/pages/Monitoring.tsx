@@ -5,7 +5,7 @@ import { api, Camera, CameraStats } from '@/lib/api';
 import CameraList from '@/components/monitoring/CameraList';
 import MapPanel from '@/components/monitoring/MapPanel';
 import CameraVideoDialog from '@/components/monitoring/CameraVideoDialog';
-import CameraSettingsSheet from '@/components/monitoring/CameraSettingsSheet';
+import CameraSettingsSheet, { DetectionSettings } from '@/components/monitoring/CameraSettingsSheet';
 
 const Monitoring = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,6 +19,15 @@ const Monitoring = () => {
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [analyticsFilter, setAnalyticsFilter] = useState<string[]>([]);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
+  const [detectionSettings, setDetectionSettings] = useState<DetectionSettings>({
+    faceDetection: false,
+    plateDetection: false,
+    carDetection: false,
+  });
+
+  const handleDetectionChange = (key: keyof DetectionSettings, value: boolean) => {
+    setDetectionSettings(prev => ({ ...prev, [key]: value }));
+  };
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [showSettingsSheet, setShowSettingsSheet] = useState(false);
   const [cameras, setCameras] = useState<Camera[]>([]);
@@ -154,12 +163,15 @@ const Monitoring = () => {
         onOpenSettings={() => setShowSettingsSheet(true)}
         getStatusColor={getStatusColor}
         getStatusLabel={getStatusLabel}
+        detectionSettings={detectionSettings}
       />
 
       <CameraSettingsSheet
         camera={selectedCamera}
         open={showSettingsSheet}
         onOpenChange={setShowSettingsSheet}
+        detectionSettings={detectionSettings}
+        onDetectionChange={handleDetectionChange}
       />
     </div>
   );
