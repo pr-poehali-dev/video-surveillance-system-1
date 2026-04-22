@@ -84,16 +84,50 @@ export const ReportCameraActivity = ({ selectedPeriod, ownerFilter, onOwnerFilte
             });
           })()}
         </div>
-        <div className="flex items-center gap-6 pt-4 mt-3 border-t">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-500 rounded-sm" />
-            <span className="text-xs text-muted-foreground">Работает</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-400 rounded-sm" />
-            <span className="text-xs text-muted-foreground">Не работает</span>
-          </div>
-        </div>
+        {(() => {
+          const filtered = ownerFilter === 'Все собственники'
+            ? ALL_CAMERAS
+            : ALL_CAMERAS.filter(c => c.owner === ownerFilter);
+          const days = parseInt(selectedPeriod);
+          let totalActive = 0;
+          let totalInactive = 0;
+          filtered.forEach((camera) => {
+            const isWorking = camera.status === 'active';
+            const seed = parseInt(camera.id);
+            Array.from({ length: days }, (_, i) => {
+              const r = Math.sin(seed * 9301 + i * 49297 + 233) * 0.5 + 0.5;
+              return isWorking ? (r > 0.1 ? 'active' : 'inactive') : (r > 0.7 ? 'active' : 'inactive');
+            }).forEach(v => v === 'active' ? totalActive++ : totalInactive++);
+          });
+          const hoursActive = totalActive * 24;
+          const hoursInactive = totalInactive * 24;
+          return (
+            <div className="pt-4 mt-3 border-t space-y-3">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-sm" />
+                  <span className="text-xs text-muted-foreground">Работает</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-red-400 rounded-sm" />
+                  <span className="text-xs text-muted-foreground">Не работает</span>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-4 py-3">
+                  <p className="text-xs text-muted-foreground mb-1">Общее время работы</p>
+                  <p className="text-lg font-bold text-green-600">{hoursActive.toLocaleString()} ч</p>
+                  <p className="text-xs text-muted-foreground">{totalActive} камеро-дней</p>
+                </div>
+                <div className="flex-1 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-4 py-3">
+                  <p className="text-xs text-muted-foreground mb-1">Общее время простоя</p>
+                  <p className="text-lg font-bold text-red-500">{hoursInactive.toLocaleString()} ч</p>
+                  <p className="text-xs text-muted-foreground">{totalInactive} камеро-дней</p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );
