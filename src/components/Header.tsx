@@ -380,7 +380,7 @@ const Header = () => {
       </DialogContent>
     </Dialog>
     <Dialog open={userGuideOpen} onOpenChange={(open) => { setUserGuideOpen(open); if (!open) setGuideSearch(''); }}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-2xl h-[80vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon name="BookOpen" size={20} />
