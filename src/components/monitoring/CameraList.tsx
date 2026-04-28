@@ -238,7 +238,14 @@ const CameraList = ({
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className={`w-3 h-3 ${getStatusColor(camera.status)} rounded-full`} />
-                      <h4 className="font-medium">{camera.name}</h4>
+                      <h4 className="font-medium flex-1">{camera.name}</h4>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onCameraClick(camera); }}
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        title="Показать на карте"
+                      >
+                        <Icon name="MapPin" size={16} />
+                      </button>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {camera.address}
