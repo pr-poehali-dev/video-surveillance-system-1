@@ -11,6 +11,7 @@ const Monitoring = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [previewCamera, setPreviewCamera] = useState<Camera | null>(null);
+  // previewCamera передаётся в MapPanel, который сам управляет множественными окнами
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [clusteringEnabled, setClusteringEnabled] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
