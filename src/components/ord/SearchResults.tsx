@@ -170,9 +170,18 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                     <div key={index} className="flex gap-4 items-start border border-border rounded-xl p-4">
                       <div className="flex flex-col items-center gap-1 flex-shrink-0">
                         <p className="text-xs text-muted-foreground uppercase tracking-wide">Искомое</p>
-                        <div className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted">
-                          <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
-                        </div>
+                        {selected.plate ? (
+                          <div className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted flex flex-col items-center justify-center gap-2 border-2 border-border">
+                            <div className="bg-white border-2 border-black rounded px-3 py-1 font-mono font-bold text-lg tracking-widest text-black">
+                              {selected.plate}
+                            </div>
+                            <p className="text-xs text-muted-foreground">ГРЗ</p>
+                          </div>
+                        ) : (
+                          <div className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted">
+                            <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
+                          </div>
+                        )}
                       </div>
                       <div className="flex flex-col items-center gap-1 flex-shrink-0">
                         <p className="text-xs text-muted-foreground uppercase tracking-wide">Найдено</p>
