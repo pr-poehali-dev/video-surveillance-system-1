@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 const cameras = [
@@ -15,7 +15,11 @@ const detections = [
 ];
 
 export const VISSDetectionsTab = () => {
-  const [selectedCamera, setSelectedCamera] = useState('all');
+  const [search, setSearch] = useState('');
+
+  const filtered = detections.filter((d) =>
+    d.camera.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Card>
@@ -25,23 +29,20 @@ export const VISSDetectionsTab = () => {
             <Icon name="Image" size={20} />
             Обнаружения по камерам
           </CardTitle>
-          <Select value={selectedCamera} onValueChange={setSelectedCamera}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {cameras.map((camera) => (
-                <SelectItem key={camera.id} value={camera.id}>
-                  {camera.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative w-48">
+            <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Поиск по наименованию"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {detections.map((detection, index) => (
+          {filtered.map((detection, index) => (
             <Card key={index} className="border-border/50">
               <CardContent className="p-4">
                 <h4 className="font-semibold mb-3">{detection.camera}</h4>
