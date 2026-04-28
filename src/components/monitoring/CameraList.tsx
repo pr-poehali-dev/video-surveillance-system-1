@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -38,6 +37,7 @@ interface CameraListProps {
   activeFiltersCount: number;
   getStatusColor: (status: string) => string;
   onCameraClick: (camera: Camera) => void;
+  onPreviewCamera: (camera: Camera) => void;
 }
 
 const CameraList = ({
@@ -61,8 +61,8 @@ const CameraList = ({
   activeFiltersCount,
   getStatusColor,
   onCameraClick,
+  onPreviewCamera,
 }: CameraListProps) => {
-  const [previewOpen, setPreviewOpen] = useState<number | null>(null);
 
   return (
     <div className="w-80 flex-shrink-0 flex flex-col h-full overflow-hidden">
@@ -243,11 +243,11 @@ const CameraList = ({
                       <div className={`w-3 h-3 ${getStatusColor(camera.status)} rounded-full`} />
                       <h4 className="font-medium flex-1">{camera.name}</h4>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setPreviewOpen(previewOpen === camera.id ? null : camera.id); }}
+                        onClick={(e) => { e.stopPropagation(); onPreviewCamera(camera); }}
                         className="text-muted-foreground hover:text-primary transition-colors"
-                        title="Миниатюра камеры"
+                        title="Миниатюра камеры на карте"
                       >
-                        <Icon name={previewOpen === camera.id ? 'VideoOff' : 'Video'} size={20} />
+                        <Icon name="Video" size={20} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); onCameraClick(camera); }}
@@ -260,23 +260,6 @@ const CameraList = ({
                     <p className="text-sm text-muted-foreground">
                       {camera.address}
                     </p>
-                    {previewOpen === camera.id && (
-                      <div className="mt-3 rounded-lg overflow-hidden bg-black aspect-video relative" onClick={(e) => e.stopPropagation()}>
-                        {camera.hls_url ? (
-                          <video
-                            src={camera.hls_url}
-                            autoPlay
-                            muted
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                            <Icon name="VideoOff" size={28} className="text-white/40" />
-                            <p className="text-white/50 text-xs">Поток не настроен</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               ))}

@@ -10,6 +10,7 @@ import CameraSettingsSheet, { DetectionSettings } from '@/components/monitoring/
 const Monitoring = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
+  const [previewCamera, setPreviewCamera] = useState<Camera | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [clusteringEnabled, setClusteringEnabled] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -145,6 +146,7 @@ const Monitoring = () => {
         activeFiltersCount={activeFiltersCount}
         getStatusColor={getStatusColor}
         onCameraClick={(camera) => { setSelectedCamera(camera); setShowVideoDialog(true); }}
+        onPreviewCamera={(camera) => setPreviewCamera(prev => prev?.id === camera.id ? null : camera)}
       />
 
       <MapPanel
@@ -154,6 +156,8 @@ const Monitoring = () => {
         onClusteringToggle={() => setClusteringEnabled(!clusteringEnabled)}
         onFullscreenToggle={handleFullscreen}
         onCameraClick={(camera) => { setSelectedCamera(camera); setShowVideoDialog(true); }}
+        previewCamera={previewCamera}
+        onPreviewClose={() => setPreviewCamera(null)}
       />
 
       <CameraVideoDialog
