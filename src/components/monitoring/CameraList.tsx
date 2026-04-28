@@ -244,7 +244,7 @@ const CameraList = ({
                         className="text-muted-foreground hover:text-primary transition-colors"
                         title="Показать на карте"
                       >
-                        <Icon name="MapPin" size={16} />
+                        <Icon name="MapPin" size={22} />
                       </button>
                     </div>
                     <p className="text-sm text-muted-foreground">
