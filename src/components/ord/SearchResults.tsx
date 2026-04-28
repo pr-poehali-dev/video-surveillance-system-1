@@ -147,7 +147,12 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
           </DialogHeader>
 
           {selected && (
-            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setFocusedDetIndex(null); }} className="w-full">
+            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setFocusedDetIndex(null); }} className="w-full flex flex-col flex-1 overflow-hidden">
+              <TabsList className="w-full">
+                <TabsTrigger value="info" className="flex-1"><Icon name="List" size={14} className="mr-1" />Совпадения</TabsTrigger>
+                <TabsTrigger value="video" className="flex-1"><Icon name="Video" size={14} className="mr-1" />Видео</TabsTrigger>
+                <TabsTrigger value="map" className="flex-1"><Icon name="MapPin" size={14} className="mr-1" />На карте</TabsTrigger>
+              </TabsList>
               <TabsContent value="info" className="space-y-4 mt-4">
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
@@ -198,6 +203,15 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                                 <Icon name="MapPin" size={12} className="mr-1" />
                                 На карте
                               </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs"
+                                onClick={() => openTab('video', index)}
+                              >
+                                <Icon name="Video" size={12} className="mr-1" />
+                                Видео
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -218,6 +232,41 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
 
 
 
+              <TabsContent value="video" className="flex-1 mt-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
+                      {focusedDetIndex !== null ? MOCK_DETECTIONS[focusedDetIndex].label : MOCK_DETECTIONS[currentDetIndex].label}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      — {focusedDetIndex !== null ? MOCK_DETECTIONS[focusedDetIndex].time : MOCK_DETECTIONS[currentDetIndex].time}
+                    </p>
+                  </div>
+                  <div className="rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center relative">
+                    <Icon name="Video" size={48} className="text-white/20" />
+                    <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2">
+                      <Button size="sm" variant="secondary" className="h-7 text-xs">
+                        <Icon name="Play" size={12} className="mr-1" />Воспроизвести
+                      </Button>
+                      <Button size="sm" variant="secondary" className="h-7 text-xs">
+                        <Icon name="Download" size={12} className="mr-1" />Скачать
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {MOCK_DETECTIONS.map((det, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentDetIndex(i)}
+                        className={`flex-shrink-0 rounded-lg border p-2 text-left transition-colors ${currentDetIndex === i && focusedDetIndex === null ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
+                      >
+                        <p className="text-xs font-medium">{det.label}</p>
+                        <p className="text-xs text-muted-foreground">{det.time.split(' ')[1]}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
             </Tabs>
           )}
         </DialogContent>
