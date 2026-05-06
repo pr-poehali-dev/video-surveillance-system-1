@@ -11,6 +11,7 @@ const Monitoring = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [previewCamera, setPreviewCamera] = useState<Camera | null>(null);
+  const [focusCameraId, setFocusCameraId] = useState<number | null>(null);
   // previewCamera передаётся в MapPanel, который сам управляет множественными окнами
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [clusteringEnabled, setClusteringEnabled] = useState(true);
@@ -148,6 +149,7 @@ const Monitoring = () => {
         getStatusColor={getStatusColor}
         onCameraClick={(camera) => { setSelectedCamera(camera); setShowVideoDialog(true); }}
         onPreviewCamera={(camera) => setPreviewCamera(prev => prev?.id === camera.id ? null : camera)}
+        onFocusCamera={(camera) => setFocusCameraId(camera.id)}
       />
 
       <MapPanel
@@ -159,6 +161,7 @@ const Monitoring = () => {
         onCameraClick={(camera) => { setSelectedCamera(camera); setShowVideoDialog(true); }}
         previewCamera={previewCamera}
         onPreviewClose={() => setPreviewCamera(null)}
+        focusCameraId={focusCameraId}
       />
 
       <CameraVideoDialog

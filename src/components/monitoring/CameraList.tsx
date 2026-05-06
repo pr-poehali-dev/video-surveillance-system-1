@@ -38,6 +38,7 @@ interface CameraListProps {
   getStatusColor: (status: string) => string;
   onCameraClick: (camera: Camera) => void;
   onPreviewCamera: (camera: Camera) => void;
+  onFocusCamera: (camera: Camera) => void;
 }
 
 const CameraList = ({
@@ -62,6 +63,7 @@ const CameraList = ({
   getStatusColor,
   onCameraClick,
   onPreviewCamera,
+  onFocusCamera,
 }: CameraListProps) => {
 
   return (
@@ -250,7 +252,7 @@ const CameraList = ({
                         <Icon name="Video" size={20} />
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); onCameraClick(camera); }}
+                        onClick={(e) => { e.stopPropagation(); onFocusCamera(camera); }}
                         className="text-muted-foreground hover:text-primary transition-colors"
                         title="Показать на карте"
                       >

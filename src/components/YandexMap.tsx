@@ -18,12 +18,7 @@ interface Camera {
   lng: number;
 }
 
-interface YandexMapProps {
-  cameras: Camera[];
-  onCameraClick?: (camera: Camera) => void;
-  height?: string;
-  clusteringEnabled?: boolean;
-}
+
 
 const getColor = (status: string) => {
   switch (status) {
@@ -49,7 +44,15 @@ const createCameraIcon = (status: string) => {
   });
 };
 
-const YandexMap = ({ cameras, onCameraClick, height = '600px' }: YandexMapProps) => {
+interface YandexMapProps {
+  cameras: Camera[];
+  onCameraClick?: (camera: Camera) => void;
+  height?: string;
+  clusteringEnabled?: boolean;
+  focusCameraId?: number | null;
+}
+
+const YandexMap = ({ cameras, onCameraClick, height = '600px', focusCameraId }: YandexMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
@@ -92,6 +95,14 @@ const YandexMap = ({ cameras, onCameraClick, height = '600px' }: YandexMapProps)
 
     return () => {};
   }, [cameras, onCameraClick]);
+
+  useEffect(() => {
+    if (!focusCameraId || !mapInstanceRef.current) return;
+    const camera = cameras.find(c => c.id === focusCameraId);
+    if (camera?.lat && camera?.lng) {
+      mapInstanceRef.current.setView([camera.lat, camera.lng], 16, { animate: true });
+    }
+  }, [focusCameraId, cameras]);
 
   useEffect(() => {
     return () => {

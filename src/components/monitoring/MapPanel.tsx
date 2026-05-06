@@ -20,6 +20,7 @@ interface MapPanelProps {
   onCameraClick: (camera: Camera) => void;
   previewCamera?: Camera | null;
   onPreviewClose?: () => void;
+  focusCameraId?: number | null;
 }
 
 const CameraPreview = ({
@@ -115,6 +116,7 @@ const MapPanel = ({
   onCameraClick,
   previewCamera,
   onPreviewClose,
+  focusCameraId,
 }: MapPanelProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [previews, setPreviews] = useState<PreviewItem[]>([]);
@@ -197,6 +199,7 @@ const MapPanel = ({
               onCameraClick={handleCameraClickFromMap}
               height="100%"
               clusteringEnabled={clusteringEnabled}
+              focusCameraId={focusCameraId}
             />
 
             {previews.map((item, idx) => (
