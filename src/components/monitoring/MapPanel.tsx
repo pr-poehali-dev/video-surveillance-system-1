@@ -1,6 +1,7 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import YandexMap from '@/components/YandexMap';
 import { Camera } from '@/lib/api';
@@ -122,6 +123,33 @@ const MapPanel = ({
   const [previews, setPreviews] = useState<PreviewItem[]>([]);
   const [zOrders, setZOrders] = useState<number[]>([]);
   const [maxZ, setMaxZ] = useState(20);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<{ display_name: string; lat: string; lon: string }[]>([]);
+  const flyToRef = useRef<((lat: number, lng: number) => void) | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchOpen) setTimeout(() => searchInputRef.current?.focus(), 50);
+    else { setSearchQuery(''); setSearchResults([]); }
+  }, [searchOpen]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults([]); return; }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=5&accept-language=ru`);
+        const data = await res.json();
+        setSearchResults(data);
+      } catch (e) { console.error(e); }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSelectResult = (result: { lat: string; lon: string }) => {
+    flyToRef.current?.(parseFloat(result.lat), parseFloat(result.lon));
+    setSearchOpen(false);
+  };
 
   const addPreview = useCallback((camera: Camera) => {
     setPreviews(prev => {
@@ -178,6 +206,15 @@ const MapPanel = ({
               <Button
                 variant="outline"
                 size="icon"
+                onClick={() => setSearchOpen(v => !v)}
+                title="Поиск улицы"
+                className="bg-background shadow-lg"
+              >
+                <Icon name="Search" size={18} />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={onClusteringToggle}
                 title={clusteringEnabled ? 'Отключить кластеризацию' : 'Включить кластеризацию'}
                 className="bg-background shadow-lg"
@@ -194,12 +231,37 @@ const MapPanel = ({
                 <Icon name={isFullscreen ? 'Minimize2' : 'Maximize2'} size={18} />
               </Button>
             </div>
+            {searchOpen && (
+              <div className="absolute top-4 right-16 z-20 w-72 bg-background shadow-lg rounded-md border p-2 flex flex-col gap-1">
+                <Input
+                  ref={searchInputRef}
+                  placeholder="Введите улицу или адрес..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="h-8 text-sm"
+                />
+                {searchResults.length > 0 && (
+                  <div className="flex flex-col max-h-48 overflow-y-auto">
+                    {searchResults.map((r, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSelectResult(r)}
+                        className="text-left text-xs px-2 py-1.5 hover:bg-muted rounded truncate"
+                      >
+                        {r.display_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             <YandexMap
               cameras={cameras}
               onCameraClick={handleCameraClickFromMap}
               height="100%"
               clusteringEnabled={clusteringEnabled}
               focusCameraId={focusCameraId}
+              flyToRef={flyToRef}
             />
 
             {previews.map((item, idx) => (

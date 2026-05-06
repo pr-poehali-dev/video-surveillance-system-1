@@ -50,9 +50,10 @@ interface YandexMapProps {
   height?: string;
   clusteringEnabled?: boolean;
   focusCameraId?: number | null;
+  flyToRef?: React.MutableRefObject<((lat: number, lng: number) => void) | null>;
 }
 
-const YandexMap = ({ cameras, onCameraClick, height = '600px', focusCameraId }: YandexMapProps) => {
+const YandexMap = ({ cameras, onCameraClick, height = '600px', focusCameraId, flyToRef }: YandexMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
@@ -95,6 +96,12 @@ const YandexMap = ({ cameras, onCameraClick, height = '600px', focusCameraId }: 
         attribution: tileConfig.attribution,
         maxZoom: tileConfig.maxZoom,
       }).addTo(mapInstanceRef.current);
+    }
+
+    if (flyToRef) {
+      flyToRef.current = (lat: number, lng: number) => {
+        mapInstanceRef.current?.flyTo([lat, lng], 16);
+      };
     }
 
     markersRef.current.forEach(m => m.remove());
