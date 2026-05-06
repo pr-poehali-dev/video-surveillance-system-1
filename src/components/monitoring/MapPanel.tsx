@@ -138,7 +138,7 @@ const MapPanel = ({
     if (!searchQuery.trim()) { setSearchResults([]); return; }
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=5&accept-language=ru`);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=5&accept-language=ru&countrycodes=ru&viewbox=51.7,61.0,59.7,56.0&bounded=1`);
         const data = await res.json();
         setSearchResults(data);
       } catch (e) { console.error(e); }
@@ -203,15 +203,41 @@ const MapPanel = ({
         <CardContent className="p-0 h-full">
           <div className="relative overflow-hidden h-full" ref={containerRef}>
             <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 mx-0 py-[345px]">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setSearchOpen(v => !v)}
-                title="Поиск улицы"
-                className="bg-background shadow-lg"
-              >
-                <Icon name="Search" size={18} />
-              </Button>
+              <div className="flex items-start gap-2">
+                {searchOpen && (
+                  <div className="w-72 bg-background shadow-lg rounded-md border p-2 flex flex-col gap-1">
+                    <Input
+                      ref={searchInputRef}
+                      placeholder="Улица или адрес в Пермском крае..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                    {searchResults.length > 0 && (
+                      <div className="flex flex-col max-h-48 overflow-y-auto">
+                        {searchResults.map((r, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleSelectResult(r)}
+                            className="text-left text-xs px-2 py-1.5 hover:bg-muted rounded truncate"
+                          >
+                            {r.display_name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setSearchOpen(v => !v)}
+                  title="Поиск улицы"
+                  className="bg-background shadow-lg"
+                >
+                  <Icon name="Search" size={18} />
+                </Button>
+              </div>
               <Button
                 variant="outline"
                 size="icon"
@@ -231,30 +257,7 @@ const MapPanel = ({
                 <Icon name={isFullscreen ? 'Minimize2' : 'Maximize2'} size={18} />
               </Button>
             </div>
-            {searchOpen && (
-              <div className="absolute top-4 right-16 z-20 w-72 bg-background shadow-lg rounded-md border p-2 flex flex-col gap-1">
-                <Input
-                  ref={searchInputRef}
-                  placeholder="Введите улицу или адрес..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="h-8 text-sm"
-                />
-                {searchResults.length > 0 && (
-                  <div className="flex flex-col max-h-48 overflow-y-auto">
-                    {searchResults.map((r, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSelectResult(r)}
-                        className="text-left text-xs px-2 py-1.5 hover:bg-muted rounded truncate"
-                      >
-                        {r.display_name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+
             <YandexMap
               cameras={cameras}
               onCameraClick={handleCameraClickFromMap}
