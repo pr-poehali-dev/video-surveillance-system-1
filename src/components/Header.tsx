@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,9 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 
 const GUIDE_SECTIONS = [
@@ -89,6 +92,40 @@ const Header = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [userGuideOpen, setUserGuideOpen] = useState(false);
   const [guideSearch, setGuideSearch] = useState('');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [portalSettings, setPortalSettings] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('portalSettings') || '{}'); } catch { return {}; }
+  });
+  const [settingsForm, setSettingsForm] = useState({
+    portalName: portalSettings.portalName || 'Единая система видеонаблюдения',
+    primaryColor: portalSettings.primaryColor || '#2563eb',
+    accentColor: portalSettings.accentColor || '#16a34a',
+    logoUrl: portalSettings.logoUrl || '',
+    notifyOnAlert: portalSettings.notifyOnAlert ?? true,
+    notifyOnOffline: portalSettings.notifyOnOffline ?? true,
+    notifySound: portalSettings.notifySound ?? false,
+    mapDefaultZoom: portalSettings.mapDefaultZoom || '12',
+    dateFormat: portalSettings.dateFormat || 'dd.MM.yyyy',
+    language: portalSettings.language || 'ru',
+  });
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSaveSettings = () => {
+    localStorage.setItem('portalSettings', JSON.stringify(settingsForm));
+    setPortalSettings(settingsForm);
+    setSettingsOpen(false);
+    toast.success('Настройки сохранены');
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setSettingsForm(f => ({ ...f, logoUrl: ev.target?.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -302,7 +339,7 @@ const Header = () => {
                   <Icon name="Mail" size={16} className="mr-2" />
                   Техническая поддержка
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
                   <Icon name="Settings" size={16} className="mr-2" />
                   Настройки
                 </DropdownMenuItem>
@@ -379,6 +416,147 @@ const Header = () => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Icon name="Settings" size={20} />
+            Настройки портала
+          </DialogTitle>
+        </DialogHeader>
+        <Tabs defaultValue="general" className="mt-2">
+          <TabsList className="w-full">
+            <TabsTrigger value="general" className="flex-1">Общие</TabsTrigger>
+            <TabsTrigger value="appearance" className="flex-1">Внешний вид</TabsTrigger>
+            <TabsTrigger value="notifications" className="flex-1">Уведомления</TabsTrigger>
+            <TabsTrigger value="map" className="flex-1">Карта</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="general" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Название портала</Label>
+              <Input value={settingsForm.portalName} onChange={e => setSettingsForm(f => ({ ...f, portalName: e.target.value }))} placeholder="Название системы" />
+            </div>
+            <div className="space-y-2">
+              <Label>Язык интерфейса</Label>
+              <select
+                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+                value={settingsForm.language}
+                onChange={e => setSettingsForm(f => ({ ...f, language: e.target.value }))}
+              >
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label>Формат даты</Label>
+              <select
+                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+                value={settingsForm.dateFormat}
+                onChange={e => setSettingsForm(f => ({ ...f, dateFormat: e.target.value }))}
+              >
+                <option value="dd.MM.yyyy">ДД.ММ.ГГГГ</option>
+                <option value="MM/dd/yyyy">MM/ДД/ГГГГ</option>
+                <option value="yyyy-MM-dd">ГГГГ-ММ-ДД</option>
+              </select>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="appearance" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Логотип</Label>
+              <div className="flex items-center gap-3">
+                {settingsForm.logoUrl ? (
+                  <img src={settingsForm.logoUrl} alt="logo" className="h-10 w-10 object-contain rounded border" />
+                ) : (
+                  <div className="h-10 w-10 rounded border flex items-center justify-center bg-muted">
+                    <Icon name="Image" size={18} className="text-muted-foreground" />
+                  </div>
+                )}
+                <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()}>
+                  <Icon name="Upload" size={14} className="mr-2" />
+                  Загрузить
+                </Button>
+                {settingsForm.logoUrl && (
+                  <Button variant="ghost" size="sm" onClick={() => setSettingsForm(f => ({ ...f, logoUrl: '' }))}>
+                    <Icon name="X" size={14} className="mr-1" />
+                    Удалить
+                  </Button>
+                )}
+                <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              </div>
+            </div>
+            <Separator />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Основной цвет</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={settingsForm.primaryColor} onChange={e => setSettingsForm(f => ({ ...f, primaryColor: e.target.value }))} className="h-9 w-12 rounded border cursor-pointer" />
+                  <Input value={settingsForm.primaryColor} onChange={e => setSettingsForm(f => ({ ...f, primaryColor: e.target.value }))} className="font-mono text-sm" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Акцентный цвет</Label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={settingsForm.accentColor} onChange={e => setSettingsForm(f => ({ ...f, accentColor: e.target.value }))} className="h-9 w-12 rounded border cursor-pointer" />
+                  <Input value={settingsForm.accentColor} onChange={e => setSettingsForm(f => ({ ...f, accentColor: e.target.value }))} className="font-mono text-sm" />
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-4 mt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">Уведомления о тревогах</p>
+                <p className="text-xs text-muted-foreground">Получать уведомления при срабатывании сигнализации</p>
+              </div>
+              <Switch checked={settingsForm.notifyOnAlert} onCheckedChange={v => setSettingsForm(f => ({ ...f, notifyOnAlert: v }))} />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">Уведомления об отключении камер</p>
+                <p className="text-xs text-muted-foreground">Получать уведомления когда камера уходит офлайн</p>
+              </div>
+              <Switch checked={settingsForm.notifyOnOffline} onCheckedChange={v => setSettingsForm(f => ({ ...f, notifyOnOffline: v }))} />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">Звуковые уведомления</p>
+                <p className="text-xs text-muted-foreground">Воспроизводить звук при получении уведомлений</p>
+              </div>
+              <Switch checked={settingsForm.notifySound} onCheckedChange={v => setSettingsForm(f => ({ ...f, notifySound: v }))} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="map" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>Масштаб карты по умолчанию</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range" min={8} max={18} step={1}
+                  value={settingsForm.mapDefaultZoom}
+                  onChange={e => setSettingsForm(f => ({ ...f, mapDefaultZoom: e.target.value }))}
+                  className="flex-1"
+                />
+                <span className="text-sm font-mono w-8 text-center">{settingsForm.mapDefaultZoom}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">8 — страна, 12 — город, 18 — улица</p>
+            </div>
+          </TabsContent>
+        </Tabs>
+        <DialogFooter className="mt-4">
+          <Button variant="outline" onClick={() => setSettingsOpen(false)}>Отмена</Button>
+          <Button onClick={handleSaveSettings}>
+            <Icon name="Check" size={16} className="mr-2" />
+            Сохранить
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
     <Dialog open={userGuideOpen} onOpenChange={(open) => { setUserGuideOpen(open); if (!open) setGuideSearch(''); }}>
       <DialogContent className="max-w-2xl h-[80vh] flex flex-col overflow-hidden">
         <DialogHeader>
