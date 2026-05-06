@@ -31,9 +31,11 @@ interface SettingsDialogProps {
 }
 
 const PAGE_OPTIONS: { value: SettingsForm['defaultPage']; label: string }[] = [
-  { value: '/dashboard', label: 'Дашборд' },
+  { value: '/dashboard', label: 'Главная' },
   { value: '/monitoring', label: 'Мониторинг' },
-  { value: '/camera-registry', label: 'Реестр камер' },
+  { value: '/ord', label: 'ОРД' },
+  { value: '/layouts', label: 'Раскладки' },
+  { value: '/reports', label: 'Отчёты' },
 ];
 
 const MAP_TILES: { value: MapTile; label: string }[] = [
