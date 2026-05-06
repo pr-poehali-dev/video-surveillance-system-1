@@ -5,6 +5,18 @@ import ChangePasswordDialog from '@/components/header/ChangePasswordDialog';
 import SettingsDialog from '@/components/header/SettingsDialog';
 import UserGuideDialog from '@/components/header/UserGuideDialog';
 
+const getInitialSettings = () => {
+  try { return JSON.parse(localStorage.getItem('portalSettings') || '{}'); } catch { return {}; }
+};
+
+const applyTheme = (theme: 'light' | 'dark') => {
+  document.documentElement.classList.toggle('dark', theme === 'dark');
+};
+
+const applyCompact = (compact: boolean) => {
+  document.documentElement.setAttribute('data-compact', compact ? 'true' : 'false');
+};
+
 const Header = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notifications] = useState(3);
@@ -12,18 +24,30 @@ const Header = () => {
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [userGuideOpen, setUserGuideOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [portalSettings, setPortalSettings] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('portalSettings') || '{}'); } catch { return {}; }
+  const [portalSettings, setPortalSettings] = useState(getInitialSettings);
+  const [settingsForm, setSettingsForm] = useState(() => {
+    const s = getInitialSettings();
+    return {
+      notifyOnAlert: s.notifyOnAlert ?? true,
+      notifyOnOffline: s.notifyOnOffline ?? true,
+      notifySound: s.notifySound ?? false,
+      theme: (s.theme ?? 'light') as 'light' | 'dark',
+      compactTables: s.compactTables ?? false,
+      defaultPage: (s.defaultPage ?? '/dashboard') as '/dashboard' | '/monitoring' | '/camera-registry',
+    };
   });
-  const [settingsForm, setSettingsForm] = useState({
-    notifyOnAlert: portalSettings.notifyOnAlert ?? true,
-    notifyOnOffline: portalSettings.notifyOnOffline ?? true,
-    notifySound: portalSettings.notifySound ?? false,
-  });
+
+  useEffect(() => {
+    const s = getInitialSettings();
+    applyTheme(s.theme ?? 'light');
+    applyCompact(s.compactTables ?? false);
+  }, []);
 
   const handleSaveSettings = () => {
     localStorage.setItem('portalSettings', JSON.stringify(settingsForm));
     setPortalSettings(settingsForm);
+    applyTheme(settingsForm.theme);
+    applyCompact(settingsForm.compactTables);
     setSettingsOpen(false);
     toast.success('Настройки сохранены');
   };

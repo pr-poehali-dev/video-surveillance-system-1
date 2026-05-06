@@ -45,7 +45,8 @@ const Login = () => {
             
             // Показываем уведомление и перенаправляем
             toast.success(`Вход выполнен как ${impersonateData.fullName}`);
-            navigate("/dashboard");
+            const impersonateSettings = JSON.parse(localStorage.getItem('portalSettings') || '{}');
+            navigate(impersonateSettings.defaultPage || "/dashboard");
           } else {
             sessionStorage.removeItem(impersonateKey);
             toast.error('Ссылка для входа устарела');
@@ -105,7 +106,8 @@ const Login = () => {
         await createSession(data.user.id);
 
         toast.success(`Вход выполнен как ${data.user.full_name || login}`);
-        navigate("/dashboard");
+        const loginSettings = JSON.parse(localStorage.getItem('portalSettings') || '{}');
+        navigate(loginSettings.defaultPage || "/dashboard");
       } else {
         toast.error(data.error || "Некорректный логин и/или пароль");
       }
