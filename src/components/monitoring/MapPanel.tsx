@@ -238,15 +238,7 @@ const MapPanel = ({
                   <Icon name="Search" size={18} />
                 </Button>
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onClusteringToggle}
-                title={clusteringEnabled ? 'Отключить кластеризацию' : 'Включить кластеризацию'}
-                className="bg-background shadow-lg"
-              >
-                <Icon name={clusteringEnabled ? 'Layers' : 'Grid3x3'} size={18} />
-              </Button>
+
               <Button
                 variant="outline"
                 size="icon"
