@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import HeaderBar from '@/components/header/HeaderBar';
 import ChangePasswordDialog from '@/components/header/ChangePasswordDialog';
-import SettingsDialog from '@/components/header/SettingsDialog';
+import SettingsDialog, { type SettingsForm } from '@/components/header/SettingsDialog';
 import UserGuideDialog from '@/components/header/UserGuideDialog';
 
 const getInitialSettings = () => {
@@ -24,8 +24,8 @@ const Header = () => {
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [userGuideOpen, setUserGuideOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [portalSettings, setPortalSettings] = useState(getInitialSettings);
-  const [settingsForm, setSettingsForm] = useState(() => {
+  const [, setPortalSettings] = useState(getInitialSettings);
+  const [settingsForm, setSettingsForm] = useState<SettingsForm>(() => {
     const s = getInitialSettings();
     return {
       notifyOnAlert: s.notifyOnAlert ?? true,
@@ -34,6 +34,7 @@ const Header = () => {
       theme: (s.theme ?? 'light') as 'light' | 'dark',
       compactTables: s.compactTables ?? false,
       defaultPage: (s.defaultPage ?? '/dashboard') as '/dashboard' | '/monitoring' | '/camera-registry',
+      mapTile: (s.mapTile ?? 'osm') as SettingsForm['mapTile'],
     };
   });
 

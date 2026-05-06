@@ -67,9 +67,33 @@ const YandexMap = ({ cameras, onCameraClick, height = '600px', focusCameraId }: 
         zoomControl: true,
       });
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
+      const tileConfigs: Record<string, { url: string; attribution: string; maxZoom: number }> = {
+        osm: {
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19,
+        },
+        satellite: {
+          url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+          attribution: '© Esri World Imagery',
+          maxZoom: 19,
+        },
+        topo: {
+          url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+          attribution: '© OpenTopoMap contributors',
+          maxZoom: 17,
+        },
+        dark: {
+          url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+          attribution: '© Stadia Maps',
+          maxZoom: 20,
+        },
+      };
+      const savedTile = (() => { try { return JSON.parse(localStorage.getItem('portalSettings') || '{}').mapTile || 'osm'; } catch { return 'osm'; } })();
+      const tileConfig = tileConfigs[savedTile] || tileConfigs.osm;
+      L.tileLayer(tileConfig.url, {
+        attribution: tileConfig.attribution,
+        maxZoom: tileConfig.maxZoom,
       }).addTo(mapInstanceRef.current);
     }
 

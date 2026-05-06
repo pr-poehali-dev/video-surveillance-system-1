@@ -10,13 +10,16 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 
-interface SettingsForm {
+export type MapTile = 'osm' | 'satellite' | 'topo' | 'dark';
+
+export interface SettingsForm {
   notifyOnAlert: boolean;
   notifyOnOffline: boolean;
   notifySound: boolean;
   theme: 'light' | 'dark';
   compactTables: boolean;
   defaultPage: '/dashboard' | '/monitoring' | '/camera-registry';
+  mapTile: MapTile;
 }
 
 interface SettingsDialogProps {
@@ -33,10 +36,33 @@ const PAGE_OPTIONS: { value: SettingsForm['defaultPage']; label: string }[] = [
   { value: '/camera-registry', label: 'Реестр камер' },
 ];
 
+const MAP_TILES: { value: MapTile; label: string; preview: string }[] = [
+  {
+    value: 'osm',
+    label: 'Улицы',
+    preview: 'https://tile.openstreetmap.org/12/2459/1343.png',
+  },
+  {
+    value: 'satellite',
+    label: 'Спутник',
+    preview: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/12/1343/2459',
+  },
+  {
+    value: 'topo',
+    label: 'Рельеф',
+    preview: 'https://tile.opentopomap.org/12/2459/1343.png',
+  },
+  {
+    value: 'dark',
+    label: 'Тёмная',
+    preview: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/12/2459/1343.png',
+  },
+];
+
 const SettingsDialog = ({ open, onOpenChange, settingsForm, setSettingsForm, onSave }: SettingsDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon name="Settings" size={20} />
@@ -87,6 +113,39 @@ const SettingsDialog = ({ open, onOpenChange, settingsForm, setSettingsForm, onS
                   }`}
                 >
                   {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Картографическая подложка</p>
+            <p className="text-xs text-muted-foreground">Стиль отображения карты в разделе мониторинга</p>
+            <div className="grid grid-cols-4 gap-2 pt-1">
+              {MAP_TILES.map(tile => (
+                <button
+                  key={tile.value}
+                  onClick={() => setSettingsForm(f => ({ ...f, mapTile: tile.value }))}
+                  className={`relative rounded-md border-2 overflow-hidden transition-all ${
+                    settingsForm.mapTile === tile.value
+                      ? 'border-primary ring-2 ring-primary ring-offset-1'
+                      : 'border-border hover:border-muted-foreground'
+                  }`}
+                >
+                  <img
+                    src={tile.preview}
+                    alt={tile.label}
+                    className="w-full h-16 object-cover"
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                  <div className="text-xs text-center py-1 font-medium">{tile.label}</div>
+                  {settingsForm.mapTile === tile.value && (
+                    <div className="absolute top-1 right-1 bg-primary rounded-full p-0.5">
+                      <Icon name="Check" size={10} className="text-primary-foreground" />
+                    </div>
+                  )}
                 </button>
               ))}
             </div>
