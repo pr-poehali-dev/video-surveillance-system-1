@@ -239,15 +239,7 @@ const MapPanel = ({
                 </Button>
               </div>
 
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onFullscreenToggle}
-                title="Полноэкранный режим"
-                className="bg-background shadow-lg"
-              >
-                <Icon name={isFullscreen ? 'Minimize2' : 'Maximize2'} size={18} />
-              </Button>
+
             </div>
 
             <YandexMap
