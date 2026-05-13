@@ -10,6 +10,8 @@ export interface DroneDetection {
   status: 'active' | 'neutralized' | 'lost';
   altitude: number;
   speed: number;
+  camera: string;
+  confirmed: boolean | null;
 }
 
 export interface Alert {
@@ -30,14 +32,14 @@ export const DRONE_PHOTOS = [
 ];
 
 export const MOCK_DETECTIONS: DroneDetection[] = [
-  { id: 1, time: '09:14:22', date: '13.05.2026', type: 'FPV дрон', lat: 55.7558, lng: 37.6173, zone: 'Сектор А-1', threat: 'high', status: 'neutralized', altitude: 45, speed: 120 },
-  { id: 2, time: '10:32:07', date: '13.05.2026', type: 'Мавик 3', lat: 55.7612, lng: 37.6310, zone: 'Сектор Б-2', threat: 'medium', status: 'lost', altitude: 80, speed: 65 },
-  { id: 3, time: '11:05:44', date: '13.05.2026', type: 'FPV дрон', lat: 55.7489, lng: 37.6055, zone: 'Сектор А-3', threat: 'high', status: 'active', altitude: 30, speed: 140 },
-  { id: 4, time: '12:18:33', date: '13.05.2026', type: 'Орлан-10', lat: 55.7701, lng: 37.6440, zone: 'Сектор В-1', threat: 'high', status: 'neutralized', altitude: 200, speed: 90 },
-  { id: 5, time: '13:44:11', date: '13.05.2026', type: 'Мавик 3', lat: 55.7530, lng: 37.6250, zone: 'Сектор Б-1', threat: 'low', status: 'lost', altitude: 60, speed: 55 },
-  { id: 6, time: '14:02:58', date: '13.05.2026', type: 'Призма', lat: 55.7640, lng: 37.6100, zone: 'Сектор А-2', threat: 'medium', status: 'active', altitude: 150, speed: 75 },
-  { id: 7, time: '14:55:20', date: '13.05.2026', type: 'FPV дрон', lat: 55.7510, lng: 37.6380, zone: 'Сектор В-2', threat: 'high', status: 'neutralized', altitude: 25, speed: 160 },
-  { id: 8, time: '15:30:05', date: '13.05.2026', type: 'Мавик 3', lat: 55.7580, lng: 37.6200, zone: 'Сектор Б-3', threat: 'low', status: 'lost', altitude: 70, speed: 50 },
+  { id: 1, time: '09:14:22', date: '13.05.2026', type: 'FPV дрон', lat: 55.7558, lng: 37.6173, zone: 'Сектор А-1', threat: 'high', status: 'neutralized', altitude: 45, speed: 120, camera: 'КАМ-01 / Северный КПП', confirmed: true },
+  { id: 2, time: '10:32:07', date: '13.05.2026', type: 'Мавик 3', lat: 55.7612, lng: 37.6310, zone: 'Сектор Б-2', threat: 'medium', status: 'lost', altitude: 80, speed: 65, camera: 'КАМ-04 / Восточная вышка', confirmed: null },
+  { id: 3, time: '11:05:44', date: '13.05.2026', type: 'FPV дрон', lat: 55.7489, lng: 37.6055, zone: 'Сектор А-3', threat: 'high', status: 'active', altitude: 30, speed: 140, camera: 'КАМ-02 / Западный периметр', confirmed: null },
+  { id: 4, time: '12:18:33', date: '13.05.2026', type: 'Орлан-10', lat: 55.7701, lng: 37.6440, zone: 'Сектор В-1', threat: 'high', status: 'neutralized', altitude: 200, speed: 90, camera: 'КАМ-07 / Центральный пост', confirmed: true },
+  { id: 5, time: '13:44:11', date: '13.05.2026', type: 'Мавик 3', lat: 55.7530, lng: 37.6250, zone: 'Сектор Б-1', threat: 'low', status: 'lost', altitude: 60, speed: 55, camera: 'КАМ-03 / Южный КПП', confirmed: false },
+  { id: 6, time: '14:02:58', date: '13.05.2026', type: 'Призма', lat: 55.7640, lng: 37.6100, zone: 'Сектор А-2', threat: 'medium', status: 'active', altitude: 150, speed: 75, camera: 'КАМ-05 / Северная вышка', confirmed: null },
+  { id: 7, time: '14:55:20', date: '13.05.2026', type: 'FPV дрон', lat: 55.7510, lng: 37.6380, zone: 'Сектор В-2', threat: 'high', status: 'neutralized', altitude: 25, speed: 160, camera: 'КАМ-06 / Восточный периметр', confirmed: true },
+  { id: 8, time: '15:30:05', date: '13.05.2026', type: 'Мавик 3', lat: 55.7580, lng: 37.6200, zone: 'Сектор Б-3', threat: 'low', status: 'lost', altitude: 70, speed: 50, camera: 'КАМ-08 / Запасной пост', confirmed: null },
 ];
 
 export const MOCK_ALERTS: Alert[] = [
