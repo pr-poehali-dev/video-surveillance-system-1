@@ -16,6 +16,7 @@ export const PermissionsEditor = ({ permissions, onChange }: PermissionsEditorPr
     home: true,
     monitoring: true,
     ord: true,
+    bpla: true,
     layouts: true,
     reports: true,
     photo_archive: true,
@@ -119,7 +120,11 @@ export const PermissionsEditor = ({ permissions, onChange }: PermissionsEditorPr
           </div>
         </Section>
 
-        <Section title="4. Раскладки" section="layouts">
+        <Section title="4. БПЛА" section="bpla">
+          <PermissionCheckbox label="Просмотр" path={['bpla', 'view']} />
+        </Section>
+
+        <Section title="5. Раскладки" section="layouts">
           <PermissionCheckbox label="Просмотр" path={['layouts', 'view']} />
           <PermissionCheckbox label="Создание" path={['layouts', 'create']} />
           <PermissionCheckbox label="Редактирование" path={['layouts', 'edit']} />
@@ -127,18 +132,18 @@ export const PermissionsEditor = ({ permissions, onChange }: PermissionsEditorPr
           <PermissionCheckbox label="Настройка камер" path={['layouts', 'camera_settings']} />
         </Section>
 
-        <Section title="5. Отчеты" section="reports">
+        <Section title="6. Отчеты" section="reports">
           <PermissionCheckbox label="Просмотр" path={['reports', 'view']} />
         </Section>
 
-        <Section title="6. Фотоархив" section="photo_archive">
+        <Section title="7. Фотоархив" section="photo_archive">
           <PermissionCheckbox label="Просмотр" path={['photo_archive', 'view']} />
           <PermissionCheckbox label="Создание" path={['photo_archive', 'create']} />
           <PermissionCheckbox label="Редактирование" path={['photo_archive', 'edit']} />
           <PermissionCheckbox label="Удаление" path={['photo_archive', 'delete']} />
         </Section>
 
-        <Section title="7. Параметры" section="parameters">
+        <Section title="8. Параметры" section="parameters">
           <PermissionCheckbox label="Просмотр страницы" path={['parameters', 'view']} />
           
           <div className="ml-4 space-y-2 mt-2">

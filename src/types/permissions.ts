@@ -36,6 +36,9 @@ export interface RolePermissions {
       view: boolean;
     };
   };
+  bpla: {
+    view: boolean;
+  };
   layouts: {
     view: boolean;
     create: boolean;
@@ -154,6 +157,7 @@ export const DEFAULT_PERMISSIONS: RolePermissions = {
     historical_search_faces: { view: false },
     historical_search_license_plates: { view: false },
   },
+  bpla: { view: false },
   layouts: {
     view: false,
     create: false,
