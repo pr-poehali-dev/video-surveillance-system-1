@@ -15,6 +15,7 @@ import Reports from "./pages/Reports";
 import PhotoArchive from "./pages/PhotoArchive";
 import Parameters from "./pages/Parameters";
 import VISS from "./pages/VISS";
+import BPLA from "./pages/BPLA";
 import CameraRegistry from "./pages/CameraRegistry";
 import Changelog from "./pages/Changelog";
 import AppLayout from "./components/AppLayout";
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/dashboard" element={<AuthenticatedLayout><Dashboard /></AuthenticatedLayout>} />
           <Route path="/monitoring" element={<AuthenticatedLayout containerClassName="w-full px-0 py-0"><Monitoring /></AuthenticatedLayout>} />
           <Route path="/ord" element={<AuthenticatedLayout><ORD /></AuthenticatedLayout>} />
+          <Route path="/bpla" element={<AuthenticatedLayout><BPLA /></AuthenticatedLayout>} />
           <Route path="/layouts" element={<AuthenticatedLayout><Layouts /></AuthenticatedLayout>} />
           <Route path="/reports" element={<AuthenticatedLayout><Reports /></AuthenticatedLayout>} />
           <Route path="/photo-archive" element={<AuthenticatedLayout><PhotoArchive /></AuthenticatedLayout>} />
