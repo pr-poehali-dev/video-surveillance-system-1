@@ -64,6 +64,8 @@ const BPLAMap = () => {
   const [newSectorName, setNewSectorName] = useState('');
   const [newSectorColor, setNewSectorColor] = useState(0);
   const [editName, setEditName] = useState('');
+  const [editingVerticesSector, setEditingVerticesSector] = useState<string | null>(null);
+  const vertexMarkersRef = useRef<L.CircleMarker[]>([]);
 
   const sectorsRef = useRef(sectors);
   sectorsRef.current = sectors;
@@ -203,6 +205,57 @@ const BPLAMap = () => {
     setSectors(prev => prev.map(s => s.id === id ? { ...s, color: c.color, fillColor: c.fill } : s));
   };
 
+  const clearVertexMarkers = () => {
+    vertexMarkersRef.current.forEach(m => m.remove());
+    vertexMarkersRef.current = [];
+  };
+
+  const startEditVertices = (id: string) => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    clearVertexMarkers();
+    setEditingVerticesSector(id);
+    const sector = sectorsRef.current.find(s => s.id === id);
+    if (!sector) return;
+
+    sector.bounds.forEach((pt, idx) => {
+      const marker = L.circleMarker([pt[0], pt[1]], {
+        radius: 7,
+        color: '#f59e0b',
+        fillColor: '#f59e0b',
+        fillOpacity: 1,
+        weight: 2,
+      }).addTo(map);
+
+      marker.on('mousedown', () => {
+        map.dragging.disable();
+        const onMouseMove = (e: L.LeafletMouseEvent) => {
+          marker.setLatLng(e.latlng);
+          setSectors(prev => prev.map(s => {
+            if (s.id !== id) return s;
+            const newBounds = [...s.bounds] as [number, number][];
+            newBounds[idx] = [e.latlng.lat, e.latlng.lng];
+            return { ...s, bounds: newBounds };
+          }));
+        };
+        const onMouseUp = () => {
+          map.dragging.enable();
+          map.off('mousemove', onMouseMove);
+          map.off('mouseup', onMouseUp);
+        };
+        map.on('mousemove', onMouseMove);
+        map.on('mouseup', onMouseUp);
+      });
+
+      vertexMarkersRef.current.push(marker);
+    });
+  };
+
+  const stopEditVertices = () => {
+    clearVertexMarkers();
+    setEditingVerticesSector(null);
+  };
+
   const selectedSectorData = sectors.find(s => s.id === selectedSector);
 
   return (
@@ -259,7 +312,7 @@ const BPLAMap = () => {
             <div className="absolute top-2 left-2 z-[1000] bg-card/95 border border-border rounded-lg shadow-lg p-3 min-w-[200px] max-h-80 overflow-y-auto">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Секторы</span>
-                <button onClick={() => { setPanelOpen(false); setSelectedSector(null); }} className="text-muted-foreground hover:text-foreground transition-colors">
+                <button onClick={() => { stopEditVertices(); setPanelOpen(false); setSelectedSector(null); }} className="text-muted-foreground hover:text-foreground transition-colors">
                   <Icon name="X" size={14} />
                 </button>
               </div>
@@ -271,7 +324,7 @@ const BPLAMap = () => {
                   >
                     <div
                       className="flex items-center gap-2 px-2 py-1.5 cursor-pointer"
-                      onClick={() => setSelectedSector(prev => prev === s.id ? null : s.id)}
+                      onClick={() => { stopEditVertices(); setSelectedSector(prev => prev === s.id ? null : s.id); }}
                     >
                       <span className="w-3 h-3 rounded-full shrink-0" style={{ background: s.color }} />
                       <span className="text-xs font-medium flex-1 truncate">{s.name}</span>
@@ -303,6 +356,23 @@ const BPLAMap = () => {
                             />
                           ))}
                         </div>
+                        {editingVerticesSector === s.id ? (
+                          <button
+                            onClick={stopEditVertices}
+                            className="flex items-center gap-1 text-xs text-green-500 hover:text-green-600 transition-colors font-medium"
+                          >
+                            <Icon name="Check" size={11} />
+                            Завершить редактирование
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => startEditVertices(s.id)}
+                            className="flex items-center gap-1 text-xs text-yellow-500 hover:text-yellow-600 transition-colors"
+                          >
+                            <Icon name="Move" size={11} />
+                            Изменить форму
+                          </button>
+                        )}
                         <button
                           onClick={() => deleteSector(s.id)}
                           className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition-colors"
