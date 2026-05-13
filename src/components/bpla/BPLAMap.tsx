@@ -119,7 +119,7 @@ const BPLAMap = () => {
   }, []);
 
   return (
-    <Card>
+    <Card className="relative z-0">
       <CardContent className="p-0">
         <div className="h-96">
           <div ref={mapRef} className="w-full h-full rounded-lg" />
