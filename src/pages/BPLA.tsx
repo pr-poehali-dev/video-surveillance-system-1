@@ -232,16 +232,7 @@ const BPLA = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Детектирование БПЛА</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">Мониторинг и контроль воздушного пространства</p>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          Система активна
-        </div>
-      </div>
+
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card>
