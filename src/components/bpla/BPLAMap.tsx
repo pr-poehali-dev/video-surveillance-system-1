@@ -78,7 +78,7 @@ const BPLAMap = () => {
         weight: isSelected ? 2.5 : 1,
         opacity: isSelected ? 0.9 : 0.35,
         fillColor: s.fillColor,
-        fillOpacity: isSelected ? 0.18 : 0.06,
+        fillOpacity: isSelected ? 0.07 : 0.02,
         dashArray: isSelected ? undefined : '4 4',
       }).addTo(map);
       poly.bindTooltip(s.name, { permanent: false, direction: 'center', className: 'text-xs font-mono' });
