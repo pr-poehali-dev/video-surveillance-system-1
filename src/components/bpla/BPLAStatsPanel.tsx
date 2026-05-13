@@ -236,30 +236,7 @@ const BPLAStatsPanel = ({
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-2">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Icon name="TrendingUp" size={16} className="text-primary" />
-                  Сводка за день
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <p className="text-3xl font-bold text-red-500">{highThreatCount}</p>
-                    <p className="text-sm text-muted-foreground mt-1">Высокая угроза</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <p className="text-3xl font-bold text-yellow-500">{MOCK_DETECTIONS.filter(d => d.threat === 'medium').length}</p>
-                    <p className="text-sm text-muted-foreground mt-1">Средняя угроза</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <p className="text-3xl font-bold text-green-500">{MOCK_DETECTIONS.filter(d => d.threat === 'low').length}</p>
-                    <p className="text-sm text-muted-foreground mt-1">Низкая угроза</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
         </TabsContent>
 
