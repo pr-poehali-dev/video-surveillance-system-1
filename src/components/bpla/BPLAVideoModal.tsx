@@ -88,6 +88,28 @@ const BPLAVideoModal = ({ detection, onClose, onConfirm }: BPLAVideoModalProps) 
             alt={`Кадр ${frameIndex + 1}`}
             className="w-full object-contain max-h-[50vh]"
           />
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              border: '2px solid #ef4444',
+              boxShadow: '0 0 6px rgba(239,68,68,0.6)',
+              top: '28%',
+              left: '38%',
+              width: '24%',
+              height: '32%',
+            }}
+          >
+            <span
+              className="absolute -top-5 left-0 text-[10px] font-mono px-1 py-0.5 rounded"
+              style={{ background: '#ef4444', color: '#fff' }}
+            >
+              БПЛА
+            </span>
+            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-red-400" />
+            <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-red-400" />
+            <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-red-400" />
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-red-400" />
+          </div>
           <div className="absolute top-2 left-2 bg-black/60 text-white text-xs font-mono px-2 py-1 rounded">
             Кадр {frameIndex + 1} / {totalFrames}
           </div>
