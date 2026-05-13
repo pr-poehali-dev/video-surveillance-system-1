@@ -43,9 +43,10 @@ export const PermissionsEditor = ({ permissions, onChange }: PermissionsEditorPr
     const getValue = () => {
       let current: any = permissions;
       for (const key of path) {
+        if (current == null) return false;
         current = current[key];
       }
-      return current;
+      return current ?? false;
     };
 
     return (
