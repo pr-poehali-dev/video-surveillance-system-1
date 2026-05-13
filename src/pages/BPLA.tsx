@@ -52,7 +52,7 @@ const BPLA = () => {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <StatCard colorClass="text-primary" bgClass="bg-primary/10" icon="Radar" label="Всего" value={totalDetections} resetKey="total" />
+        <StatCard colorClass="text-primary" bgClass="bg-primary/10" icon="Radar" label="Всего (24ч)" value={totalDetections} resetKey="total" />
         <StatCard colorClass="text-red-500" bgClass="bg-red-500/10" icon="AlertTriangle" label="Высокий" value={highThreatCount} resetKey="high" />
         <StatCard colorClass="text-yellow-500" bgClass="bg-yellow-500/10" icon="AlertCircle" label="Средний" value={mediumThreatCount} resetKey="medium" />
         <StatCard colorClass="text-green-500" bgClass="bg-green-500/10" icon="CheckCircle" label="Низкий" value={lowThreatCount} resetKey="low" />
