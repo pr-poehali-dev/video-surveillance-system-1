@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -104,72 +106,120 @@ const alertIconColor = (t: Alert['type']) => {
   return 'text-blue-500';
 };
 
-const MapPlaceholder = () => {
-  const sectors = [
-    { id: 'А-1', x: 15, y: 20, drone: true, threat: 'high' as const },
-    { id: 'А-2', x: 42, y: 20, drone: true, threat: 'medium' as const },
-    { id: 'А-3', x: 68, y: 20, drone: true, threat: 'high' as const },
-    { id: 'Б-1', x: 15, y: 50, drone: true, threat: 'low' as const },
-    { id: 'Б-2', x: 42, y: 50, drone: true, threat: 'medium' as const },
-    { id: 'Б-3', x: 68, y: 50, drone: true, threat: 'low' as const },
-    { id: 'В-1', x: 15, y: 78, drone: true, threat: 'high' as const },
-    { id: 'В-2', x: 42, y: 78, drone: true, threat: 'high' as const },
-  ];
+const TACTICAL_POINTS = MOCK_DETECTIONS.map(d => ({
+  id: d.id,
+  lat: d.lat,
+  lng: d.lng,
+  label: `${d.type} / ${d.zone}`,
+  threat: d.threat,
+  status: d.status,
+  time: d.time,
+}));
 
-  return (
-    <div className="relative w-full h-full bg-slate-900 rounded-lg overflow-hidden">
-      <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#64748b" strokeWidth="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
+const createDroneIcon = (threat: DroneDetection['threat'], status: DroneDetection['status']) => {
+  const color = threat === 'high' ? '#ef4444' : threat === 'medium' ? '#eab308' : '#22c55e';
+  const pulse = status === 'active' ? 'animation: bpla-pulse 1.2s ease-in-out infinite;' : '';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+    <circle cx="14" cy="14" r="12" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="1.5" style="${pulse}"/>
+    <circle cx="14" cy="14" r="6" fill="${color}" stroke="white" stroke-width="1.5"/>
+    <line x1="14" y1="2" x2="14" y2="8" stroke="${color}" stroke-width="1.5"/>
+    <line x1="14" y1="20" x2="14" y2="26" stroke="${color}" stroke-width="1.5"/>
+    <line x1="2" y1="14" x2="8" y2="14" stroke="${color}" stroke-width="1.5"/>
+    <line x1="20" y1="14" x2="26" y2="14" stroke="${color}" stroke-width="1.5"/>
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -16],
+  });
+};
 
-      <div className="absolute top-3 left-3 bg-black/60 rounded px-2 py-1 text-xs text-slate-300 font-mono">
-        ТАКТИЧЕСКАЯ КАРТА / БПЛА
-      </div>
+const BPLAMap = () => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
 
-      {sectors.map((s) => {
-        const color = s.threat === 'high' ? '#ef4444' : s.threat === 'medium' ? '#eab308' : '#22c55e';
-        return (
-          <div
-            key={s.id}
-            className="absolute flex flex-col items-center gap-1"
-            style={{ left: `${s.x}%`, top: `${s.y}%`, transform: 'translate(-50%, -50%)' }}
-          >
-            <div
-              className="w-3 h-3 rounded-full animate-pulse shadow-lg"
-              style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }}
-            />
-            <span className="text-xs font-mono px-1 rounded" style={{ color, backgroundColor: `${color}20` }}>
-              {s.id}
-            </span>
-          </div>
-        );
-      })}
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
 
-      <div className="absolute bottom-3 left-3 flex flex-col gap-1">
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-red-500" />
-          <span className="text-xs text-slate-400">Высокая угроза</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-yellow-500" />
-          <span className="text-xs text-slate-400">Средняя угроза</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="text-xs text-slate-400">Низкая угроза</span>
-        </div>
-      </div>
+    const map = L.map(mapRef.current, {
+      center: [58.4, 57.0],
+      zoom: 7,
+      zoomControl: true,
+    });
+    mapInstanceRef.current = map;
 
-      <div className="absolute bottom-3 right-3 bg-black/60 rounded px-2 py-1 text-xs text-slate-400 font-mono">
-        {new Date().toLocaleTimeString('ru-RU')}
-      </div>
-    </div>
-  );
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(map);
+
+    const tacStyle = {
+      color: '#3b82f6',
+      weight: 1,
+      opacity: 0.25,
+      fillColor: '#1d4ed8',
+      fillOpacity: 0.05,
+      dashArray: '4 4',
+    };
+
+    const permBounds: [number, number][][] = [
+      [[57.2, 55.5], [57.2, 58.5], [59.5, 58.5], [59.5, 55.5]],
+      [[59.0, 57.0], [59.0, 60.5], [61.5, 60.5], [61.5, 57.0]],
+    ];
+    permBounds.forEach(b => L.polygon(b, tacStyle).addTo(map));
+
+    const gridLines: [number, number][][] = [];
+    for (let lat = 57; lat <= 62; lat += 0.5) {
+      gridLines.push([[lat, 54], [lat, 62]]);
+    }
+    for (let lng = 54; lng <= 62; lng += 0.5) {
+      gridLines.push([[56, lng], [62, lng]]);
+    }
+    gridLines.forEach(line =>
+      L.polyline(line, { color: '#3b82f6', weight: 0.4, opacity: 0.15 }).addTo(map)
+    );
+
+    TACTICAL_POINTS.forEach(p => {
+      const marker = L.marker([p.lat, p.lng], {
+        icon: createDroneIcon(p.threat, p.status),
+      });
+      const threatLabel = p.threat === 'high' ? 'Высокая' : p.threat === 'medium' ? 'Средняя' : 'Низкая';
+      const statusLabel = p.status === 'active' ? '🔴 Активен' : p.status === 'neutralized' ? '✅ Нейтрализован' : '⚫ Потерян';
+      marker.bindPopup(
+        `<div style="font-family:monospace;font-size:12px;min-width:160px">
+          <b>${p.label}</b><br/>
+          Угроза: ${threatLabel}<br/>
+          Статус: ${statusLabel}<br/>
+          Время: ${p.time}<br/>
+          <span style="color:#6b7280">${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</span>
+        </div>`
+      );
+      marker.addTo(map);
+    });
+
+    const legend = L.control({ position: 'bottomleft' });
+    legend.onAdd = () => {
+      const div = L.DomUtil.create('div');
+      div.innerHTML = `
+        <div style="background:rgba(0,0,0,0.75);color:#e2e8f0;padding:8px 10px;border-radius:6px;font-size:11px;font-family:monospace;line-height:1.8">
+          <div style="margin-bottom:4px;font-weight:bold;color:#94a3b8">БПЛА / УГРОЗА</div>
+          <div><span style="color:#ef4444">●</span> Высокая</div>
+          <div><span style="color:#eab308">●</span> Средняя</div>
+          <div><span style="color:#22c55e">●</span> Низкая</div>
+        </div>`;
+      return div;
+    };
+    legend.addTo(map);
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, []);
+
+  return <div ref={mapRef} className="w-full h-full rounded-lg" />;
 };
 
 const BPLA = () => {
@@ -253,8 +303,8 @@ const BPLA = () => {
 
       <Card>
         <CardContent className="p-0">
-          <div className="h-64 p-3">
-            <MapPlaceholder />
+          <div className="h-96">
+            <BPLAMap />
           </div>
         </CardContent>
       </Card>
