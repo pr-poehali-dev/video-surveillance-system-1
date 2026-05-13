@@ -187,7 +187,7 @@ const BPLAVideoModal = ({ detection, onClose, onConfirm }: BPLAVideoModalProps) 
             </button>
             <button
               onClick={() => { onConfirm(detection.id, false); handleClose(); }}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-muted hover:bg-muted/70 text-foreground font-medium text-sm transition-colors border border-border"
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-sm transition-colors border border-red-600"
             >
               <Icon name="XCircle" size={16} />
               Отрицаю БПЛА
