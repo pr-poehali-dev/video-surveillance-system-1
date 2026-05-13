@@ -13,8 +13,9 @@ const BPLA = () => {
 
   const totalDetections = MOCK_DETECTIONS.length;
   const activeCount = MOCK_DETECTIONS.filter(d => d.status === 'active').length;
-  const neutralizedCount = MOCK_DETECTIONS.filter(d => d.status === 'neutralized').length;
   const highThreatCount = MOCK_DETECTIONS.filter(d => d.threat === 'high').length;
+  const mediumThreatCount = MOCK_DETECTIONS.filter(d => d.threat === 'medium').length;
+  const lowThreatCount = MOCK_DETECTIONS.filter(d => d.threat === 'low').length;
 
   return (
     <div className="space-y-4">
@@ -37,11 +38,25 @@ const BPLA = () => {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                <Icon name="Plane" size={20} className="text-red-500" />
+                <Icon name="AlertTriangle" size={20} className="text-red-500" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Активных</p>
-                <p className="text-2xl font-bold text-red-500">{activeCount}</p>
+                <p className="text-xs text-muted-foreground">Высокий</p>
+                <p className="text-2xl font-bold text-red-500">{highThreatCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                <Icon name="AlertCircle" size={20} className="text-yellow-500" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Средний</p>
+                <p className="text-2xl font-bold text-yellow-500">{mediumThreatCount}</p>
               </div>
             </div>
           </CardContent>
@@ -51,25 +66,11 @@ const BPLA = () => {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Icon name="ShieldCheck" size={20} className="text-green-500" />
+                <Icon name="CheckCircle" size={20} className="text-green-500" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Нейтрализовано</p>
-                <p className="text-2xl font-bold text-green-500">{neutralizedCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
-                <Icon name="AlertTriangle" size={20} className="text-red-500" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Высокая угроза</p>
-                <p className="text-2xl font-bold text-red-500">{highThreatCount}</p>
+                <p className="text-xs text-muted-foreground">Низкий</p>
+                <p className="text-2xl font-bold text-green-500">{lowThreatCount}</p>
               </div>
             </div>
           </CardContent>
