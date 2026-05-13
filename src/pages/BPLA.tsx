@@ -51,10 +51,6 @@ const BPLA = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Icon name="Clock" size={13} />
-        Данные за последние 24 часа
-      </div>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard colorClass="text-primary" bgClass="bg-primary/10" icon="Radar" label="Всего" value={totalDetections} resetKey="total" />
         <StatCard colorClass="text-red-500" bgClass="bg-red-500/10" icon="AlertTriangle" label="Высокий" value={highThreatCount} resetKey="high" />
