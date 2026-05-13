@@ -51,17 +51,6 @@ const BPLA = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div />
-        <button
-          onClick={resetAll}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-1.5 hover:bg-muted transition-colors"
-        >
-          <Icon name="RotateCcw" size={13} />
-          Обнулить всё
-        </button>
-      </div>
-
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard colorClass="text-primary" bgClass="bg-primary/10" icon="Radar" label="Всего" value={totalDetections} resetKey="total" />
         <StatCard colorClass="text-red-500" bgClass="bg-red-500/10" icon="AlertTriangle" label="Высокий" value={highThreatCount} resetKey="high" />
