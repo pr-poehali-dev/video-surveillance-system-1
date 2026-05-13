@@ -29,6 +29,14 @@ interface Alert {
   zone: string;
 }
 
+const DRONE_PHOTOS = [
+  'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/ca747297-0f03-4a81-a7c0-d9c85249c00f.jpg',
+  'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/90524074-896a-4c08-b1db-50a7e50da74b.jpg',
+  'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/b45e602a-ec96-4d87-bcfa-6f686fc45980.jpg',
+  'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/c771ba05-2b32-4c19-8952-ed70450fa15e.jpg',
+  'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/ab0415ea-68b8-4041-92f4-609e6230e815.jpg',
+];
+
 const MOCK_DETECTIONS: DroneDetection[] = [
   { id: 1, time: '09:14:22', date: '13.05.2026', type: 'FPV дрон', lat: 55.7558, lng: 37.6173, zone: 'Сектор А-1', threat: 'high', status: 'neutralized', altitude: 45, speed: 120 },
   { id: 2, time: '10:32:07', date: '13.05.2026', type: 'Мавик 3', lat: 55.7612, lng: 37.6310, zone: 'Сектор Б-2', threat: 'medium', status: 'lost', altitude: 80, speed: 65 },
@@ -224,6 +232,7 @@ const BPLAMap = () => {
 
 const BPLA = () => {
   const [activeTab, setActiveTab] = useState('detections');
+  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; detection: DroneDetection } | null>(null);
 
   const totalDetections = MOCK_DETECTIONS.length;
   const activeCount = MOCK_DETECTIONS.filter(d => d.status === 'active').length;
@@ -350,13 +359,16 @@ const BPLA = () => {
                           </Badge>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="w-16 h-12 rounded overflow-hidden bg-muted flex items-center justify-center">
+                          <button
+                            onClick={() => setSelectedPhoto({ url: DRONE_PHOTOS[(d.id - 1) % DRONE_PHOTOS.length], detection: d })}
+                            className="w-16 h-12 rounded overflow-hidden bg-muted block hover:ring-2 hover:ring-primary transition-all"
+                          >
                             <img
-                              src={`https://picsum.photos/seed/drone${d.id}/64/48`}
+                              src={DRONE_PHOTOS[(d.id - 1) % DRONE_PHOTOS.length]}
                               alt="БПЛА"
                               className="w-full h-full object-cover"
                             />
-                          </div>
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -472,6 +484,42 @@ const BPLA = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div
+            className="bg-card rounded-xl overflow-hidden max-w-2xl w-full shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <div>
+                <p className="font-semibold">{selectedPhoto.detection.type} — {selectedPhoto.detection.zone}</p>
+                <p className="text-xs text-muted-foreground font-mono">{selectedPhoto.detection.date} {selectedPhoto.detection.time}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className={threatColor(selectedPhoto.detection.threat)}>
+                  {threatLabel(selectedPhoto.detection.threat)}
+                </Badge>
+                <button onClick={() => setSelectedPhoto(null)} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Icon name="X" size={20} />
+                </button>
+              </div>
+            </div>
+            <img
+              src={selectedPhoto.url}
+              alt="БПЛА"
+              className="w-full object-contain max-h-[60vh]"
+            />
+            <div className="px-4 py-3 text-xs text-muted-foreground font-mono border-t border-border flex gap-4">
+              <span>Координаты: {selectedPhoto.detection.lat.toFixed(4)}, {selectedPhoto.detection.lng.toFixed(4)}</span>
+              <span>Зона: {selectedPhoto.detection.zone}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
