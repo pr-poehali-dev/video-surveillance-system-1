@@ -161,7 +161,7 @@ const BPLAStatsPanel = ({
                                 </button>
                                 <button
                                   onClick={() => handleConfirm(d.id, false)}
-                                  className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-muted text-muted-foreground hover:bg-muted/70 transition-colors border border-border whitespace-nowrap"
+                                  className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-red-600/10 text-red-600 hover:bg-red-600/20 transition-colors border border-red-600/20 whitespace-nowrap"
                                 >
                                   <Icon name="X" size={11} />
                                   Отрицаю
