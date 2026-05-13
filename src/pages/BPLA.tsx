@@ -16,10 +16,11 @@ const BPLA = () => {
   const highThreatCount = MOCK_DETECTIONS.filter(d => d.threat === 'high').length;
   const mediumThreatCount = MOCK_DETECTIONS.filter(d => d.threat === 'medium').length;
   const lowThreatCount = MOCK_DETECTIONS.filter(d => d.threat === 'low').length;
+  const pendingVerification = MOCK_DETECTIONS.filter(d => d.status === 'lost').length;
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -71,6 +72,20 @@ const BPLA = () => {
               <div>
                 <p className="text-xs text-muted-foreground">Низкий</p>
                 <p className="text-2xl font-bold text-green-500">{lowThreatCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                <Icon name="ShieldQuestion" size={20} className="text-orange-500" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Требует верификации</p>
+                <p className="text-2xl font-bold text-orange-500">{pendingVerification}</p>
               </div>
             </div>
           </CardContent>
