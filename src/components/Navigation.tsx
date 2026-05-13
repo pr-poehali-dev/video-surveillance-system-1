@@ -15,6 +15,7 @@ const Navigation = () => {
     { path: '/dashboard', label: 'Главная', icon: 'Home' },
     { path: '/monitoring', label: 'Мониторинг', icon: 'Map' },
     { path: '/ord', label: 'ОРД', icon: 'Search' },
+    { path: '/bpla', label: 'БПЛА', icon: 'Plane' },
     { path: '/layouts', label: 'Раскладки', icon: 'Grid3x3' },
     { path: '/photo-archive', label: 'Фотоархив', icon: 'Image' },
     { path: '/reports', label: 'Отчеты', icon: 'BarChart3' },
