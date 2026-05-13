@@ -34,11 +34,35 @@ const BPLAPhotoModal = ({ selectedPhoto, onClose }: BPLAPhotoModalProps) => {
             </button>
           </div>
         </div>
-        <img
-          src={selectedPhoto.url}
-          alt="БПЛА"
-          className="w-full object-contain max-h-[60vh]"
-        />
+        <div className="relative w-full">
+          <img
+            src={selectedPhoto.url}
+            alt="БПЛА"
+            className="w-full object-contain max-h-[60vh]"
+          />
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              border: '2px solid #ef4444',
+              boxShadow: '0 0 0 1px rgba(239,68,68,0.3), inset 0 0 0 1px rgba(239,68,68,0.1)',
+              top: '28%',
+              left: '38%',
+              width: '24%',
+              height: '32%',
+            }}
+          >
+            <span
+              className="absolute -top-5 left-0 text-[10px] font-mono px-1 py-0.5 rounded"
+              style={{ background: '#ef4444', color: '#fff' }}
+            >
+              БПЛА
+            </span>
+            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-red-400" />
+            <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-red-400" />
+            <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-red-400" />
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-red-400" />
+          </div>
+        </div>
         <div className="px-4 py-3 text-xs text-muted-foreground font-mono border-t border-border flex gap-4">
           <span>Координаты: {selectedPhoto.detection.lat.toFixed(4)}, {selectedPhoto.detection.lng.toFixed(4)}</span>
           <span>Зона: {selectedPhoto.detection.zone}</span>
