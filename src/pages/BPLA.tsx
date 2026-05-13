@@ -330,12 +330,9 @@ const BPLA = () => {
                     <tr className="border-b border-border">
                       <th className="text-left px-4 py-3 text-muted-foreground font-medium">#</th>
                       <th className="text-left px-4 py-3 text-muted-foreground font-medium">Дата / Время</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Тип</th>
                       <th className="text-left px-4 py-3 text-muted-foreground font-medium">Зона</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Высота</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Скорость</th>
                       <th className="text-left px-4 py-3 text-muted-foreground font-medium">Угроза</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Статус</th>
+                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Фото</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -346,19 +343,20 @@ const BPLA = () => {
                           <div>{d.date}</div>
                           <div className="text-muted-foreground">{d.time}</div>
                         </td>
-                        <td className="px-4 py-3 font-medium">{d.type}</td>
                         <td className="px-4 py-3 text-muted-foreground">{d.zone}</td>
-                        <td className="px-4 py-3">{d.altitude} м</td>
-                        <td className="px-4 py-3">{d.speed} км/ч</td>
                         <td className="px-4 py-3">
                           <Badge variant="outline" className={threatColor(d.threat)}>
                             {threatLabel(d.threat)}
                           </Badge>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge variant="outline" className={statusColor(d.status)}>
-                            {statusLabel(d.status)}
-                          </Badge>
+                          <div className="w-16 h-12 rounded overflow-hidden bg-muted flex items-center justify-center">
+                            <img
+                              src={`https://picsum.photos/seed/drone${d.id}/64/48`}
+                              alt="БПЛА"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
                         </td>
                       </tr>
                     ))}
