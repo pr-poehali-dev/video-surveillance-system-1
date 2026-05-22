@@ -10,6 +10,7 @@ import { CameraFilters } from './CameraFilters';
 import { OwnerGroupsTree } from './OwnerGroupsTree';
 import CameraGroupsTab from './camera-groups/CameraGroupsTab';
 import { CameraModelsTab } from './CameraModelsTab';
+import TagsTab from './TagsTab';
 import { BulkAddCameraDialog } from './BulkAddCameraDialog';
 
 const CameraManagement = () => {
@@ -115,14 +116,7 @@ const CameraManagement = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Icon name="Tag" size={64} className="text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">Добавляйте теги для быстрого поиска</p>
-                <Button>
-                  <Icon name="Plus" size={18} className="mr-2" />
-                  Создать тег
-                </Button>
-              </div>
+              <TagsTab />
             </CardContent>
           </Card>
         </TabsContent>
