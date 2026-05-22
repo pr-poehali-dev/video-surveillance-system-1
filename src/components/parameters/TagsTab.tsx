@@ -32,6 +32,58 @@ const PRESET_COLORS = [
   '#3b82f6', '#6b7280',
 ];
 
+interface FormData {
+  name: string;
+  color: string;
+  description: string;
+}
+
+const FormFields = ({ formData, setFormData }: { formData: FormData; setFormData: React.Dispatch<React.SetStateAction<FormData>> }) => (
+  <div className="space-y-4">
+    <div className="space-y-2">
+      <Label>Название *</Label>
+      <Input
+        placeholder="Введите название тега"
+        value={formData.name}
+        onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+      />
+    </div>
+    <div className="space-y-2">
+      <Label>Цвет</Label>
+      <div className="flex items-center gap-2 flex-wrap">
+        {PRESET_COLORS.map((c) => (
+          <button
+            key={c}
+            type="button"
+            className="w-7 h-7 rounded-full border-2 transition-all"
+            style={{
+              backgroundColor: c,
+              borderColor: formData.color === c ? '#000' : 'transparent',
+              transform: formData.color === c ? 'scale(1.2)' : 'scale(1)',
+            }}
+            onClick={() => setFormData((p) => ({ ...p, color: c }))}
+          />
+        ))}
+        <input
+          type="color"
+          value={formData.color}
+          onChange={(e) => setFormData((p) => ({ ...p, color: e.target.value }))}
+          className="w-7 h-7 rounded cursor-pointer border border-border"
+          title="Свой цвет"
+        />
+      </div>
+    </div>
+    <div className="space-y-2">
+      <Label>Описание</Label>
+      <Input
+        placeholder="Описание тега (необязательно)"
+        value={formData.description}
+        onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+      />
+    </div>
+  </div>
+);
+
 export const TagsTab = () => {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,52 +172,6 @@ export const TagsTab = () => {
       (t.description || '').toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const TagForm = () => (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>Название *</Label>
-        <Input
-          placeholder="Введите название тега"
-          value={formData.name}
-          onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>Цвет</Label>
-        <div className="flex items-center gap-2 flex-wrap">
-          {PRESET_COLORS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              className="w-7 h-7 rounded-full border-2 transition-all"
-              style={{
-                backgroundColor: c,
-                borderColor: formData.color === c ? '#000' : 'transparent',
-                transform: formData.color === c ? 'scale(1.2)' : 'scale(1)',
-              }}
-              onClick={() => setFormData((p) => ({ ...p, color: c }))}
-            />
-          ))}
-          <input
-            type="color"
-            value={formData.color}
-            onChange={(e) => setFormData((p) => ({ ...p, color: e.target.value }))}
-            className="w-7 h-7 rounded cursor-pointer border border-border"
-            title="Свой цвет"
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label>Описание</Label>
-        <Input
-          placeholder="Описание тега (необязательно)"
-          value={formData.description}
-          onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
-        />
-      </div>
-    </div>
-  );
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -245,7 +251,7 @@ export const TagsTab = () => {
           <DialogHeader>
             <DialogTitle>Создать тег</DialogTitle>
           </DialogHeader>
-          <TagForm />
+          <FormFields formData={formData} setFormData={setFormData} />
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Отмена</Button>
             <Button onClick={handleAdd}>Создать</Button>
@@ -258,7 +264,7 @@ export const TagsTab = () => {
           <DialogHeader>
             <DialogTitle>Редактировать тег</DialogTitle>
           </DialogHeader>
-          <TagForm />
+          <FormFields formData={formData} setFormData={setFormData} />
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Отмена</Button>
             <Button onClick={handleEdit}>Сохранить</Button>
