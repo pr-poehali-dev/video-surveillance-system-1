@@ -28,10 +28,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+
+const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f';
+
+interface SystemUser {
+  id: number;
+  login: string;
+  full_name: string;
+}
+
+interface SharedUser {
+  user: SystemUser;
+  canView: boolean;
+  canEdit: boolean;
+}
+
+interface ShareDialogProps {
+  layout: LayoutConfig | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}
 
 interface LayoutConfig {
   id: number;
@@ -39,6 +60,141 @@ interface LayoutConfig {
   grid: number;
   cameras: number[];
 }
+
+const ShareDialog = ({ layout, open, onOpenChange }: ShareDialogProps) => {
+  const [loginQuery, setLoginQuery] = useState('');
+  const [allUsers, setAllUsers] = useState<SystemUser[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [sharedUsers, setSharedUsers] = useState<SharedUser[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    setSearching(true);
+    fetch(USERS_API)
+      .then((r) => r.json())
+      .then((data) => setAllUsers(Array.isArray(data) ? data : []))
+      .catch(() => setAllUsers([]))
+      .finally(() => setSearching(false));
+  }, [open]);
+
+  const searchResults = loginQuery.trim().length > 0
+    ? allUsers.filter(
+        (u) =>
+          u.login.toLowerCase().includes(loginQuery.toLowerCase()) ||
+          u.full_name.toLowerCase().includes(loginQuery.toLowerCase())
+      ).filter((u) => !sharedUsers.find((s) => s.user.id === u.id)).slice(0, 6)
+    : [];
+
+  const addUser = (user: SystemUser) => {
+    if (sharedUsers.find((s) => s.user.id === user.id)) return;
+    setSharedUsers((prev) => [...prev, { user, canView: true, canEdit: false }]);
+    setLoginQuery('');
+    setSearchResults([]);
+  };
+
+  const removeUser = (id: number) => setSharedUsers((prev) => prev.filter((s) => s.user.id !== id));
+
+  const togglePerm = (id: number, perm: 'canView' | 'canEdit') => {
+    setSharedUsers((prev) =>
+      prev.map((s) => s.user.id === id ? { ...s, [perm]: !s[perm] } : s)
+    );
+  };
+
+  const handleShare = () => {
+    if (sharedUsers.length === 0) { toast.error('Добавьте хотя бы одного пользователя'); return; }
+    toast.success(`Раскладка «${layout?.name}» открыта для ${sharedUsers.length} пользователей`);
+    onOpenChange(false);
+    setSharedUsers([]);
+    setLoginQuery('');
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Icon name="Share2" size={18} />
+            Поделиться раскладкой
+          </DialogTitle>
+          <DialogDescription>«{layout?.name}»</DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Логин пользователя</Label>
+            <div className="relative">
+              <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Введите логин..."
+                value={loginQuery}
+                onChange={(e) => setLoginQuery(e.target.value)}
+                className="pl-9"
+              />
+              {searching && (
+                <Icon name="Loader2" size={16} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />
+              )}
+            </div>
+            {searchResults.length > 0 && (
+              <div className="border rounded-md divide-y">
+                {searchResults.map((u) => (
+                  <button
+                    key={u.id}
+                    className="w-full flex items-center gap-3 px-3 py-2 hover:bg-muted text-left transition-colors"
+                    onClick={() => addUser(u)}
+                  >
+                    <Icon name="User" size={16} className="text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <div className="text-sm font-medium">{u.login}</div>
+                      <div className="text-xs text-muted-foreground">{u.full_name}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {sharedUsers.length > 0 && (
+            <div className="space-y-2">
+              <Label>Доступ пользователей</Label>
+              <div className="border rounded-md divide-y">
+                {sharedUsers.map(({ user, canView, canEdit }) => (
+                  <div key={user.id} className="flex items-center gap-3 px-3 py-2">
+                    <Icon name="User" size={16} className="text-muted-foreground flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{user.login}</div>
+                      <div className="text-xs text-muted-foreground truncate">{user.full_name}</div>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <label className="flex items-center gap-1 cursor-pointer text-xs">
+                        <Checkbox checked={canView} onCheckedChange={() => togglePerm(user.id, 'canView')} />
+                        Чтение
+                      </label>
+                      <label className="flex items-center gap-1 cursor-pointer text-xs">
+                        <Checkbox checked={canEdit} onCheckedChange={() => togglePerm(user.id, 'canEdit')} />
+                        Правка
+                      </label>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeUser(user.id)}>
+                        <Icon name="X" size={14} />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Отмена</Button>
+            <Button onClick={handleShare}>
+              <Icon name="Share2" size={16} className="mr-2" />
+              Поделиться
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const Layouts = () => {
   const [layouts, setLayouts] = useState<LayoutConfig[]>([
@@ -52,6 +208,8 @@ const Layouts = () => {
   const [newLayoutName, setNewLayoutName] = useState('');
   const [newLayoutGrid, setNewLayoutGrid] = useState('4');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [layoutToShare, setLayoutToShare] = useState<LayoutConfig | null>(null);
   const layoutContainerRef = useRef<HTMLDivElement>(null);
 
   const gridOptions = [
@@ -200,18 +358,32 @@ const Layouts = () => {
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium text-sm">{layout.name}</h4>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setLayoutToDelete(layout);
-                            setIsDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Icon name="Trash2" size={14} />
-                        </Button>
+                        <div className="flex items-center gap-0.5">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLayoutToShare(layout);
+                              setIsShareDialogOpen(true);
+                            }}
+                          >
+                            <Icon name="Share2" size={14} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLayoutToDelete(layout);
+                              setIsDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Icon name="Trash2" size={14} />
+                          </Button>
+                        </div>
                       </div>
                       <Badge variant="secondary" className="text-xs">
                         <Icon name="Grid3x3" size={12} className="mr-1" />
@@ -351,6 +523,12 @@ const Layouts = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ShareDialog
+        layout={layoutToShare}
+        open={isShareDialogOpen}
+        onOpenChange={setIsShareDialogOpen}
+      />
     </div>
   );
 };
