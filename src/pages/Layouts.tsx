@@ -89,7 +89,6 @@ const ShareDialog = ({ layout, open, onOpenChange }: ShareDialogProps) => {
     if (sharedUsers.find((s) => s.user.id === user.id)) return;
     setSharedUsers((prev) => [...prev, { user, canView: true, canEdit: false }]);
     setLoginQuery('');
-    setSearchResults([]);
   };
 
   const removeUser = (id: number) => setSharedUsers((prev) => prev.filter((s) => s.user.id !== id));
