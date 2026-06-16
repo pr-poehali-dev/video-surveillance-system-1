@@ -44,16 +44,31 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
   const [mapDetIndex, setMapDetIndex] = useState<number | null>(null);
   const [editTarget, setEditTarget] = useState<SearchResult | null>(null);
   const [editEmails, setEditEmails] = useState<string[]>(['']);
+  const [editMaxNicknames, setEditMaxNicknames] = useState<string[]>(['']);
   const [editImages, setEditImages] = useState<string[]>([]);
-  const [editTab, setEditTab] = useState<'photos' | 'emails'>('photos');
+  const [editTab, setEditTab] = useState<'photos' | 'emails' | 'max'>('photos');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [localResults, setLocalResults] = useState<SearchResult[]>(results);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const openEdit = (result: SearchResult, e: React.MouseEvent) => {
     e.stopPropagation();
     setEditTarget(result);
     setEditEmails(result.emails?.length ? [...result.emails] : ['']);
+    setEditMaxNicknames(['']);
     setEditImages(result.extraImages ?? []);
     setEditTab('photos');
+  };
+
+  const handleDelete = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = () => {
+    setLocalResults((prev) => prev.filter((r) => r.id !== deleteConfirmId));
+    setDeleteConfirmId(null);
+    toast.success('Карточка удалена');
   };
 
   const handleEditImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +101,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
         <CardContent className="flex-1 overflow-hidden">
           <ScrollArea className="h-full pr-4">
             <div className="space-y-4">
-              {results.map((result) => (
+              {localResults.map((result) => (
                 <div
                   key={result.id}
                   className="border border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer"
@@ -102,8 +117,8 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                         />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2 gap-2">
                         <div className="flex items-center gap-2">
                           {result.type === 'face' ? (
                             <Icon name="User" size={18} className="text-secondary" />
@@ -113,44 +128,53 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                           <span className="font-medium">
                             {result.type === 'face' ? 'Распознано лицо' : 'Распознан ГРЗ'}
                           </span>
-                        </div>
-                        <div className="flex items-center gap-2">
                           <Badge
                             variant={result.match > 95 ? 'default' : result.match > 85 ? 'secondary' : 'outline'}
                           >
-                            {Math.round(result.match)} новых совпадений
+                            {Math.round(result.match)} совпадений
                           </Badge>
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0 ml-auto">
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 flex-shrink-0"
+                            className="h-7 w-7"
                             onClick={(e) => openEdit(result, e)}
                             title="Редактировать карточку"
                           >
                             <Icon name="Pencil" size={14} />
                           </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:text-destructive"
+                            onClick={(e) => handleDelete(result.id, e)}
+                            title="Удалить карточку"
+                          >
+                            <Icon name="Trash2" size={14} />
+                          </Button>
                         </div>
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Время:</span>
-                        <p className="font-medium">{result.time}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Камера:</span>
-                        <p className="font-medium">{result.camera}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-muted-foreground">Адрес:</span>
-                        <p className="font-medium">{result.address}</p>
-                      </div>
-                      {result.plate && (
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Время:</span>
+                          <p className="font-medium">{result.time}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Камера:</span>
+                          <p className="font-medium">{result.camera}</p>
+                        </div>
                         <div className="col-span-2">
-                          <span className="text-muted-foreground">ГРЗ:</span>
-                          <p className="font-medium font-mono">{result.plate}</p>
+                          <span className="text-muted-foreground">Адрес:</span>
+                          <p className="font-medium">{result.address}</p>
                         </div>
-                      )}
+                        {result.plate && (
+                          <div className="col-span-2">
+                            <span className="text-muted-foreground">ГРЗ:</span>
+                            <p className="font-medium font-mono">{result.plate}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -342,7 +366,8 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
           <div className="flex gap-1 border-b pb-2 mb-4">
             {([
               { key: 'photos', label: 'Фото лица', icon: 'Camera' },
-              { key: 'emails', label: 'Уведомления', icon: 'Mail' },
+              { key: 'emails', label: 'E-mail', icon: 'Mail' },
+              { key: 'max', label: 'MAX', icon: 'MessageSquare' },
             ] as const).map((tab) => (
               <button
                 key={tab.key}
@@ -365,13 +390,13 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
               <div className="flex flex-wrap gap-3">
                 {editTarget?.image && (
                   <div className="relative">
-                    <img src={editTarget.image} alt="Основное" className="w-20 h-20 rounded-lg object-cover border-2 border-primary" />
-                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full px-1">осн.</span>
+                    <img src={editTarget.image} alt="Основное" className="w-32 h-40 rounded-lg object-cover border-2 border-primary" />
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5">осн.</span>
                   </div>
                 )}
                 {editImages.map((src, i) => (
                   <div key={i} className="relative">
-                    <img src={src} alt={`Фото ${i + 1}`} className="w-20 h-20 rounded-lg object-cover border" />
+                    <img src={src} alt={`Фото ${i + 1}`} className="w-32 h-40 rounded-lg object-cover border" />
                     <button
                       onClick={() => setEditImages((prev) => prev.filter((_, idx) => idx !== i))}
                       className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"
@@ -382,10 +407,10 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 ))}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-20 h-20 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 hover:bg-muted transition-colors text-muted-foreground"
+                  className="w-32 h-40 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 hover:bg-muted transition-colors text-muted-foreground"
                 >
-                  <Icon name="Plus" size={20} />
-                  <span className="text-xs">Добавить</span>
+                  <Icon name="Plus" size={24} />
+                  <span className="text-xs">Добавить фото</span>
                 </button>
                 <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleEditImageUpload} />
               </div>
@@ -426,10 +451,63 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
             </div>
           )}
 
+          {editTab === 'max' && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">Никнеймы пользователей MAX для уведомлений при совпадении</p>
+              <div className="space-y-2">
+                {editMaxNicknames.map((nick, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <Input
+                      placeholder="@никнейм"
+                      value={nick}
+                      onChange={(e) => {
+                        const updated = [...editMaxNicknames];
+                        updated[idx] = e.target.value;
+                        setEditMaxNicknames(updated);
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditMaxNicknames(editMaxNicknames.filter((_, i) => i !== idx))}
+                      disabled={editMaxNicknames.length === 1}
+                    >
+                      <Icon name="X" size={16} />
+                    </Button>
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={() => setEditMaxNicknames([...editMaxNicknames, ''])}>
+                  <Icon name="Plus" size={14} className="mr-1" />
+                  Добавить никнейм
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-end gap-2 pt-4 border-t mt-2">
             <Button variant="outline" onClick={() => setEditTarget(null)}>Отмена</Button>
             <Button onClick={() => { setEditTarget(null); toast.success('Карточка обновлена'); }}>
               Сохранить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Диалог подтверждения удаления */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={(v) => { if (!v) setDeleteConfirmId(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Icon name="Trash2" size={18} />
+              Удалить карточку?
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Карточка искомого лица будет удалена безвозвратно.</p>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Отмена</Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              <Icon name="Trash2" size={16} className="mr-2" />
+              Удалить
             </Button>
           </div>
         </DialogContent>
