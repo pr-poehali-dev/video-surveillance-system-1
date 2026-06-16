@@ -1,11 +1,14 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { YandexMap } from './YandexMap';
+import { toast } from 'sonner';
 
 interface SearchResult {
   id: number;
@@ -16,6 +19,9 @@ interface SearchResult {
   address: string;
   plate?: string;
   image?: string;
+  name?: string;
+  emails?: string[];
+  extraImages?: string[];
 }
 
 interface SearchResultsProps {
@@ -36,6 +42,30 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoDetIndex, setVideoDetIndex] = useState(0);
   const [mapDetIndex, setMapDetIndex] = useState<number | null>(null);
+  const [editTarget, setEditTarget] = useState<SearchResult | null>(null);
+  const [editEmails, setEditEmails] = useState<string[]>(['']);
+  const [editImages, setEditImages] = useState<string[]>([]);
+  const [editTab, setEditTab] = useState<'photos' | 'emails'>('photos');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const openEdit = (result: SearchResult, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditTarget(result);
+    setEditEmails(result.emails?.length ? [...result.emails] : ['']);
+    setEditImages(result.extraImages ?? []);
+    setEditTab('photos');
+  };
+
+  const handleEditImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) setEditImages((prev) => [...prev, ev.target!.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const openMap = useCallback((index: number) => {
     setFocusedDetIndex(index);
@@ -84,11 +114,22 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                             {result.type === 'face' ? 'Распознано лицо' : 'Распознан ГРЗ'}
                           </span>
                         </div>
-                        <Badge
-                          variant={result.match > 95 ? 'default' : result.match > 85 ? 'secondary' : 'outline'}
-                        >
-                          {Math.round(result.match)} новых совпадений
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={result.match > 95 ? 'default' : result.match > 85 ? 'secondary' : 'outline'}
+                          >
+                            {Math.round(result.match)} новых совпадений
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 flex-shrink-0"
+                            onClick={(e) => openEdit(result, e)}
+                            title="Редактировать карточку"
+                          >
+                            <Icon name="Pencil" size={14} />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
@@ -279,6 +320,117 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                 <p className="text-xs text-muted-foreground">{det.time.split(' ')[1]}</p>
               </button>
             ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Диалог редактирования карточки */}
+      <Dialog open={!!editTarget} onOpenChange={(v) => { if (!v) setEditTarget(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Pencil" size={18} />
+              Редактировать карточку
+              <DialogClose asChild className="ml-auto">
+                <Button size="icon" variant="secondary">
+                  <Icon name="X" size={16} />
+                </Button>
+              </DialogClose>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex gap-1 border-b pb-2 mb-4">
+            {([
+              { key: 'photos', label: 'Фото лица', icon: 'Camera' },
+              { key: 'emails', label: 'Уведомления', icon: 'Mail' },
+            ] as const).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setEditTab(tab.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition-colors ${
+                  editTab === tab.key
+                    ? 'bg-primary text-primary-foreground'
+                    : 'hover:bg-muted text-muted-foreground'
+                }`}
+              >
+                <Icon name={tab.icon} size={14} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {editTab === 'photos' && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">Загрузите дополнительные фото для уточнения поиска</p>
+              <div className="flex flex-wrap gap-3">
+                {editTarget?.image && (
+                  <div className="relative">
+                    <img src={editTarget.image} alt="Основное" className="w-20 h-20 rounded-lg object-cover border-2 border-primary" />
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full px-1">осн.</span>
+                  </div>
+                )}
+                {editImages.map((src, i) => (
+                  <div key={i} className="relative">
+                    <img src={src} alt={`Фото ${i + 1}`} className="w-20 h-20 rounded-lg object-cover border" />
+                    <button
+                      onClick={() => setEditImages((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"
+                    >
+                      <Icon name="X" size={10} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-20 h-20 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 hover:bg-muted transition-colors text-muted-foreground"
+                >
+                  <Icon name="Plus" size={20} />
+                  <span className="text-xs">Добавить</span>
+                </button>
+                <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleEditImageUpload} />
+              </div>
+            </div>
+          )}
+
+          {editTab === 'emails' && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">Адреса для отправки уведомлений при совпадении</p>
+              <div className="space-y-2">
+                {editEmails.map((email, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <Input
+                      type="email"
+                      placeholder="example@mail.ru"
+                      value={email}
+                      onChange={(e) => {
+                        const updated = [...editEmails];
+                        updated[idx] = e.target.value;
+                        setEditEmails(updated);
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditEmails(editEmails.filter((_, i) => i !== idx))}
+                      disabled={editEmails.length === 1}
+                    >
+                      <Icon name="X" size={16} />
+                    </Button>
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={() => setEditEmails([...editEmails, ''])}>
+                  <Icon name="Plus" size={14} className="mr-1" />
+                  Добавить e-mail
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-4 border-t mt-2">
+            <Button variant="outline" onClick={() => setEditTarget(null)}>Отмена</Button>
+            <Button onClick={() => { setEditTarget(null); toast.success('Карточка обновлена'); }}>
+              Сохранить
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
