@@ -1,47 +1,23 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
-import { YandexMap } from './YandexMap';
 import { toast } from 'sonner';
-
-interface SearchResult {
-  id: number;
-  type: 'face' | 'plate';
-  match: number;
-  time: string;
-  camera: string;
-  address: string;
-  plate?: string;
-  image?: string;
-  name?: string;
-  emails?: string[];
-  extraImages?: string[];
-}
+import { SearchResultCard, SearchResult } from './SearchResultCard';
+import { DetectionsDialog } from './DetectionsDialog';
+import { EditCardDialog } from './EditCardDialog';
 
 interface SearchResultsProps {
   results: SearchResult[];
 }
 
-const QUERY_IMAGE = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face';
-
-const MOCK_DETECTIONS = [
-  { lat: 56.8389, lng: 60.6057, label: 'Камера-001', time: '2024-11-21 14:32:15', address: 'ул. Ленина, 50', match: 94.5, image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face' },
-  { lat: 56.8412, lng: 60.6124, label: 'Камера-003', time: '2024-11-21 14:45:02', address: 'пр. Мира, 12', match: 88.2, image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face' },
-  { lat: 56.8350, lng: 60.5990, label: 'Камера-007', time: '2024-11-21 15:01:38', address: 'ул. Пушкина, 3', match: 91.7, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face' },
-];
-
 export const SearchResults = ({ results }: SearchResultsProps) => {
   const [selected, setSelected] = useState<SearchResult | null>(null);
-  const [focusedDetIndex, setFocusedDetIndex] = useState<number | null>(null);
-  const [videoOpen, setVideoOpen] = useState(false);
-  const [videoDetIndex, setVideoDetIndex] = useState(0);
-  const [mapDetIndex, setMapDetIndex] = useState<number | null>(null);
+  const [localResults, setLocalResults] = useState<SearchResult[]>(results);
+
+  // edit state
   const [editTarget, setEditTarget] = useState<SearchResult | null>(null);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
@@ -49,9 +25,9 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
   const [editMaxNicknames, setEditMaxNicknames] = useState<string[]>(['']);
   const [editImages, setEditImages] = useState<string[]>([]);
   const [editTab, setEditTab] = useState<'info' | 'photos' | 'emails' | 'max'>('info');
+
+  // delete state
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
-  const [localResults, setLocalResults] = useState<SearchResult[]>(results);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const openEdit = (result: SearchResult, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -75,27 +51,6 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
     toast.success('Карточка удалена');
   };
 
-  const handleEditImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        if (ev.target?.result) setEditImages((prev) => [...prev, ev.target!.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const openMap = useCallback((index: number) => {
-    setFocusedDetIndex(index);
-    setMapDetIndex(index);
-  }, []);
-
-  const openVideo = useCallback((index: number) => {
-    setVideoDetIndex(index);
-    setVideoOpen(true);
-  }, []);
-
   return (
     <>
       <Card className="flex flex-col h-full">
@@ -106,85 +61,16 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
           <ScrollArea className="h-full pr-4">
             <div className="space-y-4">
               {localResults.map((result) => (
-                <div
+                <SearchResultCard
                   key={result.id}
-                  className="border border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer"
+                  result={result}
                   onClick={() => setSelected(result)}
-                >
-                  <div className="flex gap-4">
-                    {result.image && (
-                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                        <img
-                          src={result.image}
-                          alt="Кадр распознавания"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2 gap-2">
-                        <div className="flex items-center gap-2">
-                          {result.type === 'face' ? (
-                            <Icon name="User" size={18} className="text-secondary" />
-                          ) : (
-                            <Icon name="Hash" size={18} className="text-primary" />
-                          )}
-                          <span className="font-medium">
-                            {result.type === 'face' ? 'Распознано лицо' : 'Распознан ГРЗ'}
-                          </span>
-                          <Badge
-                            variant={result.match > 95 ? 'default' : result.match > 85 ? 'secondary' : 'outline'}
-                          >
-                            {Math.round(result.match)} совпадений
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-1 flex-shrink-0 ml-auto">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={(e) => openEdit(result, e)}
-                            title="Редактировать карточку"
-                          >
-                            <Icon name="Pencil" size={14} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive hover:text-destructive"
-                            onClick={(e) => handleDelete(result.id, e)}
-                            title="Удалить карточку"
-                          >
-                            <Icon name="Trash2" size={14} />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Время:</span>
-                          <p className="font-medium">{result.time}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Камера:</span>
-                          <p className="font-medium">{result.camera}</p>
-                        </div>
-                        <div className="col-span-2">
-                          <span className="text-muted-foreground">Адрес:</span>
-                          <p className="font-medium">{result.address}</p>
-                        </div>
-                        {result.plate && (
-                          <div className="col-span-2">
-                            <span className="text-muted-foreground">ГРЗ:</span>
-                            <p className="font-medium font-mono">{result.plate}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  onEdit={(e) => openEdit(result, e)}
+                  onDelete={(e) => handleDelete(result.id, e)}
+                />
               ))}
 
-              {results.length === 0 && (
+              {localResults.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <Icon name="Search" size={48} className="mx-auto mb-4 opacity-50" />
                   <p>Результаты поиска появятся здесь</p>
@@ -195,333 +81,27 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
         </CardContent>
       </Card>
 
-      {/* Диалог совпадений */}
-      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setFocusedDetIndex(null); setMapDetIndex(null); } }}>
-        <DialogContent className="max-w-4xl h-[85vh] flex flex-col overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-xl">
-              {selected?.type === 'face' ? (
-                <Icon name="User" size={22} className="text-secondary" />
-              ) : (
-                <Icon name="Hash" size={22} className="text-primary" />
-              )}
-              {selected?.type === 'face' ? 'Распознавание лица' : 'Распознавание ГРЗ'}
-              <Badge className="ml-2 text-sm px-3 py-1" variant="secondary">
-                {MOCK_DETECTIONS.length} совпадений
-              </Badge>
-              <DialogClose asChild className="ml-auto">
-                <Button size="icon" variant="secondary" title="Закрыть">
-                  <Icon name="X" size={18} />
-                </Button>
-              </DialogClose>
-            </DialogTitle>
-          </DialogHeader>
+      <DetectionsDialog
+        selected={selected}
+        onClose={() => setSelected(null)}
+      />
 
-          {selected && (
-            <div className="flex flex-col flex-1 overflow-hidden gap-4 mt-2">
-              <p className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
-                Найдено совпадений: {MOCK_DETECTIONS.length}
-              </p>
-
-              {mapDetIndex !== null && (
-                <div className="rounded-xl overflow-hidden border" style={{ height: 220 }}>
-                  <YandexMap
-                    cameras={MOCK_DETECTIONS.map((d, i) => ({ id: i, lat: d.lat, lng: d.lng, name: d.label, address: d.address, status: 'online' as const }))}
-                    selectedCamera={mapDetIndex}
-                    onCameraSelect={() => {}}
-                  />
-                </div>
-              )}
-
-              <ScrollArea className="flex-1 pr-2">
-                <div className="flex flex-col gap-4">
-                  {MOCK_DETECTIONS.map((det, index) => (
-                    <div key={index} className="flex gap-4 items-start border border-border rounded-xl p-4">
-                      <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Искомое</p>
-                        {selected.plate ? (
-                          <div className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted flex flex-col items-center justify-center gap-2 border-2 border-border">
-                            <div className="bg-white border-2 border-black rounded px-3 py-1 font-mono font-bold text-lg tracking-widest text-black">
-                              {selected.plate}
-                            </div>
-                            <p className="text-xs text-muted-foreground">ГРЗ</p>
-                          </div>
-                        ) : (
-                          <div className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted">
-                            <img src={QUERY_IMAGE} alt="Искомое изображение" className="w-full h-full object-cover" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Найдено</p>
-                        <div className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted">
-                          {det.image ? (
-                            <img src={det.image} alt="Найденное лицо" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Icon name="User" size={40} className="text-muted-foreground" />
-                            </div>
-                          )}
-                          <Badge
-                            className="absolute bottom-1.5 right-1.5 text-xs px-1.5 py-0"
-                            variant={det.match > 92 ? 'default' : 'secondary'}
-                          >
-                            {det.match}%
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="space-y-1.5 flex-1 py-1">
-                        <p className="font-semibold text-sm">{det.label}</p>
-                        <p className="text-xs text-muted-foreground">{det.address}</p>
-                        <p className="text-xs text-muted-foreground">{det.time}</p>
-                        <div className="flex gap-1 pt-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs"
-                            onClick={() => openMap(index)}
-                          >
-                            <Icon name="MapPin" size={12} className="mr-1" />
-                            На карте
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs"
-                            onClick={() => openVideo(index)}
-                          >
-                            <Icon name="Video" size={12} className="mr-1" />
-                            Видео
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-
-              {selected.plate && (
-                <div className="border-t pt-4">
-                  <span className="text-sm text-muted-foreground">Государственный регистрационный знак</span>
-                  <p className="font-medium font-mono text-2xl mt-1">{selected.plate}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Диалог видео */}
-      <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
-        <DialogContent className="max-w-3xl flex flex-col overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Icon name="Video" size={18} />
-              {MOCK_DETECTIONS[videoDetIndex]?.label} — видеозапись
-              <DialogClose asChild className="ml-auto">
-                <Button size="icon" variant="secondary" title="Закрыть">
-                  <Icon name="X" size={18} />
-                </Button>
-              </DialogClose>
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-xs text-muted-foreground">{MOCK_DETECTIONS[videoDetIndex]?.address} · {MOCK_DETECTIONS[videoDetIndex]?.time}</p>
-          <div className="rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center relative mt-2">
-            <Icon name="Video" size={56} className="text-white/20" />
-            <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-              <Button size="sm" variant="secondary" className="h-7 text-xs">
-                <Icon name="Play" size={12} className="mr-1" />Воспроизвести
-              </Button>
-              <Button size="sm" variant="secondary" className="h-7 text-xs">
-                <Icon name="Download" size={12} className="mr-1" />Скачать
-              </Button>
-            </div>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 mt-2">
-            {MOCK_DETECTIONS.map((det, i) => (
-              <button
-                key={i}
-                onClick={() => setVideoDetIndex(i)}
-                className={`flex-shrink-0 rounded-lg border p-2 text-left transition-colors ${videoDetIndex === i ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
-              >
-                <p className="text-xs font-medium">{det.label}</p>
-                <p className="text-xs text-muted-foreground">{det.time.split(' ')[1]}</p>
-              </button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Диалог редактирования карточки */}
-      <Dialog open={!!editTarget} onOpenChange={(v) => { if (!v) setEditTarget(null); }}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Icon name="Pencil" size={18} />
-              Редактировать карточку
-              <DialogClose asChild className="ml-auto">
-                <Button size="icon" variant="secondary">
-                  <Icon name="X" size={16} />
-                </Button>
-              </DialogClose>
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="flex gap-1 border-b pb-2 mb-4">
-            {([
-              { key: 'info', label: 'Основное', icon: 'FileText' },
-              { key: 'photos', label: 'Фото', icon: 'Camera' },
-              { key: 'emails', label: 'E-mail', icon: 'Mail' },
-              { key: 'max', label: 'MAX', icon: 'MessageSquare' },
-            ] as const).map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setEditTab(tab.key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition-colors ${
-                  editTab === tab.key
-                    ? 'bg-primary text-primary-foreground'
-                    : 'hover:bg-muted text-muted-foreground'
-                }`}
-              >
-                <Icon name={tab.icon} size={14} />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {editTab === 'info' && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">Наименование</Label>
-                <Input
-                  id="edit-name"
-                  placeholder="Введите имя или псевдоним"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-desc">Описание</Label>
-                <textarea
-                  id="edit-desc"
-                  rows={4}
-                  placeholder="Дополнительная информация об искомом лице..."
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-            </div>
-          )}
-
-          {editTab === 'photos' && (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Загрузите дополнительные фото для уточнения поиска</p>
-              <div className="flex flex-wrap gap-3">
-                {editTarget?.image && (
-                  <div className="relative">
-                    <img src={editTarget.image} alt="Основное" className="w-32 h-40 rounded-lg object-cover border-2 border-primary" />
-                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5">осн.</span>
-                  </div>
-                )}
-                {editImages.map((src, i) => (
-                  <div key={i} className="relative">
-                    <img src={src} alt={`Фото ${i + 1}`} className="w-32 h-40 rounded-lg object-cover border" />
-                    <button
-                      onClick={() => setEditImages((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"
-                    >
-                      <Icon name="X" size={10} />
-                    </button>
-                  </div>
-                ))}
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-32 h-40 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 hover:bg-muted transition-colors text-muted-foreground"
-                >
-                  <Icon name="Plus" size={24} />
-                  <span className="text-xs">Добавить фото</span>
-                </button>
-                <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleEditImageUpload} />
-              </div>
-            </div>
-          )}
-
-          {editTab === 'emails' && (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Адреса для отправки уведомлений при совпадении</p>
-              <div className="space-y-2">
-                {editEmails.map((email, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <Input
-                      type="email"
-                      placeholder="example@mail.ru"
-                      value={email}
-                      onChange={(e) => {
-                        const updated = [...editEmails];
-                        updated[idx] = e.target.value;
-                        setEditEmails(updated);
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditEmails(editEmails.filter((_, i) => i !== idx))}
-                      disabled={editEmails.length === 1}
-                    >
-                      <Icon name="X" size={16} />
-                    </Button>
-                  </div>
-                ))}
-                <Button variant="outline" size="sm" onClick={() => setEditEmails([...editEmails, ''])}>
-                  <Icon name="Plus" size={14} className="mr-1" />
-                  Добавить e-mail
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {editTab === 'max' && (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Никнеймы пользователей MAX для уведомлений при совпадении</p>
-              <div className="space-y-2">
-                {editMaxNicknames.map((nick, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <Input
-                      placeholder="@никнейм"
-                      value={nick}
-                      onChange={(e) => {
-                        const updated = [...editMaxNicknames];
-                        updated[idx] = e.target.value;
-                        setEditMaxNicknames(updated);
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditMaxNicknames(editMaxNicknames.filter((_, i) => i !== idx))}
-                      disabled={editMaxNicknames.length === 1}
-                    >
-                      <Icon name="X" size={16} />
-                    </Button>
-                  </div>
-                ))}
-                <Button variant="outline" size="sm" onClick={() => setEditMaxNicknames([...editMaxNicknames, ''])}>
-                  <Icon name="Plus" size={14} className="mr-1" />
-                  Добавить никнейм
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end gap-2 pt-4 border-t mt-2">
-            <Button variant="outline" onClick={() => setEditTarget(null)}>Отмена</Button>
-            <Button onClick={() => { setEditTarget(null); toast.success('Карточка обновлена'); }}>
-              Сохранить
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditCardDialog
+        editTarget={editTarget}
+        onClose={() => setEditTarget(null)}
+        editTab={editTab}
+        setEditTab={setEditTab}
+        editName={editName}
+        setEditName={setEditName}
+        editDescription={editDescription}
+        setEditDescription={setEditDescription}
+        editEmails={editEmails}
+        setEditEmails={setEditEmails}
+        editMaxNicknames={editMaxNicknames}
+        setEditMaxNicknames={setEditMaxNicknames}
+        editImages={editImages}
+        setEditImages={setEditImages}
+      />
 
       {/* Диалог подтверждения удаления */}
       <Dialog open={deleteConfirmId !== null} onOpenChange={(v) => { if (!v) setDeleteConfirmId(null); }}>
