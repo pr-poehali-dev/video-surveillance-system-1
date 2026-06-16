@@ -43,10 +43,12 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
   const [videoDetIndex, setVideoDetIndex] = useState(0);
   const [mapDetIndex, setMapDetIndex] = useState<number | null>(null);
   const [editTarget, setEditTarget] = useState<SearchResult | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
   const [editEmails, setEditEmails] = useState<string[]>(['']);
   const [editMaxNicknames, setEditMaxNicknames] = useState<string[]>(['']);
   const [editImages, setEditImages] = useState<string[]>([]);
-  const [editTab, setEditTab] = useState<'photos' | 'emails' | 'max'>('photos');
+  const [editTab, setEditTab] = useState<'info' | 'photos' | 'emails' | 'max'>('info');
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [localResults, setLocalResults] = useState<SearchResult[]>(results);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,10 +56,12 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
   const openEdit = (result: SearchResult, e: React.MouseEvent) => {
     e.stopPropagation();
     setEditTarget(result);
+    setEditName(result.name ?? '');
+    setEditDescription('');
     setEditEmails(result.emails?.length ? [...result.emails] : ['']);
     setEditMaxNicknames(['']);
     setEditImages(result.extraImages ?? []);
-    setEditTab('photos');
+    setEditTab('info');
   };
 
   const handleDelete = (id: number, e: React.MouseEvent) => {
@@ -365,7 +369,8 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
 
           <div className="flex gap-1 border-b pb-2 mb-4">
             {([
-              { key: 'photos', label: 'Фото лица', icon: 'Camera' },
+              { key: 'info', label: 'Основное', icon: 'FileText' },
+              { key: 'photos', label: 'Фото', icon: 'Camera' },
               { key: 'emails', label: 'E-mail', icon: 'Mail' },
               { key: 'max', label: 'MAX', icon: 'MessageSquare' },
             ] as const).map((tab) => (
@@ -383,6 +388,31 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
               </button>
             ))}
           </div>
+
+          {editTab === 'info' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Наименование</Label>
+                <Input
+                  id="edit-name"
+                  placeholder="Введите имя или псевдоним"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-desc">Описание</Label>
+                <textarea
+                  id="edit-desc"
+                  rows={4}
+                  placeholder="Дополнительная информация об искомом лице..."
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+            </div>
+          )}
 
           {editTab === 'photos' && (
             <div className="space-y-4">
