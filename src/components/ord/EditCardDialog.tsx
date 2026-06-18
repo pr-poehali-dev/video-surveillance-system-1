@@ -16,6 +16,8 @@ interface EditCardDialogProps {
   setEditName: (v: string) => void;
   editDescription: string;
   setEditDescription: (v: string) => void;
+  editPlate: string;
+  setEditPlate: (v: string) => void;
   editEmails: string[];
   setEditEmails: (v: string[]) => void;
   editMaxNicknames: string[];
@@ -33,6 +35,8 @@ export const EditCardDialog = ({
   setEditName,
   editDescription,
   setEditDescription,
+  editPlate,
+  setEditPlate,
   editEmails,
   setEditEmails,
   editMaxNicknames,
@@ -92,6 +96,18 @@ export const EditCardDialog = ({
 
         {editTab === 'info' && (
           <div className="space-y-4">
+            {editTarget?.type === 'plate' && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-plate">Государственный регистрационный знак</Label>
+                <Input
+                  id="edit-plate"
+                  placeholder="А000АА00"
+                  value={editPlate}
+                  onChange={(e) => setEditPlate(e.target.value.toUpperCase())}
+                  className="font-mono tracking-widest text-base uppercase"
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="edit-name">Наименование</Label>
               <Input

@@ -21,6 +21,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
   const [editTarget, setEditTarget] = useState<SearchResult | null>(null);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editPlate, setEditPlate] = useState('');
   const [editEmails, setEditEmails] = useState<string[]>(['']);
   const [editMaxNicknames, setEditMaxNicknames] = useState<string[]>(['']);
   const [editImages, setEditImages] = useState<string[]>([]);
@@ -34,6 +35,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
     setEditTarget(result);
     setEditName(result.name ?? '');
     setEditDescription('');
+    setEditPlate(result.plate ?? '');
     setEditEmails(result.emails?.length ? [...result.emails] : ['']);
     setEditMaxNicknames(['']);
     setEditImages(result.extraImages ?? []);
@@ -95,6 +97,8 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
         setEditName={setEditName}
         editDescription={editDescription}
         setEditDescription={setEditDescription}
+        editPlate={editPlate}
+        setEditPlate={setEditPlate}
         editEmails={editEmails}
         setEditEmails={setEditEmails}
         editMaxNicknames={editMaxNicknames}
