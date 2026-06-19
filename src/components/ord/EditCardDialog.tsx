@@ -78,7 +78,7 @@ export const EditCardDialog = ({
             { key: 'photos', label: 'Фото', icon: 'Camera' },
             { key: 'emails', label: 'E-mail', icon: 'Mail' },
             { key: 'max', label: 'MAX', icon: 'MessageSquare' },
-          ] as const).map((tab) => (
+          ] as const).filter((tab) => !(editTarget?.type === 'plate' && tab.key === 'photos')).map((tab) => (
             <button
               key={tab.key}
               onClick={() => setEditTab(tab.key)}
