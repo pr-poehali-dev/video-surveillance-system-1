@@ -92,7 +92,7 @@ export const HistoryPlateTab = ({
         </CardContent>
       </Card>
 
-      <SearchResults results={mockResults.filter((r) => r.type === 'plate')} />
+      <SearchResults results={mockResults.filter((r) => r.type === 'plate')} readonly />
     </div>
   );
 };
