@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { ImageUploadZone } from '@/components/ord/ImageUploadZone';
-import { SearchResults } from '@/components/ord/SearchResults';
+import { FaceHistoryResults } from '@/components/ord/FaceHistoryResults';
 import { CameraMultiSelect, CameraOption } from '@/components/ord/CameraMultiSelect';
 
 interface SearchResult {
@@ -98,7 +98,7 @@ export const HistoryFaceTab = ({
         </CardContent>
       </Card>
 
-      <SearchResults results={mockResults} readonly />
+      <FaceHistoryResults />
     </div>
   );
 };
