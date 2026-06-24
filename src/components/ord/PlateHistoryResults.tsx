@@ -22,7 +22,7 @@ export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
     setVideoOpen(true);
   }, []);
 
-  if (!plate) return null;
+  const displayPlate = plate || 'А123ВС159';
 
   return (
     <>
@@ -49,7 +49,7 @@ export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
               {MOCK_DETECTIONS.map((det, index) => (
                 <div key={index} className="flex items-center gap-4 px-4 py-3">
                   <div className="flex-shrink-0 bg-white border-2 border-black rounded px-2 py-0.5 font-mono font-bold text-sm tracking-widest text-black">
-                    {plate}
+                    {displayPlate}
                   </div>
                   <Badge
                     className="flex-shrink-0 text-xs px-1.5"
