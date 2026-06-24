@@ -47,17 +47,28 @@ export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
           <ScrollArea className="max-h-[480px]">
             <div className="divide-y">
               {MOCK_DETECTIONS.map((det, index) => (
-                <div key={index} className="flex items-center gap-4 px-4 py-3">
-                  <div className="flex-shrink-0 bg-white border-2 border-black rounded px-2 py-0.5 font-mono font-bold text-sm tracking-widest text-black">
-                    {displayPlate}
+                <div key={index} className="flex items-start gap-4 px-4 py-3">
+                  <div className="flex-shrink-0 w-32 h-20 rounded-lg overflow-hidden bg-muted border">
+                    {det.carImage ? (
+                      <img src={det.carImage} alt="Фото автомобиля" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Icon name="Car" size={32} className="text-muted-foreground" />
+                      </div>
+                    )}
                   </div>
-                  <Badge
-                    className="flex-shrink-0 text-xs px-1.5"
-                    variant={det.match > 92 ? 'default' : 'secondary'}
-                  >
-                    {det.match}%
-                  </Badge>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 space-y-1.5 py-0.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="bg-white border-2 border-black rounded px-2 py-0.5 font-mono font-bold text-sm tracking-widest text-black">
+                        {displayPlate}
+                      </div>
+                      <Badge
+                        className="text-xs px-1.5"
+                        variant={det.match > 92 ? 'default' : 'secondary'}
+                      >
+                        {det.match}%
+                      </Badge>
+                    </div>
                     <p className="text-sm font-medium truncate">{det.label}</p>
                     <p className="text-xs text-muted-foreground truncate">{det.address} · {det.time}</p>
                   </div>
