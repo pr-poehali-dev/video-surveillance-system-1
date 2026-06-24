@@ -48,7 +48,7 @@ export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
             <div className="divide-y">
               {MOCK_DETECTIONS.map((det, index) => (
                 <div key={index} className="flex items-start gap-4 px-4 py-3">
-                  <div className="flex-shrink-0 w-32 h-20 rounded-lg overflow-hidden bg-muted border">
+                  <div className="flex-shrink-0 w-48 h-32 rounded-lg overflow-hidden bg-muted border">
                     {det.carImage ? (
                       <img src={det.carImage} alt="Фото автомобиля" className="w-full h-full object-cover" />
                     ) : (
