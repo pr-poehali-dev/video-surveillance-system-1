@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
-import { SearchResults } from '@/components/ord/SearchResults';
+import { PlateHistoryResults } from '@/components/ord/PlateHistoryResults';
 import { CameraMultiSelect, CameraOption } from '@/components/ord/CameraMultiSelect';
 
 interface SearchResult {
@@ -92,7 +92,7 @@ export const HistoryPlateTab = ({
         </CardContent>
       </Card>
 
-      <SearchResults results={mockResults.filter((r) => r.type === 'plate')} readonly />
+      <PlateHistoryResults plate={plateSearch} />
     </div>
   );
 };
