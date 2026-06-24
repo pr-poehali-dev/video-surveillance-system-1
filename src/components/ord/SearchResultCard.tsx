@@ -21,9 +21,10 @@ interface SearchResultCardProps {
   onClick: () => void;
   onEdit: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent) => void;
+  readonly?: boolean;
 }
 
-export const SearchResultCard = ({ result, onClick, onEdit, onDelete }: SearchResultCardProps) => {
+export const SearchResultCard = ({ result, onClick, onEdit, onDelete, readonly }: SearchResultCardProps) => {
   return (
     <div
       className="border border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer"
@@ -56,26 +57,28 @@ export const SearchResultCard = ({ result, onClick, onEdit, onDelete }: SearchRe
                 {Math.round(result.match)} совпадений
               </Badge>
             </div>
-            <div className="flex items-center gap-1 flex-shrink-0 ml-auto">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={onEdit}
-                title="Редактировать карточку"
-              >
-                <Icon name="Pencil" size={14} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive hover:text-destructive"
-                onClick={onDelete}
-                title="Удалить карточку"
-              >
-                <Icon name="Trash2" size={14} />
-              </Button>
-            </div>
+            {!readonly && (
+              <div className="flex items-center gap-1 flex-shrink-0 ml-auto">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={onEdit}
+                  title="Редактировать карточку"
+                >
+                  <Icon name="Pencil" size={14} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-destructive hover:text-destructive"
+                  onClick={onDelete}
+                  title="Удалить карточку"
+                >
+                  <Icon name="Trash2" size={14} />
+                </Button>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
             <div>

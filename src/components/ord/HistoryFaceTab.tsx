@@ -98,7 +98,7 @@ export const HistoryFaceTab = ({
         </CardContent>
       </Card>
 
-      <SearchResults results={mockResults} />
+      <SearchResults results={mockResults} readonly />
     </div>
   );
 };

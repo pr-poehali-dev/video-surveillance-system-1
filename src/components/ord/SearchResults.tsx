@@ -11,9 +11,10 @@ import { EditCardDialog } from './EditCardDialog';
 
 interface SearchResultsProps {
   results: SearchResult[];
+  readonly?: boolean;
 }
 
-export const SearchResults = ({ results }: SearchResultsProps) => {
+export const SearchResults = ({ results, readonly }: SearchResultsProps) => {
   const [selected, setSelected] = useState<SearchResult | null>(null);
   const [localResults, setLocalResults] = useState<SearchResult[]>(results);
 
@@ -69,6 +70,7 @@ export const SearchResults = ({ results }: SearchResultsProps) => {
                   onClick={() => setSelected(result)}
                   onEdit={(e) => openEdit(result, e)}
                   onDelete={(e) => handleDelete(result.id, e)}
+                  readonly={readonly}
                 />
               ))}
 
