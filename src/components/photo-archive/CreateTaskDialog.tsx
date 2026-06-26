@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,6 +7,18 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+const CAMERA_PREVIEW_IMAGES: Record<string, string> = {
+  'camera-1': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=640&h=360&fit=crop',
+  'camera-2': 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=640&h=360&fit=crop',
+  'camera-3': 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=640&h=360&fit=crop',
+  'camera-4': 'https://images.unsplash.com/photo-1485201543483-f06c8d2a8fb4?w=640&h=360&fit=crop',
+  'camera-5': 'https://images.unsplash.com/photo-1494783367193-149034c05e8f?w=640&h=360&fit=crop',
+  'camera-6': 'https://images.unsplash.com/photo-1473445730015-841f29a9490b?w=640&h=360&fit=crop',
+  'camera-7': 'https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=640&h=360&fit=crop',
+  'camera-8': 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=640&h=360&fit=crop',
+  'camera-9': 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=640&h=360&fit=crop',
+};
 
 interface CreateTaskDialogProps {
   isOpen: boolean;
@@ -18,13 +31,16 @@ interface CreateTaskDialogProps {
     dailyHour: string;
     selectedCameras: string[];
   };
-  setNewTask: (task: any) => void;
+  setNewTask: (task: CreateTaskDialogProps['newTask']) => void;
   cameras: { id: string; name: string }[];
   handleCreateTask: () => void;
 }
 
 const CreateTaskDialog = ({ isOpen, setIsOpen, newTask, setNewTask, cameras, handleCreateTask }: CreateTaskDialogProps) => {
+  const [previewCam, setPreviewCam] = useState<{ id: string; name: string } | null>(null);
+
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
@@ -108,7 +124,7 @@ const CreateTaskDialog = ({ isOpen, setIsOpen, newTask, setNewTask, cameras, han
             <ScrollArea className="h-[200px] border rounded-lg p-3">
               <div className="space-y-2">
                 {cameras.map((camera) => (
-                  <div key={camera.id} className="flex items-center gap-2">
+                  <div key={camera.id} className="flex items-center gap-2 group">
                     <input
                       type="checkbox"
                       id={`camera-${camera.id}`}
@@ -128,10 +144,20 @@ const CreateTaskDialog = ({ isOpen, setIsOpen, newTask, setNewTask, cameras, han
                         }
                       }}
                     />
-                    <Label htmlFor={`camera-${camera.id}`} className="cursor-pointer flex items-center gap-2">
+                    <Label htmlFor={`camera-${camera.id}`} className="cursor-pointer flex items-center gap-2 flex-1">
                       <Icon name="Video" size={14} />
                       {camera.name}
                     </Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                      onClick={() => setPreviewCam(camera)}
+                      title="Предпросмотр"
+                    >
+                      <Icon name="Eye" size={12} />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -164,6 +190,35 @@ const CreateTaskDialog = ({ isOpen, setIsOpen, newTask, setNewTask, cameras, han
         </div>
       </DialogContent>
     </Dialog>
+
+    <Dialog open={!!previewCam} onOpenChange={(v) => { if (!v) setPreviewCam(null); }}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Icon name="Eye" size={16} />
+            {previewCam?.name}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="rounded-lg overflow-hidden bg-muted aspect-video relative">
+          {previewCam && CAMERA_PREVIEW_IMAGES[previewCam.id] ? (
+            <img
+              src={CAMERA_PREVIEW_IMAGES[previewCam.id]}
+              alt={previewCam.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Icon name="Video" size={48} className="text-muted-foreground opacity-40" />
+            </div>
+          )}
+          <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+            LIVE
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
 
