@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { api, Camera, CameraStats } from '@/lib/api';
@@ -36,10 +36,25 @@ const Monitoring = () => {
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [stats, setStats] = useState<CameraStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const notifiedCamerasRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (cameras.length === 0) return;
+    const problemCameras = cameras.filter(c => c.status === 'problem');
+    problemCameras.forEach(cam => {
+      if (!notifiedCamerasRef.current.has(cam.id)) {
+        notifiedCamerasRef.current.add(cam.id);
+        toast.warning(`Проблема с камерой: ${cam.name}`, {
+          description: cam.address || 'Требует проверки',
+          duration: 7000,
+        });
+      }
+    });
+  }, [cameras]);
 
   const loadData = async () => {
     try {

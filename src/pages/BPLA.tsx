@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import BPLAMap from '@/components/bpla/BPLAMap';
@@ -6,11 +6,38 @@ import BPLAStatsPanel from '@/components/bpla/BPLAStatsPanel';
 import BPLAPhotoModal from '@/components/bpla/BPLAPhotoModal';
 import { MOCK_DETECTIONS } from '@/components/bpla/types';
 import type { DroneDetection } from '@/components/bpla/types';
+import { toast } from 'sonner';
+
+const BPLA_ALERT_MESSAGES = [
+  { threat: 'high', zone: 'Сектор А-1', type: 'FPV дрон' },
+  { threat: 'high', zone: 'Сектор Б-2', type: 'Орлан-10' },
+  { threat: 'medium', zone: 'Сектор В-3', type: 'Мавик 3' },
+];
 
 const BPLA = () => {
   const [activeTab, setActiveTab] = useState('detections');
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; detection: DroneDetection } | null>(null);
   const [overrides, setOverrides] = useState<Record<string, number>>({});
+  const alertIndexRef = useRef(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const msg = BPLA_ALERT_MESSAGES[alertIndexRef.current % BPLA_ALERT_MESSAGES.length];
+      alertIndexRef.current += 1;
+      if (msg.threat === 'high') {
+        toast.error(`Обнаружен БПЛА — ${msg.type}`, {
+          description: `Зона: ${msg.zone} · Угроза: Высокая`,
+          duration: 6000,
+        });
+      } else {
+        toast.warning(`Обнаружен БПЛА — ${msg.type}`, {
+          description: `Зона: ${msg.zone} · Угроза: Средняя`,
+          duration: 5000,
+        });
+      }
+    }, 25000);
+    return () => clearInterval(interval);
+  }, []);
 
   const totalDetections = overrides.total ?? MOCK_DETECTIONS.length;
   const activeCount = MOCK_DETECTIONS.filter(d => d.status === 'active').length;

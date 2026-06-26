@@ -16,6 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 interface User {
@@ -48,6 +50,7 @@ const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61
 const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loginHistoryUser, setLoginHistoryUser] = useState<User | null>(null);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -112,6 +115,23 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
     user.login.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getMockLoginHistory = (userId: number) => {
+    const base = new Date();
+    return Array.from({ length: 8 }, (_, i) => {
+      const d = new Date(base);
+      d.setHours(d.getHours() - i * 17 - Math.floor(Math.random() * 5));
+      const ips = ['192.168.1.10', '10.0.0.5', '172.16.0.3', '192.168.0.22'];
+      const browsers = ['Chrome 124', 'Firefox 126', 'Safari 17', 'Edge 124'];
+      return {
+        id: userId * 100 + i,
+        timestamp: d.toLocaleString('ru-RU'),
+        ip: ips[(userId + i) % ips.length],
+        browser: browsers[i % browsers.length],
+        success: i !== 2,
+      };
+    });
+  };
+
   const exportCSV = useCallback(() => {
     const headers = ['ФИО', 'Email', 'Логин', 'Роль', 'Предприятие', 'Рабочий телефон', 'Мобильный телефон', 'Онлайн', 'Дата создания'];
     const rows = filteredUsers.map((u) => [
@@ -156,6 +176,7 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
                   Добавить пользователя
                 </Button>
               </div>
+
             </div>
             <div className="relative">
               <Icon
@@ -191,6 +212,7 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
                       setUserToDelete(user);
                       setIsDeleteDialogOpen(true);
                     }}
+                    onLoginHistory={setLoginHistoryUser}
                   />
                 ))}
               </div>
@@ -223,6 +245,33 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!loginHistoryUser} onOpenChange={(v) => { if (!v) setLoginHistoryUser(null); }}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="History" size={18} />
+              История входов — {loginHistoryUser?.full_name}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[420px]">
+            <div className="divide-y">
+              {loginHistoryUser && getMockLoginHistory(loginHistoryUser.id).map((entry) => (
+                <div key={entry.id} className="flex items-center gap-3 py-2.5 px-1">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${entry.success ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{entry.timestamp}</p>
+                    <p className="text-xs text-muted-foreground">{entry.ip} · {entry.browser}</p>
+                  </div>
+                  <Badge variant={entry.success ? 'default' : 'destructive'} className="text-xs flex-shrink-0">
+                    {entry.success ? 'Успешно' : 'Отказано'}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -52,10 +52,14 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <Card className="border-border/50 hover:shadow-lg transition-shadow">
+          <Card
+            className="border-border/50 hover:shadow-lg transition-all cursor-pointer hover:border-primary/40 hover:scale-[1.02]"
+            onClick={() => navigate('/monitoring')}
+          >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
                 Всего камер
+                <Icon name="ArrowRight" size={14} className="text-muted-foreground/50" />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -68,10 +72,14 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 hover:shadow-lg transition-shadow">
+          <Card
+            className="border-border/50 hover:shadow-lg transition-all cursor-pointer hover:border-green-500/40 hover:scale-[1.02]"
+            onClick={() => navigate('/monitoring?status=active')}
+          >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
                 Активные
+                <Icon name="ArrowRight" size={14} className="text-muted-foreground/50" />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -84,10 +92,14 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 hover:shadow-lg transition-shadow">
+          <Card
+            className="border-border/50 hover:shadow-lg transition-all cursor-pointer hover:border-gray-400/40 hover:scale-[1.02]"
+            onClick={() => navigate('/monitoring?status=inactive')}
+          >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
                 Неактивные
+                <Icon name="ArrowRight" size={14} className="text-muted-foreground/50" />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -100,10 +112,14 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 hover:shadow-lg transition-shadow">
+          <Card
+            className="border-border/50 hover:shadow-lg transition-all cursor-pointer hover:border-yellow-500/40 hover:scale-[1.02]"
+            onClick={() => navigate('/monitoring?status=problem')}
+          >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
                 Проблемные
+                <Icon name="ArrowRight" size={14} className="text-muted-foreground/50" />
               </CardTitle>
             </CardHeader>
             <CardContent>

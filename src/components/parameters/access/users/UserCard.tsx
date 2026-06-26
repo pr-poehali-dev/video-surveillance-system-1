@@ -22,9 +22,10 @@ interface UserCardProps {
   user: User;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
+  onLoginHistory?: (user: User) => void;
 }
 
-const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
+const UserCard = ({ user, onEdit, onDelete, onLoginHistory }: UserCardProps) => {
   const handleImpersonate = async () => {
     try {
       const response = await fetch(`${IMPERSONATE_API}?user_id=${user.id}`);
@@ -91,6 +92,17 @@ const UserCard = ({ user, onEdit, onDelete }: UserCardProps) => {
               <Icon name="LogIn" size={14} className="mr-2" />
               Войти
             </Button>
+            {onLoginHistory && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onLoginHistory(user)}
+                title="История входов"
+              >
+                <Icon name="History" size={14} className="mr-2" />
+                История
+              </Button>
+            )}
             <Button 
               variant="outline" 
               size="sm"
