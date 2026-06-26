@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -97,8 +97,8 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
 
       toast.success('Пользователь удален');
       fetchUsers();
-    } catch (error: any) {
-      toast.error(error.message || 'Ошибка при удалении пользователя');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Ошибка при удалении пользователя');
     } finally {
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
@@ -112,6 +112,30 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
     user.login.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const exportCSV = useCallback(() => {
+    const headers = ['ФИО', 'Email', 'Логин', 'Роль', 'Предприятие', 'Рабочий телефон', 'Мобильный телефон', 'Онлайн', 'Дата создания'];
+    const rows = filteredUsers.map((u) => [
+      u.full_name,
+      u.email,
+      u.login,
+      u.role_name || '',
+      u.company || '',
+      u.work_phone || '',
+      u.mobile_phone || '',
+      u.is_online ? 'Да' : 'Нет',
+      new Date(u.created_at).toLocaleDateString('ru-RU'),
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `users_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Файл выгружен');
+  }, [filteredUsers]);
+
   return (
     <>
       <Card>
@@ -122,10 +146,16 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
                 <Icon name="Users" size={20} />
                 Пользователи системы
               </CardTitle>
-              <Button onClick={handleCreateClick}>
-                <Icon name="Plus" size={18} className="mr-2" />
-                Добавить пользователя
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={exportCSV}>
+                  <Icon name="Download" size={18} className="mr-2" />
+                  Выгрузить CSV
+                </Button>
+                <Button onClick={handleCreateClick}>
+                  <Icon name="Plus" size={18} className="mr-2" />
+                  Добавить пользователя
+                </Button>
+              </div>
             </div>
             <div className="relative">
               <Icon
