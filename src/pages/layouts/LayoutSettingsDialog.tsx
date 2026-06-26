@@ -194,21 +194,31 @@ export const LayoutSettingsDialog = ({ layout, open, onOpenChange, onSave, allCa
                 <ScrollArea className="flex-1 border rounded-md">
                   <div className="divide-y">
                     {filteredAvail.map((cam) => (
-                      <button
-                        key={cam.id}
-                        onClick={() => toggleCamera(cam.id)}
-                        disabled={draft.cameras.length >= maxCameras}
-                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted text-left transition-colors disabled:opacity-40"
-                      >
-                        <Icon name="Plus" size={14} className="text-muted-foreground flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium truncate">{cam.name}</div>
-                          <div className="text-xs text-muted-foreground truncate">{cam.address}</div>
-                        </div>
-                        <span className={`text-xs flex-shrink-0 ${statusColor[cam.status]}`}>
-                          {statusLabel[cam.status]}
-                        </span>
-                      </button>
+                      <div key={cam.id} className="flex items-center gap-1 pr-1 hover:bg-muted transition-colors group">
+                        <button
+                          onClick={() => toggleCamera(cam.id)}
+                          disabled={draft.cameras.length >= maxCameras}
+                          className="flex-1 flex items-center gap-2 px-3 py-2 text-left disabled:opacity-40"
+                        >
+                          <Icon name="Plus" size={14} className="text-muted-foreground flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium truncate">{cam.name}</div>
+                            <div className="text-xs text-muted-foreground truncate">{cam.address}</div>
+                          </div>
+                          <span className={`text-xs flex-shrink-0 ${statusColor[cam.status]}`}>
+                            {statusLabel[cam.status]}
+                          </span>
+                        </button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                          onClick={(e) => { e.stopPropagation(); setPreviewCam(cam); }}
+                          title="Предпросмотр"
+                        >
+                          <Icon name="Eye" size={12} />
+                        </Button>
+                      </div>
                     ))}
                     {filteredAvail.length === 0 && (
                       <div className="p-4 text-sm text-muted-foreground text-center">Нет камер</div>
