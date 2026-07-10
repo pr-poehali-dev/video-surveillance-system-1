@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MultiSelectCombobox } from '@/components/ui/multi-select-combobox';
 import Icon from '@/components/ui/icon';
 import {
   MOCK_DETECTIONS, MOCK_ALERTS, ZONE_STATS, TYPE_STATS,
@@ -31,10 +33,21 @@ const BPLAStatsPanel = ({
   const [confirmations, setConfirmations] = useState<Record<number, boolean | null>>(
     Object.fromEntries(MOCK_DETECTIONS.map(d => [d.id, d.confirmed]))
   );
+  const [zoneFilter, setZoneFilter] = useState<string[]>([]);
 
   const handleConfirm = (id: number, value: boolean) => {
     setConfirmations(prev => ({ ...prev, [id]: value }));
   };
+
+  const zoneOptions = useMemo(() => {
+    const zones = [...new Set(MOCK_DETECTIONS.map(d => d.zone))];
+    return zones.map(z => ({ value: z, label: z }));
+  }, []);
+
+  const filteredDetections = useMemo(() => {
+    if (zoneFilter.length === 0) return MOCK_DETECTIONS;
+    return MOCK_DETECTIONS.filter(d => zoneFilter.includes(d.zone));
+  }, [zoneFilter]);
 
   return (
     <>
@@ -60,6 +73,26 @@ const BPLAStatsPanel = ({
         </TabsList>
 
         <TabsContent value="detections">
+          <div className="flex items-center gap-2 mb-3">
+            <Icon name="Filter" size={14} className="text-muted-foreground shrink-0" />
+            <MultiSelectCombobox
+              options={zoneOptions}
+              selected={zoneFilter}
+              onChange={setZoneFilter}
+              placeholder="Все секторы"
+              searchPlaceholder="Поиск сектора..."
+              className="w-64"
+            />
+            {zoneFilter.length > 0 && (
+              <Button variant="ghost" size="sm" className="h-9 text-xs" onClick={() => setZoneFilter([])}>
+                <Icon name="X" size={12} className="mr-1" />
+                Сбросить
+              </Button>
+            )}
+            <span className="text-xs text-muted-foreground ml-auto">
+              {filteredDetections.length} из {MOCK_DETECTIONS.length}
+            </span>
+          </div>
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -76,7 +109,7 @@ const BPLAStatsPanel = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {MOCK_DETECTIONS.map((d) => {
+                    {filteredDetections.map((d) => {
                       const confirmed = confirmations[d.id];
                       return (
                         <tr key={d.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
@@ -174,6 +207,11 @@ const BPLAStatsPanel = ({
                     })}
                   </tbody>
                 </table>
+                {filteredDetections.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground text-sm">
+                    Нет обнаружений в выбранных секторах
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
