@@ -25,6 +25,7 @@ export const DetectionsDialog = ({ selected, onClose }: DetectionsDialogProps) =
   const [mapDetIndex, setMapDetIndex] = useState<number | null>(null);
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoDetIndex, setVideoDetIndex] = useState(0);
+  const [photoDetIndex, setPhotoDetIndex] = useState<number | null>(null);
 
   const openMap = useCallback((index: number) => {
     setMapDetIndex(index);
@@ -102,7 +103,11 @@ export const DetectionsDialog = ({ selected, onClose }: DetectionsDialogProps) =
                       </div>
                       <div className="flex flex-col items-center gap-1 flex-shrink-0">
                         <p className="text-xs text-muted-foreground uppercase tracking-wide">Найдено</p>
-                        <div className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted">
+                        <button
+                          type="button"
+                          onClick={() => setPhotoDetIndex(index)}
+                          className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted cursor-zoom-in"
+                        >
                           {det.image ? (
                             <DetectionPhotoCanvas
                               src={det.image}
@@ -120,7 +125,7 @@ export const DetectionsDialog = ({ selected, onClose }: DetectionsDialogProps) =
                           >
                             {det.match}%
                           </Badge>
-                        </div>
+                        </button>
                       </div>
                       <div className="space-y-1.5 flex-1 py-1">
                         <p className="font-semibold text-sm">{det.label}</p>
@@ -201,6 +206,37 @@ export const DetectionsDialog = ({ selected, onClose }: DetectionsDialogProps) =
               </button>
             ))}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Диалог просмотра фото */}
+      <Dialog open={photoDetIndex !== null} onOpenChange={open => !open && setPhotoDetIndex(null)}>
+        <DialogContent className="max-w-lg flex flex-col overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Image" size={18} />
+              {photoDetIndex !== null && MOCK_DETECTIONS[photoDetIndex]?.label}
+              <DialogClose asChild className="ml-auto">
+                <Button size="icon" variant="secondary" title="Закрыть">
+                  <Icon name="X" size={18} />
+                </Button>
+              </DialogClose>
+            </DialogTitle>
+          </DialogHeader>
+          {photoDetIndex !== null && (
+            <div className="flex flex-col gap-2">
+              <div className="rounded-lg overflow-hidden bg-muted">
+                <DetectionPhotoCanvas
+                  src={MOCK_DETECTIONS[photoDetIndex].image}
+                  lines={[MOCK_DETECTIONS[photoDetIndex].time, MOCK_DETECTIONS[photoDetIndex].label, MOCK_DETECTIONS[photoDetIndex].address]}
+                  className="w-full h-auto"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {MOCK_DETECTIONS[photoDetIndex].address} · {MOCK_DETECTIONS[photoDetIndex].time}
+              </p>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
