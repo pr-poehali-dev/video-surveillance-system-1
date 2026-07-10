@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { SearchResultCard, SearchResult } from './SearchResultCard';
 import { DetectionsDialog } from './DetectionsDialog';
 import { EditCardDialog } from './EditCardDialog';
+import { PlateRouteDialog } from './PlateRouteDialog';
 
 interface SearchResultsProps {
   results: SearchResult[];
@@ -16,6 +17,7 @@ interface SearchResultsProps {
 
 export const SearchResults = ({ results, readonly }: SearchResultsProps) => {
   const [selected, setSelected] = useState<SearchResult | null>(null);
+  const [routeTarget, setRouteTarget] = useState<SearchResult | null>(null);
   const [localResults, setLocalResults] = useState<SearchResult[]>(results);
 
   // edit state
@@ -70,6 +72,7 @@ export const SearchResults = ({ results, readonly }: SearchResultsProps) => {
                   onClick={() => setSelected(result)}
                   onEdit={(e) => openEdit(result, e)}
                   onDelete={(e) => handleDelete(result.id, e)}
+                  onRoute={(e) => { e.stopPropagation(); setRouteTarget(result); }}
                   readonly={readonly}
                 />
               ))}
@@ -88,6 +91,11 @@ export const SearchResults = ({ results, readonly }: SearchResultsProps) => {
       <DetectionsDialog
         selected={selected}
         onClose={() => setSelected(null)}
+      />
+
+      <PlateRouteDialog
+        selected={routeTarget}
+        onClose={() => setRouteTarget(null)}
       />
 
       <EditCardDialog

@@ -21,10 +21,11 @@ interface SearchResultCardProps {
   onClick: () => void;
   onEdit: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent) => void;
+  onRoute?: (e: React.MouseEvent) => void;
   readonly?: boolean;
 }
 
-export const SearchResultCard = ({ result, onClick, onEdit, onDelete, readonly }: SearchResultCardProps) => {
+export const SearchResultCard = ({ result, onClick, onEdit, onDelete, onRoute, readonly }: SearchResultCardProps) => {
   return (
     <div
       className="border border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer"
@@ -100,6 +101,19 @@ export const SearchResultCard = ({ result, onClick, onEdit, onDelete, readonly }
               </div>
             )}
           </div>
+          {result.type === 'plate' && onRoute && (
+            <div className="pt-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                onClick={onRoute}
+              >
+                <Icon name="Route" size={12} className="mr-1" />
+                Потоки
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
