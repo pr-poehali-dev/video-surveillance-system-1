@@ -95,9 +95,9 @@ const BPLAStatsPanel = ({
           </div>
           <Card>
             <CardContent className="p-0">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-320px)] min-h-[420px]">
                 <table className="w-full text-sm">
-                  <thead>
+                  <thead className="sticky top-0 bg-card z-10">
                     <tr className="border-b border-border">
                       <th className="text-left px-4 py-3 text-muted-foreground font-medium">#</th>
                       <th className="text-left px-4 py-3 text-muted-foreground font-medium">Дата / Время / Камера</th>
