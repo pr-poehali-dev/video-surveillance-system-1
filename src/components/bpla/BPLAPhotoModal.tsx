@@ -23,15 +23,13 @@ const BPLAPhotoModal = ({ selectedPhoto, onClose }: BPLAPhotoModalProps) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
+    const draw = (img: HTMLImageElement) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       const { detection } = selectedPhoto;
       const lines = [
@@ -41,19 +39,19 @@ const BPLAPhotoModal = ({ selectedPhoto, onClose }: BPLAPhotoModalProps) => {
         `Адрес: ${detection.address}`,
       ];
 
-      const fontSize = Math.max(14, Math.round(img.width / 45));
+      const fontSize = Math.max(14, Math.round(canvas.width / 45));
       const lineHeight = fontSize * 1.4;
       const padding = fontSize * 0.8;
       const overlayHeight = lines.length * lineHeight + padding * 2;
 
       ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillRect(0, img.height - overlayHeight, img.width, overlayHeight);
+      ctx.fillRect(0, canvas.height - overlayHeight, canvas.width, overlayHeight);
 
       ctx.font = `${fontSize}px monospace`;
       ctx.fillStyle = '#ffffff';
       ctx.textBaseline = 'top';
       lines.forEach((line, i) => {
-        ctx.fillText(line, padding, img.height - overlayHeight + padding + i * lineHeight);
+        ctx.fillText(line, padding, canvas.height - overlayHeight + padding + i * lineHeight);
       });
 
       try {
@@ -62,7 +60,16 @@ const BPLAPhotoModal = ({ selectedPhoto, onClose }: BPLAPhotoModalProps) => {
         setRenderedUrl(null);
       }
     };
-    img.src = selectedPhoto.url;
+
+    const imgCors = new Image();
+    imgCors.crossOrigin = 'anonymous';
+    imgCors.onload = () => draw(imgCors);
+    imgCors.onerror = () => {
+      const imgPlain = new Image();
+      imgPlain.onload = () => draw(imgPlain);
+      imgPlain.src = selectedPhoto.url;
+    };
+    imgCors.src = selectedPhoto.url;
   }, [selectedPhoto]);
 
   if (!selectedPhoto) return null;
