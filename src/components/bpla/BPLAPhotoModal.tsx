@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { threatColor, threatLabel } from './types';
 import type { DroneDetection } from './types';
@@ -9,7 +11,69 @@ interface BPLAPhotoModalProps {
 }
 
 const BPLAPhotoModal = ({ selectedPhoto, onClose }: BPLAPhotoModalProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [renderedUrl, setRenderedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!selectedPhoto) {
+      setRenderedUrl(null);
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const { detection } = selectedPhoto;
+      const lines = [
+        `${detection.date} ${detection.time}`,
+        `Сектор: ${detection.zone}`,
+        `Камера: ${detection.camera}`,
+        `Адрес: ${detection.address}`,
+      ];
+
+      const fontSize = Math.max(14, Math.round(img.width / 45));
+      const lineHeight = fontSize * 1.4;
+      const padding = fontSize * 0.8;
+      const overlayHeight = lines.length * lineHeight + padding * 2;
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(0, img.height - overlayHeight, img.width, overlayHeight);
+
+      ctx.font = `${fontSize}px monospace`;
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'top';
+      lines.forEach((line, i) => {
+        ctx.fillText(line, padding, img.height - overlayHeight + padding + i * lineHeight);
+      });
+
+      try {
+        setRenderedUrl(canvas.toDataURL('image/jpeg', 0.92));
+      } catch {
+        setRenderedUrl(null);
+      }
+    };
+    img.src = selectedPhoto.url;
+  }, [selectedPhoto]);
+
   if (!selectedPhoto) return null;
+
+  const handleDownload = () => {
+    if (!renderedUrl) return;
+    const a = document.createElement('a');
+    a.href = renderedUrl;
+    a.download = `bpla_${selectedPhoto.detection.id}_${selectedPhoto.detection.date.replace(/\./g, '-')}.jpg`;
+    a.click();
+  };
 
   return (
     <div
@@ -29,17 +93,22 @@ const BPLAPhotoModal = ({ selectedPhoto, onClose }: BPLAPhotoModalProps) => {
             <Badge variant="outline" className={threatColor(selectedPhoto.detection.threat)}>
               {threatLabel(selectedPhoto.detection.threat)}
             </Badge>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleDownload}
+              disabled={!renderedUrl}
+              title="Скачать фото с данными"
+            >
+              <Icon name="Download" size={18} />
+            </Button>
             <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
               <Icon name="X" size={20} />
             </button>
           </div>
         </div>
         <div className="relative w-full">
-          <img
-            src={selectedPhoto.url}
-            alt="БПЛА"
-            className="w-full object-contain max-h-[60vh]"
-          />
+          <canvas ref={canvasRef} className="w-full object-contain max-h-[60vh] block" />
           <div
             className="absolute pointer-events-none"
             style={{

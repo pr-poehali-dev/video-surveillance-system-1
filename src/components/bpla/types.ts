@@ -11,6 +11,7 @@ export interface DroneDetection {
   altitude: number;
   speed: number;
   camera: string;
+  address: string;
   confirmed: boolean | null;
 }
 
@@ -37,6 +38,12 @@ const CAMERAS = [
   'КАМ-01 / Северный КПП', 'КАМ-02 / Западный периметр', 'КАМ-03 / Южный КПП', 'КАМ-04 / Восточная вышка',
   'КАМ-05 / Северная вышка', 'КАМ-06 / Восточный периметр', 'КАМ-07 / Центральный пост', 'КАМ-08 / Запасной пост',
   'КАМ-09 / Юго-западный рубеж', 'КАМ-10 / Юго-восточный рубеж',
+];
+const ADDRESSES = [
+  'г. Пермь, ул. Ленина, 50', 'г. Пермь, ул. Сибирская, 27', 'г. Пермь, ул. Куйбышева, 95',
+  'г. Пермь, ул. Пушкина, 3', 'г. Пермь, Комсомольский пр-т, 68', 'г. Пермь, ул. Мира, 12',
+  'г. Пермь, ул. Революции, 44', 'г. Пермь, ул. Крисанова, 21', 'г. Пермь, ул. Монастырская, 15',
+  'г. Пермь, шоссе Космонавтов, 100',
 ];
 const THREATS: DroneDetection['threat'][] = ['high', 'medium', 'low'];
 const STATUSES: DroneDetection['status'][] = ['neutralized', 'active', 'lost'];
@@ -65,6 +72,7 @@ const generateDetections = (count: number): DroneDetection[] => {
       altitude: 25 + ((i * 13) % 180),
       speed: 40 + ((i * 11) % 130),
       camera: CAMERAS[i % CAMERAS.length],
+      address: ADDRESSES[i % ADDRESSES.length],
       confirmed,
     };
   });
