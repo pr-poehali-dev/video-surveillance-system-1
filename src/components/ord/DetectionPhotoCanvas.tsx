@@ -37,15 +37,9 @@ export const DetectionPhotoCanvas = ({ src, lines, className }: DetectionPhotoCa
       });
     };
 
-    const imgCors = new Image();
-    imgCors.crossOrigin = 'anonymous';
-    imgCors.onload = () => draw(imgCors);
-    imgCors.onerror = () => {
-      const imgPlain = new Image();
-      imgPlain.onload = () => draw(imgPlain);
-      imgPlain.src = src;
-    };
-    imgCors.src = src;
+    const img = new Image();
+    img.onload = () => draw(img);
+    img.src = src;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src, JSON.stringify(lines)]);
 
