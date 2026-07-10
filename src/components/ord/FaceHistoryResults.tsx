@@ -8,7 +8,7 @@ import Icon from '@/components/ui/icon';
 import { MOCK_DETECTIONS } from './DetectionsDialog';
 import { YandexMap } from './YandexMap';
 
-const QUERY_IMAGE = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face';
+const QUERY_IMAGE = 'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/524d6d4a-6e05-4af7-996f-d87c2459dbad.jpg';
 
 export const FaceHistoryResults = () => {
   const [mapDetIndex, setMapDetIndex] = useState<number | null>(null);

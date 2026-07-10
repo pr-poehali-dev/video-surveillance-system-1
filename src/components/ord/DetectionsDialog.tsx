@@ -8,12 +8,12 @@ import { YandexMap } from './YandexMap';
 import { SearchResult } from './SearchResultCard';
 import { DetectionPhotoCanvas } from './DetectionPhotoCanvas';
 
-const QUERY_IMAGE = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face';
+const QUERY_IMAGE = 'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/524d6d4a-6e05-4af7-996f-d87c2459dbad.jpg';
 
 export const MOCK_DETECTIONS = [
-  { lat: 56.8389, lng: 60.6057, label: 'Камера-001', time: '2024-11-21 14:32:15', address: 'ул. Ленина, 50', match: 94.5, image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face', carImage: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=240&fit=crop' },
-  { lat: 56.8412, lng: 60.6124, label: 'Камера-003', time: '2024-11-21 14:45:02', address: 'пр. Мира, 12', match: 88.2, image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face', carImage: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=240&fit=crop' },
-  { lat: 56.8350, lng: 60.5990, label: 'Камера-007', time: '2024-11-21 15:01:38', address: 'ул. Пушкина, 3', match: 91.7, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face', carImage: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&h=240&fit=crop' },
+  { lat: 56.8389, lng: 60.6057, label: 'Камера-001', time: '2024-11-21 14:32:15', address: 'ул. Ленина, 50', match: 94.5, image: 'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/0c2b6527-0396-4237-ab0c-6b209663943f.jpg', carImage: 'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/a0d8be6e-397a-421b-8f16-fa3c30e06d01.jpg' },
+  { lat: 56.8412, lng: 60.6124, label: 'Камера-003', time: '2024-11-21 14:45:02', address: 'пр. Мира, 12', match: 88.2, image: 'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/056646e7-d699-41c0-8f5f-2a3938add3c9.jpg', carImage: 'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/75140210-ae2e-4d2a-b792-3b5b51dcfc28.jpg' },
+  { lat: 56.8350, lng: 60.5990, label: 'Камера-007', time: '2024-11-21 15:01:38', address: 'ул. Пушкина, 3', match: 91.7, image: 'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/9b60b084-220b-416a-9c90-4372a35f00a8.jpg', carImage: 'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/e8e4d5fd-b307-4ed0-98e4-2dbbe113b5d9.jpg' },
 ];
 
 interface DetectionsDialogProps {
