@@ -19,6 +19,7 @@ const ORD = () => {
   const [faceEmails, setFaceEmails] = useState<string[]>(['']);
   const [faceMaxNicknames, setFaceMaxNicknames] = useState<string[]>(['']);
   const [plateEmails, setPlateEmails] = useState<string[]>(['']);
+  const [plateMaxNicknames, setPlateMaxNicknames] = useState<string[]>(['']);
   const [cameras, setCameras] = useState<CameraOption[]>([]);
   const [selectedCameraIds, setSelectedCameraIds] = useState<number[]>([]);
   const [selectedPlateCameraIds, setSelectedPlateCameraIds] = useState<number[]>([]);
@@ -168,6 +169,8 @@ const ORD = () => {
               setPlateSearch={setPlateSearch}
               plateEmails={plateEmails}
               setPlateEmails={setPlateEmails}
+              plateMaxNicknames={plateMaxNicknames}
+              setPlateMaxNicknames={setPlateMaxNicknames}
               handlePlateSearch={handlePlateSearch}
               mockResults={mockResults}
             />

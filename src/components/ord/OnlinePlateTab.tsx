@@ -23,6 +23,8 @@ interface OnlinePlateTabProps {
   setPlateSearch: (v: string) => void;
   plateEmails: string[];
   setPlateEmails: (emails: string[]) => void;
+  plateMaxNicknames: string[];
+  setPlateMaxNicknames: (nicknames: string[]) => void;
   handlePlateSearch: () => void;
   mockResults: SearchResult[];
 }
@@ -34,6 +36,8 @@ export const OnlinePlateTab = ({
   setPlateSearch,
   plateEmails,
   setPlateEmails,
+  plateMaxNicknames,
+  setPlateMaxNicknames,
   handlePlateSearch,
   mockResults,
 }: OnlinePlateTabProps) => {
@@ -78,38 +82,74 @@ export const OnlinePlateTab = ({
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Уведомления на e-mail</Label>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                {plateEmails.map((email, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <Input
-                      type="email"
-                      placeholder="example@mail.ru"
-                      value={email}
-                      onChange={(e) => {
-                        const updated = [...plateEmails];
-                        updated[idx] = e.target.value;
-                        setPlateEmails(updated);
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setPlateEmails(plateEmails.filter((_, i) => i !== idx))}
-                    >
-                      <Icon name="X" size={16} />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPlateEmails([...plateEmails, ''])}
-                >
-                  <Icon name="Plus" size={14} className="mr-1" />
-                  Добавить e-mail
-                </Button>
+                <Label>Уведомления на e-mail</Label>
+                <div className="space-y-2">
+                  {plateEmails.map((email, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <Input
+                        type="email"
+                        placeholder="example@mail.ru"
+                        value={email}
+                        onChange={(e) => {
+                          const updated = [...plateEmails];
+                          updated[idx] = e.target.value;
+                          setPlateEmails(updated);
+                        }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setPlateEmails(plateEmails.filter((_, i) => i !== idx))}
+                      >
+                        <Icon name="X" size={16} />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPlateEmails([...plateEmails, ''])}
+                  >
+                    <Icon name="Plus" size={14} className="mr-1" />
+                    Добавить e-mail
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Уведомления в MAX</Label>
+                <div className="space-y-2">
+                  {plateMaxNicknames.map((nick, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <Input
+                        placeholder="@никнейм"
+                        value={nick}
+                        onChange={(e) => {
+                          const updated = [...plateMaxNicknames];
+                          updated[idx] = e.target.value;
+                          setPlateMaxNicknames(updated);
+                        }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setPlateMaxNicknames(plateMaxNicknames.filter((_, i) => i !== idx))}
+                      >
+                        <Icon name="X" size={16} />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPlateMaxNicknames([...plateMaxNicknames, ''])}
+                  >
+                    <Icon name="Plus" size={14} className="mr-1" />
+                    Добавить никнейм
+                  </Button>
+                </div>
               </div>
             </div>
 
