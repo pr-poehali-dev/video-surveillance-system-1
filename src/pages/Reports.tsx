@@ -26,18 +26,6 @@ const Reports = () => {
 
   const periodLabel = selectedPeriod === '7' ? '7 дней' : selectedPeriod === '30' ? '30 дней' : '90 дней';
 
-  const prevStats = {
-    facesDetected: Math.round(stats.facesDetected * 0.87),
-    platesDetected: Math.round(stats.platesDetected * 0.91),
-    vehiclesDetected: Math.round(stats.vehiclesDetected * 0.94),
-    totalUptime: 97.2,
-  };
-
-  const delta = (current: number, prev: number) => {
-    const diff = ((current - prev) / prev) * 100;
-    return { value: Math.abs(diff).toFixed(1), positive: diff >= 0 };
-  };
-
   const handleExportCSV = () => {
     const rows = [
       ['Показатель', 'Значение', 'Период'],
@@ -95,37 +83,6 @@ const Reports = () => {
       </div>
 
       <ReportAnalyticsCards stats={stats} selectedPeriod={selectedPeriod} />
-
-      {/* Блок сравнения периодов */}
-      <div className="mb-6 rounded-xl border bg-muted/30 p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Icon name="ArrowLeftRight" size={16} className="text-muted-foreground" />
-          <span className="text-sm font-medium">Сравнение с предыдущим периодом ({periodLabel})</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Лица', current: stats.facesDetected, prev: prevStats.facesDetected },
-            { label: 'ГРЗ', current: stats.platesDetected, prev: prevStats.platesDetected },
-            { label: 'ТС', current: stats.vehiclesDetected, prev: prevStats.vehiclesDetected },
-            { label: 'Аптайм, %', current: stats.totalUptime, prev: prevStats.totalUptime },
-          ].map(({ label, current, prev }) => {
-            const d = delta(current, prev);
-            return (
-              <div key={label} className="bg-background rounded-lg p-3 border">
-                <p className="text-xs text-muted-foreground mb-1">{label}</p>
-                <p className="text-lg font-bold">{typeof current === 'number' && current > 1000 ? current.toLocaleString('ru-RU') : current}</p>
-                <div className={`flex items-center gap-1 text-xs mt-1 ${d.positive ? 'text-green-600' : 'text-red-500'}`}>
-                  <Icon name={d.positive ? 'TrendingUp' : 'TrendingDown'} size={12} />
-                  <span>{d.positive ? '+' : '-'}{d.value}% vs прошлый период</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Было: {typeof prev === 'number' && prev > 1000 ? prev.toLocaleString('ru-RU') : prev}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       <ReportStatsCards stats={stats} selectedPeriod={selectedPeriod} />
 
