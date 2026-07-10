@@ -31,16 +31,46 @@ export const DRONE_PHOTOS = [
   'https://cdn.poehali.dev/projects/4c19713d-6165-48ef-affa-df5d72064acb/files/ab0415ea-68b8-4041-92f4-609e6230e815.jpg',
 ];
 
-export const MOCK_DETECTIONS: DroneDetection[] = [
-  { id: 1, time: '09:14:22', date: '13.05.2026', type: 'FPV дрон', lat: 55.7558, lng: 37.6173, zone: 'Сектор А-1', threat: 'high', status: 'neutralized', altitude: 45, speed: 120, camera: 'КАМ-01 / Северный КПП', confirmed: true },
-  { id: 2, time: '10:32:07', date: '13.05.2026', type: 'Мавик 3', lat: 55.7612, lng: 37.6310, zone: 'Сектор Б-2', threat: 'medium', status: 'lost', altitude: 80, speed: 65, camera: 'КАМ-04 / Восточная вышка', confirmed: null },
-  { id: 3, time: '11:05:44', date: '13.05.2026', type: 'FPV дрон', lat: 55.7489, lng: 37.6055, zone: 'Сектор А-3', threat: 'high', status: 'active', altitude: 30, speed: 140, camera: 'КАМ-02 / Западный периметр', confirmed: null },
-  { id: 4, time: '12:18:33', date: '13.05.2026', type: 'Орлан-10', lat: 55.7701, lng: 37.6440, zone: 'Сектор В-1', threat: 'high', status: 'neutralized', altitude: 200, speed: 90, camera: 'КАМ-07 / Центральный пост', confirmed: true },
-  { id: 5, time: '13:44:11', date: '13.05.2026', type: 'Мавик 3', lat: 55.7530, lng: 37.6250, zone: 'Сектор Б-1', threat: 'low', status: 'lost', altitude: 60, speed: 55, camera: 'КАМ-03 / Южный КПП', confirmed: false },
-  { id: 6, time: '14:02:58', date: '13.05.2026', type: 'Призма', lat: 55.7640, lng: 37.6100, zone: 'Сектор А-2', threat: 'medium', status: 'active', altitude: 150, speed: 75, camera: 'КАМ-05 / Северная вышка', confirmed: null },
-  { id: 7, time: '14:55:20', date: '13.05.2026', type: 'FPV дрон', lat: 55.7510, lng: 37.6380, zone: 'Сектор В-2', threat: 'high', status: 'neutralized', altitude: 25, speed: 160, camera: 'КАМ-06 / Восточный периметр', confirmed: true },
-  { id: 8, time: '15:30:05', date: '13.05.2026', type: 'Мавик 3', lat: 55.7580, lng: 37.6200, zone: 'Сектор Б-3', threat: 'low', status: 'lost', altitude: 70, speed: 50, camera: 'КАМ-08 / Запасной пост', confirmed: null },
+const DRONE_TYPES = ['FPV дрон', 'Мавик 3', 'Орлан-10', 'Призма', 'Геоскан 201'];
+const ZONES = ['Сектор А-1', 'Сектор А-2', 'Сектор А-3', 'Сектор Б-1', 'Сектор Б-2', 'Сектор Б-3', 'Сектор В-1', 'Сектор В-2', 'Сектор В-3'];
+const CAMERAS = [
+  'КАМ-01 / Северный КПП', 'КАМ-02 / Западный периметр', 'КАМ-03 / Южный КПП', 'КАМ-04 / Восточная вышка',
+  'КАМ-05 / Северная вышка', 'КАМ-06 / Восточный периметр', 'КАМ-07 / Центральный пост', 'КАМ-08 / Запасной пост',
+  'КАМ-09 / Юго-западный рубеж', 'КАМ-10 / Юго-восточный рубеж',
 ];
+const THREATS: DroneDetection['threat'][] = ['high', 'medium', 'low'];
+const STATUSES: DroneDetection['status'][] = ['neutralized', 'active', 'lost'];
+
+const generateDetections = (count: number): DroneDetection[] => {
+  const baseLat = 55.7558;
+  const baseLng = 37.6173;
+  return Array.from({ length: count }, (_, i) => {
+    const id = i + 1;
+    const threat = THREATS[i % THREATS.length];
+    const status = STATUSES[i % STATUSES.length];
+    const hour = 8 + Math.floor(i / 2);
+    const minute = (i * 17) % 60;
+    const second = (i * 7) % 60;
+    const confirmed = status === 'neutralized' ? true : status === 'lost' && i % 3 === 0 ? false : null;
+    return {
+      id,
+      time: `${String(hour % 24).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`,
+      date: '13.05.2026',
+      type: DRONE_TYPES[i % DRONE_TYPES.length],
+      lat: baseLat + ((i % 10) - 5) * 0.006,
+      lng: baseLng + ((i % 7) - 3) * 0.008,
+      zone: ZONES[i % ZONES.length],
+      threat,
+      status,
+      altitude: 25 + ((i * 13) % 180),
+      speed: 40 + ((i * 11) % 130),
+      camera: CAMERAS[i % CAMERAS.length],
+      confirmed,
+    };
+  });
+};
+
+export const MOCK_DETECTIONS: DroneDetection[] = generateDetections(50);
 
 export const MOCK_ALERTS: Alert[] = [
   { id: 1, time: '09:14:22', date: '13.05.2026', message: 'Обнаружен FPV дрон в секторе А-1. Угроза высокая. Активирована система РЭБ.', type: 'danger', zone: 'Сектор А-1' },
@@ -53,18 +83,25 @@ export const MOCK_ALERTS: Alert[] = [
   { id: 8, time: '14:02:58', date: '13.05.2026', message: 'Обнаружен БПЛА типа Призма в секторе А-2. Ведётся слежение.', type: 'warning', zone: 'Сектор А-2' },
 ];
 
-export const ZONE_STATS = [
-  { zone: 'Сектор А', count: 3, neutralized: 2 },
-  { zone: 'Сектор Б', count: 3, neutralized: 0 },
-  { zone: 'Сектор В', count: 2, neutralized: 1 },
-];
+const groupZoneLetter = (zone: string) => zone.split('-')[0];
 
-export const TYPE_STATS = [
-  { type: 'FPV дрон', count: 3, percent: 37 },
-  { type: 'Мавик 3', count: 3, percent: 37 },
-  { type: 'Орлан-10', count: 1, percent: 13 },
-  { type: 'Призма', count: 1, percent: 13 },
-];
+export const ZONE_STATS = Object.values(
+  MOCK_DETECTIONS.reduce<Record<string, { zone: string; count: number; neutralized: number }>>((acc, d) => {
+    const key = groupZoneLetter(d.zone);
+    if (!acc[key]) acc[key] = { zone: key, count: 0, neutralized: 0 };
+    acc[key].count += 1;
+    if (d.status === 'neutralized') acc[key].neutralized += 1;
+    return acc;
+  }, {})
+);
+
+export const TYPE_STATS = Object.values(
+  MOCK_DETECTIONS.reduce<Record<string, { type: string; count: number }>>((acc, d) => {
+    if (!acc[d.type]) acc[d.type] = { type: d.type, count: 0 };
+    acc[d.type].count += 1;
+    return acc;
+  }, {})
+).map((t) => ({ ...t, percent: Math.round((t.count / MOCK_DETECTIONS.length) * 100) }));
 
 export const threatColor = (t: DroneDetection['threat']) => {
   if (t === 'high') return 'bg-red-500/10 text-red-500 border-red-500/20';
