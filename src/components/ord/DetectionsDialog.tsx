@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@
 import Icon from '@/components/ui/icon';
 import { YandexMap } from './YandexMap';
 import { SearchResult } from './SearchResultCard';
+import { DetectionPhotoCanvas } from './DetectionPhotoCanvas';
 
 const QUERY_IMAGE = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face';
 
@@ -103,14 +104,18 @@ export const DetectionsDialog = ({ selected, onClose }: DetectionsDialogProps) =
                         <p className="text-xs text-muted-foreground uppercase tracking-wide">Найдено</p>
                         <div className="relative w-40 h-52 rounded-lg overflow-hidden bg-muted">
                           {det.image ? (
-                            <img src={det.image} alt="Найденное лицо" className="w-full h-full object-cover" />
+                            <DetectionPhotoCanvas
+                              src={det.image}
+                              lines={[det.time, det.label, det.address]}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Icon name="User" size={40} className="text-muted-foreground" />
                             </div>
                           )}
                           <Badge
-                            className="absolute bottom-1.5 right-1.5 text-xs px-1.5 py-0"
+                            className="absolute top-1.5 right-1.5 text-xs px-1.5 py-0"
                             variant={det.match > 92 ? 'default' : 'secondary'}
                           >
                             {det.match}%
