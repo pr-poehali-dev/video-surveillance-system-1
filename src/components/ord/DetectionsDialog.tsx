@@ -226,15 +226,18 @@ export const DetectionsDialog = ({ selected, onClose }: DetectionsDialogProps) =
           {photoDetIndex !== null && (
             <div className="flex flex-col gap-2">
               <div className="rounded-lg overflow-hidden bg-muted">
-                <DetectionPhotoCanvas
+                <img
                   src={MOCK_DETECTIONS[photoDetIndex].image}
-                  lines={[MOCK_DETECTIONS[photoDetIndex].time, MOCK_DETECTIONS[photoDetIndex].label, MOCK_DETECTIONS[photoDetIndex].address]}
+                  alt={MOCK_DETECTIONS[photoDetIndex].label}
                   className="w-full h-auto"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
-                {MOCK_DETECTIONS[photoDetIndex].address} · {MOCK_DETECTIONS[photoDetIndex].time}
-              </p>
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">{MOCK_DETECTIONS[photoDetIndex].label}</p>
+                <p className="text-xs text-muted-foreground">
+                  {MOCK_DETECTIONS[photoDetIndex].address} · {MOCK_DETECTIONS[photoDetIndex].time}
+                </p>
+              </div>
             </div>
           )}
         </DialogContent>
