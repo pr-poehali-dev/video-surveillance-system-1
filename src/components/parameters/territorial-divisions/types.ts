@@ -1,3 +1,5 @@
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
+
 export interface Territory {
   id: number;
   name: string;
@@ -16,7 +18,7 @@ export interface TerritoryFormData {
   color: string;
 }
 
-export const API_URL = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674';
+export const API_URL = `${CAMERAS_SERVICE_API}?resource=territorial-divisions`;
 
 export const colorOptions = [
   { value: 'bg-blue-500', label: 'Синий' },

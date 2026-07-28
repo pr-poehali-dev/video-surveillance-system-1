@@ -1,3 +1,5 @@
+import { USERS_SERVICE_API } from '@/lib/backendUrls';
+
 export interface LayoutConfig {
   id: number;
   name: string;
@@ -36,7 +38,7 @@ export interface GridOption {
   rows: number;
 }
 
-export const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f';
+export const USERS_API = `${USERS_SERVICE_API}?resource=users`;
 
 export const GRID_OPTIONS: GridOption[] = [
   { value: '1', label: '1 камера', cols: 1, rows: 1 },

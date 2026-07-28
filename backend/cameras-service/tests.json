@@ -1,0 +1,52 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS запрос для CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Реестр камер",
+      "method": "GET",
+      "path": "/?resource=registry",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Группы камер",
+      "method": "GET",
+      "path": "/?resource=camera-groups",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Владельцы камер",
+      "method": "GET",
+      "path": "/?resource=camera-owners",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Теги камер",
+      "method": "GET",
+      "path": "/?resource=camera-tags",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Территориальные деления",
+      "method": "GET",
+      "path": "/?resource=territorial-divisions",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Модели камер",
+      "method": "GET",
+      "path": "/?resource=models",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Статистика камер",
+      "method": "GET",
+      "path": "/?resource=stats",
+      "expectedStatus": 200
+    }
+  ]
+}

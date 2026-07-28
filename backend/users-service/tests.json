@@ -1,0 +1,39 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS запрос для CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Список пользователей",
+      "method": "GET",
+      "path": "/?resource=users",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Список ролей",
+      "method": "GET",
+      "path": "/?resource=roles",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Список групп пользователей",
+      "method": "GET",
+      "path": "/?resource=user-groups",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Создание пользователя без обязательных полей",
+      "method": "POST",
+      "path": "/?resource=users",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import HeaderBar from '@/components/header/HeaderBar';
 import ChangePasswordDialog from '@/components/header/ChangePasswordDialog';
 import SettingsDialog, { type SettingsForm } from '@/components/header/SettingsDialog';
 import UserGuideDialog from '@/components/header/UserGuideDialog';
+import { USERS_SERVICE_API } from '@/lib/backendUrls';
 
 const getInitialSettings = () => {
   try { return JSON.parse(localStorage.getItem('portalSettings') || '{}'); } catch { return {}; }
@@ -65,7 +66,7 @@ const Header = () => {
       const roleId = localStorage.getItem('userRoleId');
       if (!roleId) return;
       try {
-        const response = await fetch('https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b');
+        const response = await fetch(`${USERS_SERVICE_API}?resource=roles`);
         if (response.ok) {
           const roles = await response.json();
           const role = roles.find((r: { id: number; name: string }) => r.id === parseInt(roleId));

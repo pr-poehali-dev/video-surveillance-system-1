@@ -7,11 +7,12 @@ import { toast } from 'sonner';
 import { CameraGroupCard } from './CameraGroupCard';
 import { CameraGroupFormDialog } from './CameraGroupFormDialog';
 import { CameraGroupDeleteDialog } from './CameraGroupDeleteDialog';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
-const GROUPS_API = 'https://functions.poehali.dev/90109919-f443-4ada-9135-696710aa2338';
+const GROUPS_API = `${CAMERAS_SERVICE_API}?resource=camera-groups`;
 const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
-const OWNERS_API = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
-const DIVISIONS_API = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674';
+const OWNERS_API = `${CAMERAS_SERVICE_API}?resource=camera-owners`;
+const DIVISIONS_API = `${CAMERAS_SERVICE_API}?resource=territorial-divisions`;
 
 interface Camera {
   id: number;

@@ -1,9 +1,15 @@
 {
   "tests": [
     {
+      "name": "OPTIONS запрос для CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
       "name": "Авторизация с пустыми данными",
       "method": "POST",
-      "path": "/",
+      "path": "/?resource=auth",
       "body": {
         "login": "",
         "password": ""
@@ -17,7 +23,7 @@
     {
       "name": "Авторизация с некорректными данными",
       "method": "POST",
-      "path": "/",
+      "path": "/?resource=auth",
       "body": {
         "login": "nonexistent",
         "password": "wrongpassword"
@@ -29,10 +35,20 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "OPTIONS запрос для CORS",
-      "method": "OPTIONS",
-      "path": "/",
+      "name": "Сессии - список активных",
+      "method": "GET",
+      "path": "/?resource=sessions",
       "expectedStatus": 200
+    },
+    {
+      "name": "Имперсонация без user_id",
+      "method": "GET",
+      "path": "/?resource=impersonate",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }

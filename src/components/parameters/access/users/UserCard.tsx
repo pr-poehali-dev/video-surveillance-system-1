@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { AUTH_SERVICE_API } from '@/lib/backendUrls';
 
 interface User {
   id: number;
@@ -16,7 +17,7 @@ interface User {
   is_online: boolean;
 }
 
-const IMPERSONATE_API = 'https://functions.poehali.dev/5d7bd1cf-29e4-49bd-970e-ead118147909';
+const IMPERSONATE_API = `${AUTH_SERVICE_API}?resource=impersonate`;
 
 interface UserCardProps {
   user: User;
@@ -28,7 +29,7 @@ interface UserCardProps {
 const UserCard = ({ user, onEdit, onDelete, onLoginHistory }: UserCardProps) => {
   const handleImpersonate = async () => {
     try {
-      const response = await fetch(`${IMPERSONATE_API}?user_id=${user.id}`);
+      const response = await fetch(`${IMPERSONATE_API}&user_id=${user.id}`);
       
       if (!response.ok) {
         throw new Error('Не удалось получить данные пользователя');

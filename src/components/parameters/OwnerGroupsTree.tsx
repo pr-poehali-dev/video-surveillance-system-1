@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { OwnerGroupTreeItem } from './OwnerGroupTreeItem';
 import { OwnerGroupFormDialog } from './OwnerGroupFormDialog';
 import { OwnerGroupDeleteDialog } from './OwnerGroupDeleteDialog';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
 export interface OwnerGroup {
   id: number;
@@ -28,7 +29,7 @@ export interface OwnerGroup {
   show_on_dashboard?: boolean;
 }
 
-const API_URL = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
+const API_URL = `${CAMERAS_SERVICE_API}?resource=camera-owners`;
 
 export const OwnerGroupsTree = () => {
   const [ownerGroups, setOwnerGroups] = useState<OwnerGroup[]>([]);

@@ -89,7 +89,7 @@ export default function UserDialog({ open, onOpenChange, user, onSuccess }: User
     setLoading(true);
 
     try {
-      const url = user ? `${USERS_API}?id=${user.id}` : USERS_API;
+      const url = user ? `${USERS_API}&id=${user.id}` : USERS_API;
       const method = user ? 'PUT' : 'POST';
 
       const body: any = {

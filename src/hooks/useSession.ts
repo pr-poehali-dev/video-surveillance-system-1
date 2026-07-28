@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { AUTH_SERVICE_API } from '@/lib/backendUrls';
 
-const SESSIONS_API = 'https://functions.poehali.dev/16e39082-42c6-4aa9-9d08-b1ba9520eb50';
+const SESSIONS_API = `${AUTH_SERVICE_API}?resource=sessions`;
 
 export const useSession = () => {
   const location = useLocation();
@@ -78,7 +79,7 @@ export const endSession = async () => {
   }
 
   try {
-    await fetch(`${SESSIONS_API}?session_token=${encodeURIComponent(sessionToken)}`, {
+    await fetch(`${SESSIONS_API}&session_token=${encodeURIComponent(sessionToken)}`, {
       method: 'DELETE',
     });
 

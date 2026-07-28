@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
 interface Tag {
   id: number;
@@ -24,7 +25,7 @@ interface Tag {
   description: string;
 }
 
-const API_URL = 'https://functions.poehali.dev/8fc68413-edf0-464e-8e75-bee111a4b28c';
+const API_URL = `${CAMERAS_SERVICE_API}?resource=camera-tags`;
 
 const PRESET_COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#ef4444',

@@ -1,5 +1,7 @@
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
+
 const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
-const STATS_API = 'https://functions.poehali.dev/493b6ec7-24af-42b5-993a-00cb298c4ef7';
+const STATS_API = `${CAMERAS_SERVICE_API}?resource=stats`;
 
 export interface Camera {
   id: number;

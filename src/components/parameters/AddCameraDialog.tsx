@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
 interface AddCameraDialogProps {
   onSuccess: () => void;
@@ -27,9 +28,9 @@ interface TerritorialDivision {
   name: string;
 }
 
-const MODELS_API = 'https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171';
-const OWNERS_API = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
-const DIVISIONS_API = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674';
+const MODELS_API = `${CAMERAS_SERVICE_API}?resource=models`;
+const OWNERS_API = `${CAMERAS_SERVICE_API}?resource=camera-owners`;
+const DIVISIONS_API = `${CAMERAS_SERVICE_API}?resource=territorial-divisions`;
 
 export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
   const [open, setOpen] = useState(false);

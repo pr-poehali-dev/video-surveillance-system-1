@@ -23,8 +23,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { USERS_SERVICE_API } from '@/lib/backendUrls';
 
-const API_URL = 'https://functions.poehali.dev/8e8951a5-c686-4bb1-946c-23f7d5a82d44';
+const API_URL = `${USERS_SERVICE_API}?resource=user-groups`;
 
 interface UserGroup {
   id: number;

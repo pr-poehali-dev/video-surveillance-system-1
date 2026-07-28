@@ -17,13 +17,14 @@ import { toast } from 'sonner';
 import { Role } from '@/types/permissions';
 import { RoleDialog } from './RoleDialog';
 import { Badge } from '@/components/ui/badge';
+import { USERS_SERVICE_API } from '@/lib/backendUrls';
 
 interface RolesTabProps {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
 }
 
-const ROLES_API = 'https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b';
+const ROLES_API = `${USERS_SERVICE_API}?resource=roles`;
 
 const RolesTab = ({ searchQuery, setSearchQuery }: RolesTabProps) => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -56,7 +57,7 @@ const RolesTab = ({ searchQuery, setSearchQuery }: RolesTabProps) => {
     if (!roleToDelete) return;
 
     try {
-      const response = await fetch(`${ROLES_API}?id=${roleToDelete.id}`, {
+      const response = await fetch(`${ROLES_API}&id=${roleToDelete.id}`, {
         method: 'DELETE',
       });
 

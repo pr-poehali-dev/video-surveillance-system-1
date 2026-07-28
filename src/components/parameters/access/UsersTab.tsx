@@ -19,6 +19,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { USERS_SERVICE_API } from '@/lib/backendUrls';
 
 interface User {
   id: number;
@@ -45,7 +46,7 @@ interface UsersTabProps {
   setSearchQuery: (value: string) => void;
 }
 
-const USERS_API = 'https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f';
+const USERS_API = `${USERS_SERVICE_API}?resource=users`;
 
 const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
   const [users, setUsers] = useState<User[]>([]);
@@ -89,7 +90,7 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
     if (!userToDelete) return;
 
     try {
-      const response = await fetch(`${USERS_API}?id=${userToDelete.id}`, {
+      const response = await fetch(`${USERS_API}&id=${userToDelete.id}`, {
         method: 'DELETE',
       });
 

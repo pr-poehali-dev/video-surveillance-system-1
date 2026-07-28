@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
+import { AUTH_SERVICE_API } from '@/lib/backendUrls';
 
 interface Session {
   id: number;
@@ -15,7 +16,7 @@ interface Session {
   session_token: string;
 }
 
-const SESSIONS_API = 'https://functions.poehali.dev/16e39082-42c6-4aa9-9d08-b1ba9520eb50';
+const SESSIONS_API = `${AUTH_SERVICE_API}?resource=sessions`;
 
 const SessionsTab = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -52,7 +53,7 @@ const SessionsTab = () => {
 
   const handleEndSession = async (sessionToken: string) => {
     try {
-      const response = await fetch(`${SESSIONS_API}?session_token=${encodeURIComponent(sessionToken)}`, {
+      const response = await fetch(`${SESSIONS_API}&session_token=${encodeURIComponent(sessionToken)}`, {
         method: 'DELETE',
       });
 

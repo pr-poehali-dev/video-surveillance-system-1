@@ -29,10 +29,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
-const API_CAMERAS = 'https://functions.poehali.dev/a2915cca-0478-407a-8a11-b2f1ed8d3b0e';
-const API_MODELS = 'https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171';
-const API_GROUPS = 'https://functions.poehali.dev/82081c1b-ac10-4aa3-aaa8-a7cc4a6fad84';
+const API_CAMERAS = `${CAMERAS_SERVICE_API}?resource=registry`;
+const API_MODELS = `${CAMERAS_SERVICE_API}?resource=models`;
+const API_GROUPS = `${CAMERAS_SERVICE_API}?resource=groups`;
 
 interface Camera {
   id: number;

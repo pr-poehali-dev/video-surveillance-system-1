@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { USERS_SERVICE_API } from '@/lib/backendUrls';
 
 interface ChangePasswordDialogProps {
   open: boolean;
@@ -43,7 +44,7 @@ const ChangePasswordDialog = ({ open, onOpenChange }: ChangePasswordDialogProps)
     }
     setPasswordLoading(true);
     try {
-      const res = await fetch(`https://functions.poehali.dev/3d76631a-e593-4962-9622-38e3a61e112f?id=${userId}`, {
+      const res = await fetch(`${USERS_SERVICE_API}?resource=users&id=${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ current_password: passwordForm.current, password: passwordForm.next }),

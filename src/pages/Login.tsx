@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import Icon from "@/components/ui/icon";
 import { createSession } from "@/hooks/useSession";
+import { AUTH_SERVICE_API } from "@/lib/backendUrls";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://functions.poehali.dev/781fed05-96cd-43c7-88cc-c4b72549f79f', {
+      const response = await fetch(`${AUTH_SERVICE_API}?resource=auth`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

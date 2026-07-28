@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Role, RolePermissions, DEFAULT_PERMISSIONS } from '@/types/permissions';
 import { PermissionsEditor } from './PermissionsEditor';
+import { USERS_SERVICE_API } from '@/lib/backendUrls';
 
 interface RoleDialogProps {
   open: boolean;
@@ -15,7 +16,7 @@ interface RoleDialogProps {
   onSuccess: () => void;
 }
 
-const ROLES_API = 'https://functions.poehali.dev/6d4b14b4-cdd5-4bb0-b2f2-ef1cf5b25f4b';
+const ROLES_API = `${USERS_SERVICE_API}?resource=roles`;
 
 export const RoleDialog = ({ open, onOpenChange, role, onSuccess }: RoleDialogProps) => {
   const [loading, setLoading] = useState(false);
@@ -46,7 +47,7 @@ export const RoleDialog = ({ open, onOpenChange, role, onSuccess }: RoleDialogPr
     setLoading(true);
 
     try {
-      const url = role ? `${ROLES_API}?id=${role.id}` : ROLES_API;
+      const url = role ? `${ROLES_API}&id=${role.id}` : ROLES_API;
       const method = role ? 'PUT' : 'POST';
 
       const response = await fetch(url, {

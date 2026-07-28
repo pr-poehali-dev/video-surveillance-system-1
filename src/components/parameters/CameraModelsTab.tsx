@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
 interface CameraModel {
   id: number;
@@ -27,7 +28,7 @@ interface CameraModel {
   supports_ptz: boolean;
 }
 
-const API_URL = 'https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171';
+const API_URL = `${CAMERAS_SERVICE_API}?resource=models`;
 
 export const CameraModelsTab = () => {
   const [models, setModels] = useState<CameraModel[]>([]);

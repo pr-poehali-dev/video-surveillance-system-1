@@ -1,3 +1,5 @@
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
+
 export interface Camera {
   id: number;
   name: string;
@@ -36,6 +38,6 @@ export interface TerritorialDivision {
 }
 
 export const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
-export const MODELS_API = 'https://functions.poehali.dev/eda42008-a331-424c-9f91-c486dddbf171';
-export const OWNERS_API = 'https://functions.poehali.dev/68541727-184f-48a2-8204-4750decd7641';
-export const DIVISIONS_API = 'https://functions.poehali.dev/3bde3412-2407-4812-8ba6-c898f9f07674';
+export const MODELS_API = `${CAMERAS_SERVICE_API}?resource=models`;
+export const OWNERS_API = `${CAMERAS_SERVICE_API}?resource=camera-owners`;
+export const DIVISIONS_API = `${CAMERAS_SERVICE_API}?resource=territorial-divisions`;
