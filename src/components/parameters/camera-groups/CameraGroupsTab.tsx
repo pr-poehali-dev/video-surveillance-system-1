@@ -10,7 +10,7 @@ import { CameraGroupDeleteDialog } from './CameraGroupDeleteDialog';
 import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
 const GROUPS_API = `${CAMERAS_SERVICE_API}?resource=camera-groups`;
-const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
+const CAMERAS_API = `${CAMERAS_SERVICE_API}?resource=registry`;
 const OWNERS_API = `${CAMERAS_SERVICE_API}?resource=camera-owners`;
 const DIVISIONS_API = `${CAMERAS_SERVICE_API}?resource=territorial-divisions`;
 

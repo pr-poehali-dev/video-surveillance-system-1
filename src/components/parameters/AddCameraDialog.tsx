@@ -114,8 +114,8 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
     setLoading(true);
 
     try {
-      const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
-      
+      const CAMERAS_API = `${CAMERAS_SERVICE_API}?resource=registry`;
+
       const payload = {
         name: formData.name,
         rtsp_url: formData.rtsp_url,

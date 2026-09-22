@@ -6,8 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
-const CAMERA_URL = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
+const CAMERA_URL = `${CAMERAS_SERVICE_API}?resource=registry`;
 
 const CSV_COLUMNS = ['name', 'rtsp_url', 'owner', 'territorial_division', 'latitude', 'longitude', 'address', 'rtsp_login', 'rtsp_password', 'archive_depth_days'];
 const REQUIRED_COLUMNS = ['name', 'rtsp_url', 'owner', 'territorial_division', 'latitude', 'longitude'];

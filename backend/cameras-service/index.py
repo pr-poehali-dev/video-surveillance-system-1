@@ -44,14 +44,75 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
 
     try:
         if method == 'GET':
-            cursor.execute(f'''
+            params = event.get('queryStringParameters') or {}
+            camera_id = params.get('id')
+
+            if camera_id:
+                cursor.execute(f'''
+                    SELECT id, name, rtsp_url, rtsp_login, rtsp_password, model_id,
+                           ptz_ip, ptz_port, ptz_login, ptz_password, owner, address,
+                           latitude, longitude, territorial_division, archive_depth_days,
+                           status, created_at, updated_at
+                    FROM {SCHEMA}.cameras_registry
+                    WHERE id = %s
+                ''', (camera_id,))
+                cam = cursor.fetchone()
+                cursor.close()
+                conn.close()
+
+                if not cam:
+                    return json_response(404, {'error': 'Camera not found'})
+
+                return json_response(200, {
+                    'id': cam['id'],
+                    'name': cam['name'],
+                    'rtsp_url': cam['rtsp_url'],
+                    'rtsp_login': cam['rtsp_login'],
+                    'rtsp_password': cam['rtsp_password'],
+                    'model_id': cam['model_id'],
+                    'ptz_ip': cam['ptz_ip'],
+                    'ptz_port': cam['ptz_port'],
+                    'ptz_login': cam['ptz_login'],
+                    'ptz_password': cam['ptz_password'],
+                    'owner': cam['owner'],
+                    'address': cam['address'],
+                    'latitude': float(cam['latitude']) if cam['latitude'] else None,
+                    'longitude': float(cam['longitude']) if cam['longitude'] else None,
+                    'territorial_division': cam['territorial_division'],
+                    'archive_depth_days': cam['archive_depth_days'],
+                    'status': cam['status'],
+                    'created_at': cam['created_at'].isoformat() if cam['created_at'] else None,
+                    'updated_at': cam['updated_at'].isoformat() if cam['updated_at'] else None
+                })
+
+            status_filter = params.get('status')
+            owner_filter = params.get('owner')
+            search_filter = params.get('search')
+
+            query = f'''
                 SELECT id, name, rtsp_url, rtsp_login, rtsp_password, model_id,
                        ptz_ip, ptz_port, ptz_login, ptz_password, owner, address,
                        latitude, longitude, territorial_division, archive_depth_days,
-                       created_at, updated_at
+                       status, created_at, updated_at
                 FROM {SCHEMA}.cameras_registry
-                ORDER BY created_at DESC
-            ''')
+                WHERE 1=1
+            '''
+            query_values = []
+
+            if status_filter and status_filter != 'all':
+                query += ' AND status = %s'
+                query_values.append(status_filter)
+            if owner_filter and owner_filter != 'all':
+                query += ' AND owner = %s'
+                query_values.append(owner_filter)
+            if search_filter:
+                query += ' AND (name ILIKE %s OR address ILIKE %s OR owner ILIKE %s)'
+                like_value = f'%{search_filter}%'
+                query_values.extend([like_value, like_value, like_value])
+
+            query += ' ORDER BY created_at DESC'
+
+            cursor.execute(query, query_values)
             cameras = cursor.fetchall()
 
             result = []
@@ -73,6 +134,7 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                     'longitude': float(cam['longitude']) if cam['longitude'] else None,
                     'territorial_division': cam['territorial_division'],
                     'archive_depth_days': cam['archive_depth_days'],
+                    'status': cam['status'],
                     'created_at': cam['created_at'].isoformat() if cam['created_at'] else None,
                     'updated_at': cam['updated_at'].isoformat() if cam['updated_at'] else None
                 })
@@ -87,8 +149,8 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 INSERT INTO {SCHEMA}.cameras_registry
                 (name, rtsp_url, rtsp_login, rtsp_password, model_id, ptz_ip, ptz_port,
                  ptz_login, ptz_password, owner, address, latitude, longitude,
-                 territorial_division, archive_depth_days)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                 territorial_division, archive_depth_days, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             ''', (
                 body_data.get('name'),
@@ -105,7 +167,8 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 body_data.get('latitude'),
                 body_data.get('longitude'),
                 body_data.get('territorial_division'),
-                body_data.get('archive_depth_days', 30)
+                body_data.get('archive_depth_days', 30),
+                body_data.get('status', 'active')
             ))
 
             camera_id = cursor.fetchone()['id']
@@ -129,6 +192,7 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                     model_id = %s, ptz_ip = %s, ptz_port = %s, ptz_login = %s,
                     ptz_password = %s, owner = %s, address = %s, latitude = %s,
                     longitude = %s, territorial_division = %s, archive_depth_days = %s,
+                    status = COALESCE(%s, status),
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             ''', (
@@ -147,6 +211,7 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 body_data.get('longitude'),
                 body_data.get('territorial_division'),
                 body_data.get('archive_depth_days'),
+                body_data.get('status'),
                 camera_id
             ))
 
@@ -799,9 +864,9 @@ def handle_stats(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         cur.execute(f'''
             SELECT
                 COUNT(*) as total,
-                0 as active,
-                0 as inactive,
-                0 as problem,
+                COUNT(*) FILTER (WHERE status = 'active') as active,
+                COUNT(*) FILTER (WHERE status = 'inactive') as inactive,
+                COUNT(*) FILTER (WHERE status = 'problem') as problem,
                 0 as total_traffic,
                 0 as avg_fps
             FROM {SCHEMA}.cameras_registry

@@ -1,6 +1,6 @@
 import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
-const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
+const CAMERAS_API = `${CAMERAS_SERVICE_API}?resource=registry`;
 const STATS_API = `${CAMERAS_SERVICE_API}?resource=stats`;
 
 export interface Camera {
@@ -45,7 +45,7 @@ export const api = {
     if (filters?.owner && filters.owner !== 'all') params.append('owner', filters.owner);
     if (filters?.search) params.append('search', filters.search);
 
-    const url = `${CAMERAS_API}${params.toString() ? '?' + params.toString() : ''}`;
+    const url = `${CAMERAS_API}${params.toString() ? '&' + params.toString() : ''}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch cameras');
     const data = await response.json();
@@ -70,7 +70,7 @@ export const api = {
   },
 
   async getCameraById(id: number): Promise<Camera> {
-    const response = await fetch(`${CAMERAS_API}?id=${id}`);
+    const response = await fetch(`${CAMERAS_API}&id=${id}`);
     if (!response.ok) throw new Error('Failed to fetch camera');
     const cam = await response.json();
     return {
@@ -111,7 +111,11 @@ export const api = {
   },
 
   async deleteCamera(id: number): Promise<void> {
-    const response = await fetch(`${CAMERAS_API}?id=${id}`, { method: 'DELETE' });
+    const response = await fetch(CAMERAS_API, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
     if (!response.ok) throw new Error('Failed to delete camera');
   },
 

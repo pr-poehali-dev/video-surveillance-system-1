@@ -37,7 +37,7 @@ export interface TerritorialDivision {
   name: string;
 }
 
-export const CAMERAS_API = 'https://functions.poehali.dev/712d5c60-998d-49d9-8252-705500df28c7';
+export const CAMERAS_API = `${CAMERAS_SERVICE_API}?resource=registry`;
 export const MODELS_API = `${CAMERAS_SERVICE_API}?resource=models`;
 export const OWNERS_API = `${CAMERAS_SERVICE_API}?resource=camera-owners`;
 export const DIVISIONS_API = `${CAMERAS_SERVICE_API}?resource=territorial-divisions`;
