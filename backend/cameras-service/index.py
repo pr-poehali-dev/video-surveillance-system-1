@@ -867,11 +867,27 @@ def handle_stats(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 COUNT(*) FILTER (WHERE status = 'active') as active,
                 COUNT(*) FILTER (WHERE status = 'inactive') as inactive,
                 COUNT(*) FILTER (WHERE status = 'problem') as problem,
+                COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours') as new_24h,
+                COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as new_7d,
+                COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days') as new_30d,
                 0 as total_traffic,
                 0 as avg_fps
             FROM {SCHEMA}.cameras_registry
         ''')
         stats = cur.fetchone()
+
+        cur.execute(f'''
+            SELECT o.id, TRIM(o.name) as name, o.parent_id,
+                   COUNT(c.id) as total,
+                   COUNT(c.id) FILTER (WHERE c.status = 'active') as active,
+                   COUNT(c.id) FILTER (WHERE c.status = 'inactive') as inactive,
+                   COUNT(c.id) FILTER (WHERE c.status = 'problem') as problem
+            FROM {SCHEMA}.camera_owners o
+            LEFT JOIN {SCHEMA}.cameras_registry c ON TRIM(c.owner) = TRIM(o.name)
+            GROUP BY o.id, o.name, o.parent_id
+            ORDER BY o.id
+        ''')
+        owners_tree = cur.fetchall()
 
         cur.execute(f'''
             SELECT owner, COUNT(*) as count
@@ -896,6 +912,10 @@ def handle_stats(event: Dict[str, Any], method: str) -> Dict[str, Any]:
             'active': stats['active'],
             'inactive': stats['inactive'],
             'problem': stats['problem'],
+            'new_24h': stats['new_24h'],
+            'new_7d': stats['new_7d'],
+            'new_30d': stats['new_30d'],
+            'owners_tree': [dict(row) for row in owners_tree],
             'total_traffic': float(stats['total_traffic']),
             'avg_fps': float(stats['avg_fps']),
             'by_owner': [dict(row) for row in owners],

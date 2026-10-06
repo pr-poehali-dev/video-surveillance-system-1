@@ -4,44 +4,94 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
-const MINISTRY_STATS = [
-  { id: 1, name: 'МВД', total: 420, active: 398, inactive: 14, problem: 8 },
-  { id: 2, name: 'Министерство транспорта', total: 310, active: 295, inactive: 10, problem: 5 },
-  { id: 3, name: 'Министерство внутренних дел регионов', total: 280, active: 261, inactive: 12, problem: 7 },
-  { id: 4, name: 'ФСБ', total: 145, active: 140, inactive: 4, problem: 1 },
-  { id: 5, name: 'Министерство обороны', total: 92, active: 95, inactive: 2, problem: 0 },
-];
+interface OwnerNode {
+  id: number;
+  name: string;
+  parent_id: number | null;
+  total: number;
+  active: number;
+  inactive: number;
+  problem: number;
+}
 
-const OMSU_STATS = [
-  { id: 1, name: 'Администрация г. Пермь', total: 384, active: 362, inactive: 15, problem: 7 },
-  { id: 2, name: 'Администрация Березниковского округа', total: 210, active: 198, inactive: 8, problem: 4 },
-  { id: 3, name: 'Администрация Соликамского округа', total: 175, active: 164, inactive: 7, problem: 4 },
-  { id: 4, name: 'Администрация Чайковского округа', total: 143, active: 136, inactive: 5, problem: 2 },
-  { id: 5, name: 'Администрация Лысьвенского округа', total: 118, active: 112, inactive: 4, problem: 2 },
-  { id: 6, name: 'Администрация Кунгурского округа', total: 97, active: 91, inactive: 4, problem: 2 },
-];
+interface OrgStat {
+  id: number;
+  name: string;
+  total: number;
+  active: number;
+  inactive: number;
+  problem: number;
+}
+
+interface DashboardStats {
+  total: number;
+  active: number;
+  inactive: number;
+  problem: number;
+  new_24h: number;
+  new_7d: number;
+  new_30d: number;
+  owners_tree: OwnerNode[];
+}
+
+const buildOrgStats = (tree: OwnerNode[], rootNamePrefix: string): OrgStat[] => {
+  const root = tree.find((o) => o.parent_id === null && o.name.startsWith(rootNamePrefix));
+  if (!root) return [];
+
+  const collect = (id: number): OwnerNode[] => {
+    const self = tree.find((o) => o.id === id);
+    const children = tree.filter((o) => o.parent_id === id).flatMap((c) => collect(c.id));
+    return self ? [self, ...children] : children;
+  };
+
+  return tree
+    .filter((o) => o.parent_id === root.id)
+    .map((org) => {
+      const nodes = collect(org.id);
+      const sum = (key: 'total' | 'active' | 'inactive' | 'problem') =>
+        nodes.reduce((acc, n) => acc + Number(n[key]), 0);
+      return {
+        id: org.id,
+        name: org.name,
+        total: sum('total'),
+        active: sum('active'),
+        inactive: sum('inactive'),
+        problem: sum('problem'),
+      };
+    });
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [data, setData] = useState<DashboardStats | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    fetch(`${CAMERAS_SERVICE_API}?resource=stats`)
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setData(null));
+  }, []);
+
   const stats = {
-    totalCameras: 1247,
-    active: 1189,
-    inactive: 42,
-    problematic: 16,
-    new24h: 8,
-    new7d: 23,
-    new30d: 67,
-    faceRecognition: 856,
-    plateRecognition: 723,
+    totalCameras: data?.total ?? 0,
+    active: data?.active ?? 0,
+    inactive: data?.inactive ?? 0,
+    problematic: data?.problem ?? 0,
+    new24h: data?.new_24h ?? 0,
+    new7d: data?.new_7d ?? 0,
+    new30d: data?.new_30d ?? 0,
   };
+
+  const MINISTRY_STATS = buildOrgStats(data?.owners_tree ?? [], 'Органы государственной власти');
+  const OMSU_STATS = buildOrgStats(data?.owners_tree ?? [], 'Органы местного самоуправления');
 
   return (
     <div className="bg-background">
