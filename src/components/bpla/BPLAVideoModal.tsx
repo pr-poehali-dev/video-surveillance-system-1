@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { threatColor, threatLabel, DRONE_PHOTOS } from './types';
+import { threatColor, threatLabel } from './types';
 import type { DroneDetection } from './types';
 
 interface BPLAVideoModalProps {
@@ -20,7 +20,7 @@ const BPLAVideoModal = ({ detection, onClose, onConfirm }: BPLAVideoModalProps) 
 
   if (!detection) return null;
 
-  const frames = DRONE_PHOTOS;
+  const frames = detection.photo_url ? [detection.photo_url] : [];
   const totalFrames = frames.length;
 
   const startPlay = () => {

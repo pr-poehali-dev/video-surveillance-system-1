@@ -1044,12 +1044,104 @@ def handle_photo_archive(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         return json_response(500, {'error': str(e)})
 
 
+def serialize_drone(r: Dict[str, Any]) -> Dict[str, Any]:
+    dt = r['detected_at']
+    return {
+        'id': r['id'],
+        'date': dt.strftime('%d.%m.%Y'),
+        'time': dt.strftime('%H:%M:%S'),
+        'type': r['drone_type'],
+        'lat': float(r['latitude']),
+        'lng': float(r['longitude']),
+        'zone': r['zone'] or '',
+        'threat': r['threat'],
+        'status': r['status'],
+        'altitude': r['altitude'] or 0,
+        'speed': r['speed'] or 0,
+        'camera': r['camera'] or '',
+        'address': r['address'] or '',
+        'confirmed': r['confirmed'],
+        'photo_url': r['photo_url'],
+    }
+
+
+def handle_drone_detections(event: Dict[str, Any], method: str) -> Dict[str, Any]:
+    """Обнаружения БПЛА: список, добавление, обновление, удаление"""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        if method == 'GET':
+            cur.execute(f'''
+                SELECT id, detected_at, drone_type, latitude, longitude, zone, threat, status,
+                       altitude, speed, camera, address, confirmed, photo_url
+                FROM {SCHEMA}.drone_detections
+                ORDER BY detected_at DESC, id DESC
+            ''')
+            return json_response(200, [serialize_drone(r) for r in cur.fetchall()])
+
+        body = json.loads(event.get('body') or '{}')
+
+        if method == 'POST':
+            drone_type = (body.get('type') or '').strip()
+            if not drone_type or body.get('lat') is None or body.get('lng') is None:
+                return json_response(400, {'error': 'Укажите тип БПЛА и координаты'})
+            threat = body.get('threat', 'medium')
+            status = body.get('status', 'active')
+            if threat not in ('high', 'medium', 'low') or status not in ('active', 'neutralized', 'lost'):
+                return json_response(400, {'error': 'Неверная угроза или статус'})
+            cur.execute(f'''
+                INSERT INTO {SCHEMA}.drone_detections
+                (detected_at, drone_type, latitude, longitude, zone, threat, status,
+                 altitude, speed, camera, address, confirmed, photo_url)
+                VALUES (COALESCE(%s, NOW()), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (
+                body.get('detected_at') or None, drone_type, body['lat'], body['lng'],
+                body.get('zone'), threat, status, body.get('altitude'), body.get('speed'),
+                body.get('camera'), body.get('address'), body.get('confirmed'), body.get('photo_url')
+            ))
+            new_id = cur.fetchone()['id']
+            conn.commit()
+            return json_response(201, {'id': new_id})
+
+        if method == 'PUT':
+            det_id = body.get('id')
+            if not det_id:
+                return json_response(400, {'error': 'Не указан id'})
+            fields = {'status': 'status', 'threat': 'threat', 'confirmed': 'confirmed'}
+            sets = []
+            vals = []
+            for key, col in fields.items():
+                if key in body:
+                    sets.append(f'{col} = %s')
+                    vals.append(body[key])
+            if not sets:
+                return json_response(400, {'error': 'Нет данных для обновления'})
+            vals.append(det_id)
+            cur.execute(f'UPDATE {SCHEMA}.drone_detections SET {", ".join(sets)} WHERE id = %s', vals)
+            conn.commit()
+            return json_response(200, {'message': 'Updated'})
+
+        if method == 'DELETE':
+            cur.execute(f'DELETE FROM {SCHEMA}.drone_detections WHERE id = %s', (body.get('id'),))
+            conn.commit()
+            return json_response(200, {'message': 'Deleted'})
+
+        return json_response(405, {'error': 'Method not allowed'})
+    except Exception as e:
+        conn.rollback()
+        return json_response(500, {'error': str(e)})
+    finally:
+        cur.close()
+        conn.close()
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Объединённый сервис камер и справочников
     Args: event - dict с httpMethod, body, queryStringParameters
           (resource=registry|camera-groups|camera-owners|camera-tags|tags|
-                    territorial-divisions|models|groups|stats|photo-archive)
+                    territorial-divisions|models|groups|stats|photo-archive|drone-detections)
           context - объект с request_id
     Returns: HTTP response dict
     """
@@ -1077,6 +1169,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'groups': handle_groups,
         'stats': handle_stats,
         'photo-archive': handle_photo_archive,
+        'drone-detections': handle_drone_detections,
     }
 
     fn = handlers.get(resource)

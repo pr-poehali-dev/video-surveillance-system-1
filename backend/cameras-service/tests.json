@@ -47,6 +47,12 @@
       "method": "GET",
       "path": "/?resource=stats",
       "expectedStatus": 200
+    },
+    {
+      "name": "Обнаружения БПЛА",
+      "method": "GET",
+      "path": "/?resource=drone-detections",
+      "expectedStatus": 200
     }
   ]
 }

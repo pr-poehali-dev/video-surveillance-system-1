@@ -3,18 +3,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { MOCK_DETECTIONS } from './types';
 import type { DroneDetection } from './types';
 
-const TACTICAL_POINTS = MOCK_DETECTIONS.map(d => ({
-  id: d.id,
-  lat: d.lat,
-  lng: d.lng,
-  label: `${d.type} / ${d.zone}`,
-  threat: d.threat,
-  status: d.status,
-  time: d.time,
-}));
+interface BPLAMapProps {
+  detections: DroneDetection[];
+}
 
 interface SectorDef {
   id: string;
@@ -51,7 +44,8 @@ const createDroneIcon = (threat: DroneDetection['threat'], status: DroneDetectio
   return L.divIcon({ html: svg, className: '', iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -16] });
 };
 
-const BPLAMap = () => {
+const BPLAMap = ({ detections }: BPLAMapProps) => {
+  const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const sectorLayersRef = useRef<Record<string, L.Polygon>>({});
@@ -106,13 +100,7 @@ const BPLAMap = () => {
     for (let lng = 54; lng <= 62; lng += 0.5) gridLines.push([[56, lng], [62, lng]]);
     gridLines.forEach(line => L.polyline(line, { color: '#3b82f6', weight: 0.4, opacity: 0.15 }).addTo(map));
 
-    TACTICAL_POINTS.forEach(p => {
-      const marker = L.marker([p.lat, p.lng], { icon: createDroneIcon(p.threat, p.status) });
-      const tl = p.threat === 'high' ? 'Высокая' : p.threat === 'medium' ? 'Средняя' : 'Низкая';
-      const sl = p.status === 'active' ? '🔴 Активен' : p.status === 'neutralized' ? '✅ Нейтрализован' : '⚫ Потерян';
-      marker.bindPopup(`<div style="font-family:monospace;font-size:12px;min-width:160px"><b>${p.label}</b><br/>Угроза: ${tl}<br/>Статус: ${sl}<br/>Время: ${p.time}<br/><span style="color:#6b7280">${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</span></div>`);
-      marker.addTo(map);
-    });
+    markersLayerRef.current = L.layerGroup().addTo(map);
 
     const legend = L.control({ position: 'bottomleft' });
     legend.onAdd = () => {
@@ -126,6 +114,19 @@ const BPLAMap = () => {
 
     return () => { map.remove(); mapInstanceRef.current = null; };
   }, [renderSectors]);
+
+  useEffect(() => {
+    const layer = markersLayerRef.current;
+    if (!layer) return;
+    layer.clearLayers();
+    detections.forEach(d => {
+      const marker = L.marker([d.lat, d.lng], { icon: createDroneIcon(d.threat, d.status) });
+      const tl = d.threat === 'high' ? 'Высокая' : d.threat === 'medium' ? 'Средняя' : 'Низкая';
+      const sl = d.status === 'active' ? '🔴 Активен' : d.status === 'neutralized' ? '✅ Нейтрализован' : '⚫ Потерян';
+      marker.bindPopup(`<div style="font-family:monospace;font-size:12px;min-width:160px"><b>${d.type}${d.zone ? ' / ' + d.zone : ''}</b><br/>Угроза: ${tl}<br/>Статус: ${sl}<br/>Время: ${d.date} ${d.time}<br/><span style="color:#6b7280">${d.lat.toFixed(4)}, ${d.lng.toFixed(4)}</span></div>`);
+      marker.addTo(layer);
+    });
+  }, [detections]);
 
   useEffect(() => {
     if (!mapInstanceRef.current) return;
