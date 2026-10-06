@@ -17,7 +17,7 @@ export const ReportStatsCards = ({ stats, selectedPeriod }: ReportStatsCardsProp
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Работоспособность портала
+            Доступность камер
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -55,7 +55,7 @@ export const ReportStatsCards = ({ stats, selectedPeriod }: ReportStatsCardsProp
                 style={{ width: `${stats.avgUptime}%` }}
               />
             </div>
-            <p className="text-xs text-muted-foreground">Среднее время работы</p>
+            <p className="text-xs text-muted-foreground">Доля работающих камер</p>
           </div>
         </CardContent>
       </Card>
@@ -69,10 +69,10 @@ export const ReportStatsCards = ({ stats, selectedPeriod }: ReportStatsCardsProp
         <CardContent>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-3xl font-bold text-orange-600">26.4ч</span>
+              <span className="text-3xl font-bold text-orange-600">—</span>
               <Icon name="AlertTriangle" className="text-orange-600" size={24} />
             </div>
-            <p className="text-xs text-muted-foreground">Из {parseInt(selectedPeriod) * 24} часов</p>
+            <p className="text-xs text-muted-foreground">Нет данных за {selectedPeriod} дн.</p>
           </div>
         </CardContent>
       </Card>

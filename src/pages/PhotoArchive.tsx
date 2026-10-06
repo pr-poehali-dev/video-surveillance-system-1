@@ -1,9 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import CreateTaskDialog from '@/components/photo-archive/CreateTaskDialog';
 import StatsCards from '@/components/photo-archive/StatsCards';
 import TasksList from '@/components/photo-archive/TasksList';
 import ArchiveDialog from '@/components/photo-archive/ArchiveDialog';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
+
+const PHOTO_API = `${CAMERAS_SERVICE_API}?resource=photo-archive`;
+
+interface Screenshot {
+  id: number;
+  url: string;
+  timestamp: string;
+  camera: string;
+}
 
 interface ScreenshotTask {
   id: number;
@@ -17,28 +27,29 @@ interface ScreenshotTask {
 }
 
 const PhotoArchive = () => {
-  const [tasks, setTasks] = useState<ScreenshotTask[]>([
-    {
-      id: 1,
-      name: 'Ночной мониторинг центра',
-      cameras: ['Камера-001', 'Камера-002'],
-      startDate: '2024-11-20T22:00',
-      endDate: '2024-11-21T06:00',
-      interval: 300,
-      status: 'completed',
-      totalScreenshots: 192,
-    },
-    {
-      id: 2,
-      name: 'Парковка - дневной контроль',
-      cameras: ['Камера-004'],
-      startDate: '2024-11-21T08:00',
-      endDate: '2024-11-21T20:00',
-      interval: 600,
-      status: 'active',
-      totalScreenshots: 48,
-    },
-  ]);
+  const [tasks, setTasks] = useState<ScreenshotTask[]>([]);
+  const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
+  const [cameras, setCameras] = useState<{ id: string; name: string }[]>([]);
+
+  const loadTasks = useCallback(async () => {
+    try {
+      const r = await fetch(PHOTO_API);
+      const d = await r.json();
+      setTasks(Array.isArray(d) ? d : []);
+    } catch {
+      toast.error('Не удалось загрузить задания');
+    }
+  }, []);
+
+  useEffect(() => {
+    loadTasks();
+    fetch(`${CAMERAS_SERVICE_API}?resource=registry`)
+      .then((r) => r.json())
+      .then((d) =>
+        setCameras(Array.isArray(d) ? d.map((c: { id: number; name: string }) => ({ id: String(c.id), name: c.name })) : [])
+      )
+      .catch(() => setCameras([]));
+  }, [loadTasks]);
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
@@ -52,21 +63,13 @@ const PhotoArchive = () => {
     selectedCameras: [] as string[],
   });
 
-  const mockScreenshots = [
-    { id: 1, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+1', timestamp: '2024-11-20 22:05', camera: 'Камера-001' },
-    { id: 2, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+2', timestamp: '2024-11-20 22:10', camera: 'Камера-001' },
-    { id: 3, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+3', timestamp: '2024-11-20 22:15', camera: 'Камера-002' },
-    { id: 4, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+4', timestamp: '2024-11-20 22:20', camera: 'Камера-002' },
-    { id: 5, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+5', timestamp: '2024-11-20 22:25', camera: 'Камера-001' },
-    { id: 6, url: 'https://placehold.co/400x300/1e40af/white?text=Screenshot+6', timestamp: '2024-11-20 22:30', camera: 'Камера-002' },
-  ];
-
-  const cameras = [
-    { id: '1', name: 'Камера-001' },
-    { id: '2', name: 'Камера-002' },
-    { id: '3', name: 'Камера-003' },
-    { id: '4', name: 'Камера-004' },
-  ];
+  useEffect(() => {
+    if (!isArchiveDialogOpen || !selectedTask) return;
+    fetch(`${PHOTO_API}&task_id=${selectedTask.id}`)
+      .then((r) => r.json())
+      .then((d) => setScreenshots(Array.isArray(d) ? d : []))
+      .catch(() => setScreenshots([]));
+  }, [isArchiveDialogOpen, selectedTask]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -94,43 +97,64 @@ const PhotoArchive = () => {
     }
   };
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
     if (!newTask.name || !newTask.startDate || !newTask.endDate) {
       toast.error('Заполните все обязательные поля');
       return;
     }
 
-    const task: ScreenshotTask = {
-      id: tasks.length + 1,
-      name: newTask.name,
-      cameras: newTask.selectedCameras,
-      startDate: newTask.startDate,
-      endDate: newTask.endDate,
-      interval: parseInt(newTask.interval),
-      status: 'active',
-      totalScreenshots: 0,
-    };
+    const res = await fetch(PHOTO_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: newTask.name,
+        cameras: newTask.selectedCameras,
+        start_date: newTask.startDate,
+        end_date: newTask.endDate,
+        interval: parseInt(newTask.interval),
+        daily_hour: parseInt(newTask.dailyHour),
+      }),
+    });
+    if (!res.ok) {
+      toast.error('Не удалось создать задание');
+      return;
+    }
 
-    setTasks([...tasks, task]);
     setIsCreateDialogOpen(false);
     setNewTask({ name: '', startDate: '', endDate: '', interval: '300', dailyHour: '14', selectedCameras: [] });
     toast.success('Задание создано');
+    loadTasks();
   };
 
-  const handleToggleStatus = (taskId: number) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === taskId
-          ? { ...task, status: task.status === 'active' ? 'paused' : 'active' }
-          : task
-      )
-    );
+  const handleToggleStatus = async (taskId: number) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    const status = task.status === 'active' ? 'paused' : 'active';
+    const res = await fetch(PHOTO_API, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: taskId, status }),
+    });
+    if (!res.ok) {
+      toast.error('Не удалось изменить статус');
+      return;
+    }
     toast.success('Статус задания изменен');
+    loadTasks();
   };
 
-  const handleDeleteTask = (taskId: number) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
+  const handleDeleteTask = async (taskId: number) => {
+    const res = await fetch(PHOTO_API, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: taskId }),
+    });
+    if (!res.ok) {
+      toast.error('Не удалось удалить задание');
+      return;
+    }
     toast.success('Задание удалено');
+    loadTasks();
   };
 
   return (
@@ -170,7 +194,7 @@ const PhotoArchive = () => {
         isOpen={isArchiveDialogOpen}
         setIsOpen={setIsArchiveDialogOpen}
         selectedTask={selectedTask}
-        mockScreenshots={mockScreenshots}
+        screenshots={screenshots}
       />
     </div>
   );

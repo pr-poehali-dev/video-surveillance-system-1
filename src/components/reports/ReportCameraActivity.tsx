@@ -1,43 +1,42 @@
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
+import { ReportCamera } from './reportTypes';
 
-const OWNERS = ['Все собственники', 'МВД', 'Администрация', 'ФСИН', 'Росгвардия'];
-
-const ALL_CAMERAS = [
-  { id: '1', name: 'Камера-001', owner: 'МВД', status: 'active' },
-  { id: '2', name: 'Камера-002', owner: 'МВД', status: 'active' },
-  { id: '3', name: 'Камера-003', owner: 'Администрация', status: 'inactive' },
-  { id: '4', name: 'Камера-004', owner: 'Администрация', status: 'active' },
-  { id: '5', name: 'Камера-005', owner: 'ФСИН', status: 'problem' },
-  { id: '6', name: 'Камера-006', owner: 'ФСИН', status: 'active' },
-  { id: '7', name: 'Камера-007', owner: 'Росгвардия', status: 'active' },
-  { id: '8', name: 'Камера-008', owner: 'Росгвардия', status: 'inactive' },
-  { id: '9', name: 'Камера-009', owner: 'МВД', status: 'active' },
-  { id: '10', name: 'Камера-010', owner: 'МВД', status: 'problem' },
-];
+const ALL_OWNERS = 'Все собственники';
 
 interface ReportCameraActivityProps {
   selectedPeriod: string;
+  cameras: ReportCamera[];
   ownerFilter: string;
   onOwnerFilterChange: (value: string) => void;
 }
 
-export const ReportCameraActivity = ({ selectedPeriod, ownerFilter, onOwnerFilterChange }: ReportCameraActivityProps) => {
+export const ReportCameraActivity = ({ selectedPeriod, cameras, ownerFilter, onOwnerFilterChange }: ReportCameraActivityProps) => {
+  const owners = useMemo(
+    () => [ALL_OWNERS, ...new Set(cameras.map((c) => c.owner).filter(Boolean) as string[])],
+    [cameras]
+  );
+
+  const filtered = ownerFilter === ALL_OWNERS ? cameras : cameras.filter((c) => c.owner === ownerFilter);
+  const working = filtered.filter((c) => c.status === 'active').length;
+  const broken = filtered.length - working;
+
   return (
     <Card className="mb-6">
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <CardTitle className="flex items-center gap-2">
             <Icon name="Activity" size={20} />
-            Активность камер за последние {selectedPeriod} дней
+            Текущее состояние камер
           </CardTitle>
           <Select value={ownerFilter} onValueChange={onOwnerFilterChange}>
             <SelectTrigger className="w-52">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {OWNERS.map((o) => (
+              {owners.map((o) => (
                 <SelectItem key={o} value={o}>{o}</SelectItem>
               ))}
             </SelectContent>
@@ -46,88 +45,39 @@ export const ReportCameraActivity = ({ selectedPeriod, ownerFilter, onOwnerFilte
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {(() => {
-            const filtered = ownerFilter === 'Все собственники'
-              ? ALL_CAMERAS
-              : ALL_CAMERAS.filter(c => c.owner === ownerFilter);
-            const days = parseInt(selectedPeriod);
-            return filtered.map((camera) => {
-              const isWorking = camera.status === 'active';
-              const seed = parseInt(camera.id);
-              const dayValues = Array.from({ length: days }, (_, i) => {
-                const r = Math.sin(seed * 9301 + i * 49297 + 233) * 0.5 + 0.5;
-                return isWorking ? (r > 0.1 ? 'active' : 'inactive') : (r > 0.7 ? 'active' : 'inactive');
-              });
-              const activeCount = dayValues.filter(v => v === 'active').length;
-              const pct = Math.round((activeCount / days) * 100);
-              return (
-                <div key={camera.id} className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${isWorking ? 'bg-green-500' : 'bg-red-500'}`} />
-                      <span className="font-medium">{camera.name}</span>
-                      <span className="text-muted-foreground text-xs">{camera.owner}</span>
-                    </div>
-                    <span className={`font-semibold text-xs ${pct >= 80 ? 'text-green-600' : 'text-red-500'}`}>{pct}%</span>
-                  </div>
-                  <div className="flex gap-px h-5">
-                    {dayValues.map((val, i) => (
-                      <div
-                        key={i}
-                        className={`flex-1 rounded-sm ${val === 'active' ? 'bg-green-500' : 'bg-red-400'}`}
-                        title={`День ${i + 1}: ${val === 'active' ? 'Работает' : 'Не работает'}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            });
-          })()}
-        </div>
-        {(() => {
-          const filtered = ownerFilter === 'Все собственники'
-            ? ALL_CAMERAS
-            : ALL_CAMERAS.filter(c => c.owner === ownerFilter);
-          const days = parseInt(selectedPeriod);
-          let totalActive = 0;
-          let totalInactive = 0;
-          filtered.forEach((camera) => {
+          {filtered.map((camera) => {
             const isWorking = camera.status === 'active';
-            const seed = parseInt(camera.id);
-            Array.from({ length: days }, (_, i) => {
-              const r = Math.sin(seed * 9301 + i * 49297 + 233) * 0.5 + 0.5;
-              return isWorking ? (r > 0.1 ? 'active' : 'inactive') : (r > 0.7 ? 'active' : 'inactive');
-            }).forEach(v => v === 'active' ? totalActive++ : totalInactive++);
-          });
-          const hoursActive = totalActive * 24;
-          const hoursInactive = totalInactive * 24;
-          return (
-            <div className="pt-4 mt-3 border-t space-y-3">
-              <div className="flex items-center gap-6">
+            const label = camera.status === 'problem' ? 'Проблема' : isWorking ? 'Работает' : 'Не работает';
+            return (
+              <div key={camera.id} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-sm" />
-                  <span className="text-xs text-muted-foreground">Работает</span>
+                  <div className={`w-2 h-2 rounded-full ${isWorking ? 'bg-green-500' : camera.status === 'problem' ? 'bg-yellow-500' : 'bg-red-500'}`} />
+                  <span className="font-medium">{camera.name}</span>
+                  <span className="text-muted-foreground text-xs">{camera.owner}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-red-400 rounded-sm" />
-                  <span className="text-xs text-muted-foreground">Не работает</span>
-                </div>
+                <span className={`font-semibold text-xs ${isWorking ? 'text-green-600' : 'text-red-500'}`}>{label}</span>
               </div>
-              <div className="flex gap-4">
-                <div className="flex-1 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-4 py-3">
-                  <p className="text-xs text-muted-foreground mb-1">Общее время работы</p>
-                  <p className="text-lg font-bold text-green-600">{hoursActive.toLocaleString()} ч</p>
-                  <p className="text-xs text-muted-foreground">{totalActive} камеро-дней</p>
-                </div>
-                <div className="flex-1 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-4 py-3">
-                  <p className="text-xs text-muted-foreground mb-1">Общее время простоя</p>
-                  <p className="text-lg font-bold text-red-500">{hoursInactive.toLocaleString()} ч</p>
-                  <p className="text-xs text-muted-foreground">{totalInactive} камеро-дней</p>
-                </div>
-              </div>
+            );
+          })}
+          {filtered.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">Камер нет</p>
+          )}
+        </div>
+        <div className="pt-4 mt-3 border-t space-y-2">
+          <div className="flex gap-4">
+            <div className="flex-1 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 px-4 py-3">
+              <p className="text-xs text-muted-foreground mb-1">Работают</p>
+              <p className="text-lg font-bold text-green-600">{working}</p>
             </div>
-          );
-        })()}
+            <div className="flex-1 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-4 py-3">
+              <p className="text-xs text-muted-foreground mb-1">Не работают или с проблемой</p>
+              <p className="text-lg font-bold text-red-500">{broken}</p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            История работы по дням за {selectedPeriod} дн. пока не ведётся: показано текущее состояние.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

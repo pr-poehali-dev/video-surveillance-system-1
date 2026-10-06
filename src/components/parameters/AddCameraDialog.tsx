@@ -57,6 +57,9 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
     longitude: '',
     territorial_division: '',
     archive_depth_days: '30',
+    resolution: '',
+    fps: '',
+    traffic: '',
   });
 
   useEffect(() => {
@@ -132,6 +135,9 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
         longitude: formData.longitude ? parseFloat(formData.longitude) : null,
         territorial_division: formData.territorial_division,
         archive_depth_days: parseInt(formData.archive_depth_days),
+        resolution: formData.resolution || null,
+        fps: formData.fps ? parseInt(formData.fps) : null,
+        traffic: formData.traffic ? parseFloat(formData.traffic) : null,
       };
 
       const response = await fetch(CAMERAS_API, {
@@ -161,6 +167,9 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
         longitude: '',
         territorial_division: '',
         archive_depth_days: '30',
+        resolution: '',
+        fps: '',
+        traffic: '',
       });
       onSuccess();
     } catch (error) {
@@ -347,6 +356,21 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
                 <SelectItem value="90">90 дней</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Разрешение</Label>
+            <Input placeholder="1920x1080" value={formData.resolution || ''} onChange={(e) => setFormData({ ...formData, resolution: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Частота кадров (FPS)</Label>
+            <Input type="number" min="0" placeholder="25" value={formData.fps || ''} onChange={(e) => setFormData({ ...formData, fps: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Трафик (Мбит/с)</Label>
+            <Input type="number" min="0" step="0.1" placeholder="4" value={formData.traffic || ''} onChange={(e) => setFormData({ ...formData, traffic: e.target.value })} />
           </div>
 
           <div className="space-y-2">

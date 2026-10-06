@@ -17,6 +17,9 @@ export interface Camera {
   longitude?: number;
   territorial_division?: string;
   archive_depth_days?: number;
+  resolution?: string | null;
+  fps?: number | null;
+  traffic?: number | null;
   created_at?: string;
   updated_at?: string;
 }

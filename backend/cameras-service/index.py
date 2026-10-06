@@ -52,7 +52,7 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                     SELECT id, name, rtsp_url, rtsp_login, rtsp_password, model_id,
                            ptz_ip, ptz_port, ptz_login, ptz_password, owner, address,
                            latitude, longitude, territorial_division, archive_depth_days,
-                           status, created_at, updated_at
+                           status, resolution, fps, traffic, created_at, updated_at
                     FROM {SCHEMA}.cameras_registry
                     WHERE id = %s
                 ''', (camera_id,))
@@ -81,6 +81,9 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                     'territorial_division': cam['territorial_division'],
                     'archive_depth_days': cam['archive_depth_days'],
                     'status': cam['status'],
+                    'resolution': cam['resolution'],
+                    'fps': cam['fps'],
+                    'traffic': float(cam['traffic']) if cam['traffic'] is not None else None,
                     'created_at': cam['created_at'].isoformat() if cam['created_at'] else None,
                     'updated_at': cam['updated_at'].isoformat() if cam['updated_at'] else None
                 })
@@ -93,7 +96,7 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 SELECT id, name, rtsp_url, rtsp_login, rtsp_password, model_id,
                        ptz_ip, ptz_port, ptz_login, ptz_password, owner, address,
                        latitude, longitude, territorial_division, archive_depth_days,
-                       status, created_at, updated_at
+                       status, resolution, fps, traffic, created_at, updated_at
                 FROM {SCHEMA}.cameras_registry
                 WHERE 1=1
             '''
@@ -135,6 +138,9 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                     'territorial_division': cam['territorial_division'],
                     'archive_depth_days': cam['archive_depth_days'],
                     'status': cam['status'],
+                    'resolution': cam['resolution'],
+                    'fps': cam['fps'],
+                    'traffic': float(cam['traffic']) if cam['traffic'] is not None else None,
                     'created_at': cam['created_at'].isoformat() if cam['created_at'] else None,
                     'updated_at': cam['updated_at'].isoformat() if cam['updated_at'] else None
                 })
@@ -149,8 +155,8 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 INSERT INTO {SCHEMA}.cameras_registry
                 (name, rtsp_url, rtsp_login, rtsp_password, model_id, ptz_ip, ptz_port,
                  ptz_login, ptz_password, owner, address, latitude, longitude,
-                 territorial_division, archive_depth_days, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                 territorial_division, archive_depth_days, status, resolution, fps, traffic)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             ''', (
                 body_data.get('name'),
@@ -168,7 +174,10 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 body_data.get('longitude'),
                 body_data.get('territorial_division'),
                 body_data.get('archive_depth_days', 30),
-                body_data.get('status', 'active')
+                body_data.get('status', 'active'),
+                body_data.get('resolution'),
+                body_data.get('fps'),
+                body_data.get('traffic')
             ))
 
             camera_id = cursor.fetchone()['id']
@@ -193,6 +202,9 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                     ptz_password = %s, owner = %s, address = %s, latitude = %s,
                     longitude = %s, territorial_division = %s, archive_depth_days = %s,
                     status = COALESCE(%s, status),
+                    resolution = COALESCE(%s, resolution),
+                    fps = COALESCE(%s, fps),
+                    traffic = COALESCE(%s, traffic),
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             ''', (
@@ -212,6 +224,9 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 body_data.get('territorial_division'),
                 body_data.get('archive_depth_days'),
                 body_data.get('status'),
+                body_data.get('resolution'),
+                body_data.get('fps'),
+                body_data.get('traffic'),
                 camera_id
             ))
 
@@ -870,11 +885,18 @@ def handle_stats(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours') as new_24h,
                 COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as new_7d,
                 COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days') as new_30d,
-                0 as total_traffic,
-                0 as avg_fps
+                COALESCE(SUM(traffic), 0) as total_traffic,
+                COALESCE(AVG(fps), 0) as avg_fps
             FROM {SCHEMA}.cameras_registry
         ''')
         stats = cur.fetchone()
+
+        cur.execute(f'''
+            SELECT COUNT(*) as users_total,
+                   COUNT(*) FILTER (WHERE is_online) as users_online
+            FROM {SCHEMA}.system_users
+        ''')
+        users_stats = cur.fetchone()
 
         cur.execute(f'''
             SELECT o.id, TRIM(o.name) as name, o.parent_id,
@@ -915,6 +937,8 @@ def handle_stats(event: Dict[str, Any], method: str) -> Dict[str, Any]:
             'new_24h': stats['new_24h'],
             'new_7d': stats['new_7d'],
             'new_30d': stats['new_30d'],
+            'users_total': users_stats['users_total'],
+            'users_online': users_stats['users_online'],
             'owners_tree': [dict(row) for row in owners_tree],
             'total_traffic': float(stats['total_traffic']),
             'avg_fps': float(stats['avg_fps']),
@@ -932,12 +956,100 @@ def handle_stats(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         return json_response(500, {'error': str(e)})
 
 
+def handle_photo_archive(event: Dict[str, Any], method: str) -> Dict[str, Any]:
+    """Задания фотоархива и снимки"""
+    conn = get_conn()
+    cur = conn.cursor()
+    params = event.get('queryStringParameters') or {}
+
+    try:
+        if method == 'GET':
+            task_id = params.get('task_id')
+            if task_id:
+                cur.execute(f'''
+                    SELECT id, task_id, camera_name, url, taken_at
+                    FROM {SCHEMA}.photo_archive_screenshots
+                    WHERE task_id = %s ORDER BY taken_at DESC
+                ''', (task_id,))
+                rows = cur.fetchall()
+                result = [{
+                    'id': r['id'], 'task_id': r['task_id'], 'camera': r['camera_name'],
+                    'url': r['url'],
+                    'timestamp': r['taken_at'].strftime('%Y-%m-%d %H:%M')
+                } for r in rows]
+            else:
+                cur.execute(f'''
+                    SELECT t.id, t.name, t.cameras, t.start_date, t.end_date,
+                           t.interval_seconds, t.daily_hour, t.status,
+                           (SELECT COUNT(*) FROM {SCHEMA}.photo_archive_screenshots s WHERE s.task_id = t.id) as total
+                    FROM {SCHEMA}.photo_archive_tasks t
+                    ORDER BY t.created_at DESC
+                ''')
+                rows = cur.fetchall()
+                result = [{
+                    'id': r['id'], 'name': r['name'], 'cameras': r['cameras'],
+                    'startDate': r['start_date'].strftime('%Y-%m-%dT%H:%M'),
+                    'endDate': r['end_date'].strftime('%Y-%m-%dT%H:%M'),
+                    'interval': r['interval_seconds'], 'status': r['status'],
+                    'totalScreenshots': r['total']
+                } for r in rows]
+            cur.close()
+            conn.close()
+            return json_response(200, result)
+
+        if method == 'POST':
+            body = json.loads(event.get('body', '{}'))
+            cur.execute(f'''
+                INSERT INTO {SCHEMA}.photo_archive_tasks
+                (name, cameras, start_date, end_date, interval_seconds, daily_hour, status)
+                VALUES (%s, %s, %s, %s, %s, %s, 'active') RETURNING id
+            ''', (
+                body.get('name'), body.get('cameras', []), body.get('start_date'),
+                body.get('end_date'), body.get('interval', 300), body.get('daily_hour')
+            ))
+            new_id = cur.fetchone()['id']
+            conn.commit()
+            cur.close()
+            conn.close()
+            return json_response(201, {'id': new_id})
+
+        if method == 'PUT':
+            body = json.loads(event.get('body', '{}'))
+            cur.execute(f'''
+                UPDATE {SCHEMA}.photo_archive_tasks SET status = %s WHERE id = %s
+            ''', (body.get('status'), body.get('id')))
+            conn.commit()
+            cur.close()
+            conn.close()
+            return json_response(200, {'message': 'Updated'})
+
+        if method == 'DELETE':
+            body = json.loads(event.get('body', '{}'))
+            task_id = body.get('id')
+            cur.execute(f'DELETE FROM {SCHEMA}.photo_archive_screenshots WHERE task_id = %s', (task_id,))
+            cur.execute(f'DELETE FROM {SCHEMA}.photo_archive_tasks WHERE id = %s', (task_id,))
+            conn.commit()
+            cur.close()
+            conn.close()
+            return json_response(200, {'message': 'Deleted'})
+
+        cur.close()
+        conn.close()
+        return json_response(405, {'error': 'Method not allowed'})
+
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        return json_response(500, {'error': str(e)})
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Объединённый сервис камер и справочников
     Args: event - dict с httpMethod, body, queryStringParameters
           (resource=registry|camera-groups|camera-owners|camera-tags|tags|
-                    territorial-divisions|models|groups|stats)
+                    territorial-divisions|models|groups|stats|photo-archive)
           context - объект с request_id
     Returns: HTTP response dict
     """
@@ -964,6 +1076,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'models': handle_models,
         'groups': handle_groups,
         'stats': handle_stats,
+        'photo-archive': handle_photo_archive,
     }
 
     fn = handlers.get(resource)

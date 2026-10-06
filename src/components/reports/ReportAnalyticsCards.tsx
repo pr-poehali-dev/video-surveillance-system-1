@@ -12,9 +12,11 @@ interface Stats {
 interface ReportAnalyticsCardsProps {
   stats: Stats;
   selectedPeriod: string;
+  usersTotal: number;
+  usersOnline: number;
 }
 
-export const ReportAnalyticsCards = ({ stats, selectedPeriod }: ReportAnalyticsCardsProps) => {
+export const ReportAnalyticsCards = ({ stats, selectedPeriod, usersTotal, usersOnline }: ReportAnalyticsCardsProps) => {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -33,7 +35,7 @@ export const ReportAnalyticsCards = ({ stats, selectedPeriod }: ReportAnalyticsC
                     <Icon name="Users" size={18} className="text-blue-600" />
                     <span className="text-sm font-medium">Всего пользователей</span>
                   </div>
-                  <span className="text-2xl font-bold">23</span>
+                  <span className="text-2xl font-bold">{usersTotal}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Зарегистрировано в системе
@@ -46,16 +48,16 @@ export const ReportAnalyticsCards = ({ stats, selectedPeriod }: ReportAnalyticsC
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                     <span className="text-sm font-medium">Онлайн</span>
                   </div>
-                  <span className="text-2xl font-bold text-green-600">7</span>
+                  <span className="text-2xl font-bold text-green-600">{usersOnline}</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div
                     className="bg-green-600 h-2 rounded-full transition-all"
-                    style={{ width: `${(7 / 23) * 100}%` }}
+                    style={{ width: `${(usersTotal ? (usersOnline / usersTotal) * 100 : 0)}%` }}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {((7 / 23) * 100).toFixed(1)}% активных пользователей
+                  {(usersTotal ? (usersOnline / usersTotal) * 100 : 0).toFixed(1)}% активных пользователей
                 </p>
               </div>
             </div>
@@ -82,11 +84,11 @@ export const ReportAnalyticsCards = ({ stats, selectedPeriod }: ReportAnalyticsC
                 <div className="w-full bg-muted rounded-full h-2">
                   <div
                     className="bg-secondary h-2 rounded-full transition-all"
-                    style={{ width: `${(stats.faceRecognition / stats.totalCameras) * 100}%` }}
+                    style={{ width: `${(stats.totalCameras ? (stats.faceRecognition / stats.totalCameras) * 100 : 0)}%` }}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {((stats.faceRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа камер
+                  {((stats.totalCameras ? (stats.faceRecognition / stats.totalCameras) * 100 : 0)).toFixed(1)}% от общего числа камер
                 </p>
               </div>
 
@@ -101,11 +103,11 @@ export const ReportAnalyticsCards = ({ stats, selectedPeriod }: ReportAnalyticsC
                 <div className="w-full bg-muted rounded-full h-2">
                   <div
                     className="bg-primary h-2 rounded-full transition-all"
-                    style={{ width: `${(stats.plateRecognition / stats.totalCameras) * 100}%` }}
+                    style={{ width: `${(stats.totalCameras ? (stats.plateRecognition / stats.totalCameras) * 100 : 0)}%` }}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {((stats.plateRecognition / stats.totalCameras) * 100).toFixed(1)}% от общего числа камер
+                  {((stats.totalCameras ? (stats.plateRecognition / stats.totalCameras) * 100 : 0)).toFixed(1)}% от общего числа камер
                 </p>
               </div>
             </div>

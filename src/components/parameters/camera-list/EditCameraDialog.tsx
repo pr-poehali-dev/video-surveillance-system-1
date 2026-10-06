@@ -26,6 +26,9 @@ interface EditCameraDialogProps {
     longitude: string;
     territorial_division: string;
     archive_depth_days: string;
+    resolution?: string;
+    fps?: string;
+    traffic?: string;
     ptz_controllable?: boolean;
     ptz_zoom?: boolean;
   };
@@ -249,6 +252,21 @@ export const EditCameraDialog = ({
                 <SelectItem value="90">90 дней</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Разрешение</Label>
+            <Input placeholder="1920x1080" value={formData.resolution || ''} onChange={(e) => onFormDataChange({ ...formData, resolution: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Частота кадров (FPS)</Label>
+            <Input type="number" min="0" placeholder="25" value={formData.fps || ''} onChange={(e) => onFormDataChange({ ...formData, fps: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Трафик (Мбит/с)</Label>
+            <Input type="number" min="0" step="0.1" placeholder="4" value={formData.traffic || ''} onChange={(e) => onFormDataChange({ ...formData, traffic: e.target.value })} />
           </div>
 
           <div className="space-y-2">

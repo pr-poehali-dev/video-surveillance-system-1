@@ -182,7 +182,7 @@ const CameraVideoDialog = ({
                     <div className="text-center">
                       <Icon name="VideoOff" size={48} className="text-white/40 mx-auto mb-2" />
                       <p className="text-white/60">Поток не настроен</p>
-                      <p className="text-white/40 text-sm">{camera.resolution} • {camera.fps} FPS</p>
+                      <p className="text-white/40 text-sm">{[camera.resolution, camera.fps > 0 ? `${camera.fps} FPS` : ''].filter(Boolean).join(' • ')}</p>
                     </div>
                   )}
                 </div>

@@ -51,6 +51,9 @@ export const CameraList = ({ refreshTrigger, selectedOwners = [], selectedDivisi
     longitude: '',
     territorial_division: '',
     archive_depth_days: '30',
+    resolution: '',
+    fps: '',
+    traffic: '',
   });
 
   useEffect(() => {
@@ -129,6 +132,9 @@ export const CameraList = ({ refreshTrigger, selectedOwners = [], selectedDivisi
       longitude: camera.longitude?.toString() || '',
       territorial_division: camera.territorial_division || '',
       archive_depth_days: camera.archive_depth_days?.toString() || '30',
+      resolution: camera.resolution || '',
+      fps: camera.fps?.toString() || '',
+      traffic: camera.traffic?.toString() || '',
     });
     setIsEditDialogOpen(true);
   };
@@ -149,6 +155,9 @@ export const CameraList = ({ refreshTrigger, selectedOwners = [], selectedDivisi
         latitude: formData.latitude ? parseFloat(formData.latitude) : null,
         longitude: formData.longitude ? parseFloat(formData.longitude) : null,
         archive_depth_days: parseInt(formData.archive_depth_days),
+        resolution: formData.resolution || null,
+        fps: formData.fps ? parseInt(formData.fps) : null,
+        traffic: formData.traffic ? parseFloat(formData.traffic) : null,
       };
 
       const response = await fetch(CAMERAS_API, {

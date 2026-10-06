@@ -30,27 +30,27 @@ interface ArchiveDialogProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   selectedTask: ScreenshotTask | null;
-  mockScreenshots: Screenshot[];
+  screenshots: Screenshot[];
 }
 
-const ArchiveDialog = ({ isOpen, setIsOpen, selectedTask, mockScreenshots }: ArchiveDialogProps) => {
+const ArchiveDialog = ({ isOpen, setIsOpen, selectedTask, screenshots }: ArchiveDialogProps) => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [cameraFilter, setCameraFilter] = useState('all');
 
   const cameras = useMemo(() => {
-    const names = [...new Set(mockScreenshots.map((s) => s.camera))];
+    const names = [...new Set(screenshots.map((s) => s.camera))];
     return names;
-  }, [mockScreenshots]);
+  }, [screenshots]);
 
   const filtered = useMemo(() => {
-    return mockScreenshots.filter((s) => {
+    return screenshots.filter((s) => {
       if (cameraFilter !== 'all' && s.camera !== cameraFilter) return false;
       if (dateFrom && s.timestamp < dateFrom) return false;
       if (dateTo && s.timestamp > dateTo + ' 23:59') return false;
       return true;
     });
-  }, [mockScreenshots, cameraFilter, dateFrom, dateTo]);
+  }, [screenshots, cameraFilter, dateFrom, dateTo]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -84,7 +84,7 @@ const ArchiveDialog = ({ isOpen, setIsOpen, selectedTask, mockScreenshots }: Arc
                   <Icon name="X" size={12} className="mr-1" />Сбросить
                 </Button>
               )}
-              <div className="ml-auto text-sm text-muted-foreground">{filtered.length} из {mockScreenshots.length}</div>
+              <div className="ml-auto text-sm text-muted-foreground">{filtered.length} из {screenshots.length}</div>
               <Button variant="outline" size="sm">
                 <Icon name="Download" size={14} className="mr-1" />
                 Скачать все
