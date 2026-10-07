@@ -5,17 +5,7 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { ImageUploadZone } from '@/components/ord/ImageUploadZone';
 import { SearchResults } from '@/components/ord/SearchResults';
-
-interface SearchResult {
-  id: number;
-  type: 'face' | 'plate';
-  match: number;
-  time: string;
-  camera: string;
-  address: string;
-  image: string;
-  plate?: string;
-}
+import type { SearchResult } from '@/components/ord/SearchResultCard';
 
 interface OnlineFaceTabProps {
   isCreateFormOpen: boolean;
@@ -32,7 +22,8 @@ interface OnlineFaceTabProps {
   onDrop: (e: React.DragEvent) => void;
   removeImage: (index: number) => void;
   clearImages: () => void;
-  mockResults: SearchResult[];
+  results: SearchResult[];
+  onDeleteResult: (id: number) => Promise<boolean>;
 }
 
 export const OnlineFaceTab = ({
@@ -50,7 +41,8 @@ export const OnlineFaceTab = ({
   onDrop,
   removeImage,
   clearImages,
-  mockResults,
+  results,
+  onDeleteResult,
 }: OnlineFaceTabProps) => {
   return (
     <div className="space-y-6">
@@ -170,7 +162,7 @@ export const OnlineFaceTab = ({
         </Card>
       )}
 
-      <SearchResults results={mockResults} />
+      <SearchResults results={results} title="Результаты распознавания лиц" onDelete={onDeleteResult} />
     </div>
   );
 };

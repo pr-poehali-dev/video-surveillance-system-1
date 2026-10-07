@@ -55,7 +55,7 @@ export const SearchResultCard = ({ result, onClick, onEdit, onDelete, onRoute, r
               <Badge
                 variant={result.match > 95 ? 'default' : result.match > 85 ? 'secondary' : 'outline'}
               >
-                {Math.round(result.match)} совпадений
+                Совпадение {Math.round(result.match)}%
               </Badge>
             </div>
             {!readonly && (

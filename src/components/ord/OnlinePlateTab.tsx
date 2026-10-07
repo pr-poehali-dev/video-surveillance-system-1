@@ -4,17 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { SearchResults } from '@/components/ord/SearchResults';
-
-interface SearchResult {
-  id: number;
-  type: 'face' | 'plate';
-  match: number;
-  time: string;
-  camera: string;
-  address: string;
-  image: string;
-  plate?: string;
-}
+import type { SearchResult } from '@/components/ord/SearchResultCard';
 
 interface OnlinePlateTabProps {
   isCreatePlateFormOpen: boolean;
@@ -26,7 +16,8 @@ interface OnlinePlateTabProps {
   plateMaxNicknames: string[];
   setPlateMaxNicknames: (nicknames: string[]) => void;
   handlePlateSearch: () => void;
-  mockResults: SearchResult[];
+  results: SearchResult[];
+  onDeleteResult: (id: number) => Promise<boolean>;
 }
 
 export const OnlinePlateTab = ({
@@ -39,7 +30,8 @@ export const OnlinePlateTab = ({
   plateMaxNicknames,
   setPlateMaxNicknames,
   handlePlateSearch,
-  mockResults,
+  results,
+  onDeleteResult,
 }: OnlinePlateTabProps) => {
   return (
     <div className="space-y-6">
@@ -161,7 +153,7 @@ export const OnlinePlateTab = ({
         </Card>
       )}
 
-      <SearchResults results={mockResults.filter((r) => r.type === 'plate')} />
+      <SearchResults results={results} title="Результаты распознавания ГРЗ" onDelete={onDeleteResult} />
     </div>
   );
 };

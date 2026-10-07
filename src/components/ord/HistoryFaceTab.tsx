@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -5,18 +6,8 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { ImageUploadZone } from '@/components/ord/ImageUploadZone';
 import { FaceHistoryResults } from '@/components/ord/FaceHistoryResults';
+import type { Recognition } from '@/components/ord/ordApi';
 import { CameraMultiSelect, CameraOption } from '@/components/ord/CameraMultiSelect';
-
-interface SearchResult {
-  id: number;
-  type: 'face' | 'plate';
-  match: number;
-  time: string;
-  camera: string;
-  address: string;
-  image: string;
-  plate?: string;
-}
 
 interface HistoryFaceTabProps {
   cameras: CameraOption[];
@@ -32,7 +23,11 @@ interface HistoryFaceTabProps {
   onDrop: (e: React.DragEvent) => void;
   removeImage: (index: number) => void;
   clearImages: () => void;
-  mockResults: SearchResult[];
+  results: Recognition[];
+  searched: boolean;
+  loading: boolean;
+  queryImage?: string;
+  onSearch: (params: { dateFrom: string; dateTo: string }) => void;
 }
 
 export const HistoryFaceTab = ({
@@ -49,8 +44,15 @@ export const HistoryFaceTab = ({
   onDrop,
   removeImage,
   clearImages,
-  mockResults,
+  results,
+  searched,
+  loading,
+  queryImage,
+  onSearch,
 }: HistoryFaceTabProps) => {
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
   return (
     <div className="space-y-6">
       <Card>
@@ -64,11 +66,11 @@ export const HistoryFaceTab = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date-from">Период от</Label>
-              <Input id="date-from" type="datetime-local" />
+              <Input id="date-from" type="datetime-local" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="date-to">Период до</Label>
-              <Input id="date-to" type="datetime-local" />
+              <Input id="date-to" type="datetime-local" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
             </div>
           </div>
 
@@ -91,14 +93,14 @@ export const HistoryFaceTab = ({
             clearImages={clearImages}
           />
 
-          <Button className="w-full">
+          <Button className="w-full" onClick={() => onSearch({ dateFrom, dateTo })} disabled={loading}>
             <Icon name="Play" size={16} className="mr-2" />
             Запустить исторический поиск
           </Button>
         </CardContent>
       </Card>
 
-      <FaceHistoryResults />
+      <FaceHistoryResults results={results} searched={searched} loading={loading} queryImage={queryImage} />
     </div>
   );
 };

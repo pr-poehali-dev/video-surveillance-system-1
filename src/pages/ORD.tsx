@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
@@ -8,6 +8,9 @@ import { OnlinePlateTab } from '@/components/ord/OnlinePlateTab';
 import { HistoryFaceTab } from '@/components/ord/HistoryFaceTab';
 import { HistoryPlateTab } from '@/components/ord/HistoryPlateTab';
 import { CameraOption } from '@/components/ord/CameraMultiSelect';
+import { Button } from '@/components/ui/button';
+import AddRecognitionDialog from '@/components/ord/AddRecognitionDialog';
+import { Recognition, fetchRecognitions, fetchOrdStats, deleteRecognition } from '@/components/ord/ordApi';
 import { CAMERAS_API } from '@/components/parameters/camera-list/CameraListTypes';
 
 const ORD = () => {
@@ -23,6 +26,88 @@ const ORD = () => {
   const [cameras, setCameras] = useState<CameraOption[]>([]);
   const [selectedCameraIds, setSelectedCameraIds] = useState<number[]>([]);
   const [selectedPlateCameraIds, setSelectedPlateCameraIds] = useState<number[]>([]);
+
+  const [onlineFaces, setOnlineFaces] = useState<Recognition[]>([]);
+  const [onlinePlates, setOnlinePlates] = useState<Recognition[]>([]);
+  const [stats, setStats] = useState({ faces24h: 0, people24h: 0, vehicles24h: 0, plates24h: 0 });
+  const [addOpen, setAddOpen] = useState(false);
+
+  const [faceHistory, setFaceHistory] = useState<Recognition[]>([]);
+  const [faceSearched, setFaceSearched] = useState(false);
+  const [faceLoading, setFaceLoading] = useState(false);
+  const [plateHistory, setPlateHistory] = useState<Recognition[]>([]);
+  const [plateSearched, setPlateSearched] = useState(false);
+  const [plateLoading, setPlateLoading] = useState(false);
+
+  const loadOnline = useCallback(async () => {
+    try {
+      const [faces, plates, st] = await Promise.all([
+        fetchRecognitions({ kind: 'face', limit: '50' }),
+        fetchRecognitions({ kind: 'plate', limit: '50' }),
+        fetchOrdStats(),
+      ]);
+      setOnlineFaces(faces);
+      setOnlinePlates(plates);
+      setStats({ faces24h: st.faces24h, people24h: 0, vehicles24h: 0, plates24h: st.plates24h });
+    } catch {
+      toast.error('Не удалось загрузить данные ОРД');
+    }
+  }, []);
+
+  useEffect(() => {
+    loadOnline();
+  }, [loadOnline]);
+
+  const handleDeleteRecognition = async (id: number) => {
+    const ok = await deleteRecognition(id);
+    if (ok) loadOnline();
+    return ok;
+  };
+
+  const toIso = (v: string) => (v ? v.replace('T', ' ') : undefined);
+
+  const searchFaceHistory = async ({ dateFrom, dateTo }: { dateFrom: string; dateTo: string }) => {
+    setFaceLoading(true);
+    try {
+      const list = await fetchRecognitions({
+        kind: 'face',
+        date_from: toIso(dateFrom),
+        date_to: toIso(dateTo),
+        camera_ids: selectedCameraIds.join(','),
+        limit: '500',
+      });
+      setFaceHistory(list);
+      setFaceSearched(true);
+    } catch {
+      toast.error('Не удалось выполнить поиск');
+    } finally {
+      setFaceLoading(false);
+    }
+  };
+
+  const searchPlateHistory = async ({ dateFrom, dateTo }: { dateFrom: string; dateTo: string }) => {
+    if (!plateSearch) {
+      toast.error('Введите номер ГРЗ');
+      return;
+    }
+    setPlateLoading(true);
+    try {
+      const list = await fetchRecognitions({
+        kind: 'plate',
+        plate: plateSearch,
+        date_from: toIso(dateFrom),
+        date_to: toIso(dateTo),
+        camera_ids: selectedPlateCameraIds.join(','),
+        limit: '500',
+      });
+      setPlateHistory(list);
+      setPlateSearched(true);
+    } catch {
+      toast.error('Не удалось выполнить поиск');
+    } finally {
+      setPlateLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetch(CAMERAS_API)
@@ -84,47 +169,17 @@ const ORD = () => {
     }
   };
 
-  const stats = {
-    faces24h: 45832,
-    people24h: 52391,
-    vehicles24h: 18492,
-    plates24h: 16847,
-  };
-
-  const mockResults = [
-    {
-      id: 1,
-      type: 'face' as const,
-      match: 94.5,
-      time: '2024-11-21 14:32:15',
-      camera: 'Камера-001',
-      address: 'ул. Ленина, 50',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
-    },
-    {
-      id: 2,
-      type: 'plate' as const,
-      match: 98.2,
-      time: '2024-11-21 14:28:43',
-      camera: 'Камера-003',
-      address: 'ул. Сибирская, 27',
-      plate: 'А123ВС159',
-      image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=200&h=200&fit=crop',
-    },
-    {
-      id: 3,
-      type: 'face' as const,
-      match: 87.3,
-      time: '2024-11-21 14:15:22',
-      camera: 'Камера-006',
-      address: 'ул. Куйбышева, 95',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
-    },
-  ];
-
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm text-muted-foreground">Распознавания лиц и номеров из базы данных</p>
+          <Button onClick={() => setAddOpen(true)}>
+            <Icon name="Plus" size={16} className="mr-2" />
+            Добавить распознавание
+          </Button>
+        </div>
+
         <StatsCards stats={stats} />
 
         <Tabs defaultValue="online-face" className="space-y-6">
@@ -157,7 +212,8 @@ const ORD = () => {
               onDrop={handleDrop}
               removeImage={removeImage}
               clearImages={() => setSelectedImages([])}
-              mockResults={mockResults}
+              results={onlineFaces}
+              onDeleteResult={handleDeleteRecognition}
             />
           </TabsContent>
 
@@ -172,7 +228,8 @@ const ORD = () => {
               plateMaxNicknames={plateMaxNicknames}
               setPlateMaxNicknames={setPlateMaxNicknames}
               handlePlateSearch={handlePlateSearch}
-              mockResults={mockResults}
+              results={onlinePlates}
+              onDeleteResult={handleDeleteRecognition}
             />
           </TabsContent>
 
@@ -191,7 +248,10 @@ const ORD = () => {
               onDrop={handleDrop}
               removeImage={removeImage}
               clearImages={() => setSelectedImages([])}
-              mockResults={mockResults}
+              results={faceHistory}
+              searched={faceSearched}
+              loading={faceLoading}
+              onSearch={searchFaceHistory}
             />
           </TabsContent>
 
@@ -204,12 +264,16 @@ const ORD = () => {
               onResetPlateCameras={() => setSelectedPlateCameraIds([])}
               plateSearch={plateSearch}
               setPlateSearch={setPlateSearch}
-              handlePlateSearch={handlePlateSearch}
-              mockResults={mockResults}
+              results={plateHistory}
+              searched={plateSearched}
+              loading={plateLoading}
+              onSearch={searchPlateHistory}
             />
           </TabsContent>
         </Tabs>
       </div>
+
+      <AddRecognitionDialog open={addOpen} onOpenChange={setAddOpen} cameras={cameras} onSaved={loadOnline} />
     </div>
   );
 };

@@ -53,6 +53,18 @@
       "method": "GET",
       "path": "/?resource=drone-detections",
       "expectedStatus": 200
+    },
+    {
+      "name": "Распознавания ОРД",
+      "method": "GET",
+      "path": "/?resource=ord-recognitions",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Статистика ОРД за 24ч",
+      "method": "GET",
+      "path": "/?resource=ord-recognitions&stats=1",
+      "expectedStatus": 200
     }
   ]
 }

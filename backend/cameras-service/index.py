@@ -1136,12 +1136,119 @@ def handle_drone_detections(event: Dict[str, Any], method: str) -> Dict[str, Any
         conn.close()
 
 
+def serialize_recognition(r: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        'id': r['id'],
+        'type': r['kind'],
+        'match': float(r['match_percent']) if r['match_percent'] is not None else 0,
+        'time': r['recognized_at'].strftime('%Y-%m-%d %H:%M:%S'),
+        'camera_id': r['camera_id'],
+        'camera': r['camera_name'] or 'Камера не указана',
+        'address': r['address'] or '',
+        'lat': float(r['latitude']) if r['latitude'] is not None else None,
+        'lng': float(r['longitude']) if r['longitude'] is not None else None,
+        'plate': r['plate'],
+        'image': r['image_url'],
+        'car_image': r['car_image_url'],
+        'video_url': r['video_url'],
+    }
+
+
+def handle_ord_recognitions(event: Dict[str, Any], method: str) -> Dict[str, Any]:
+    """Распознавания лиц и ГРЗ для ОРД: список с фильтрами, добавление, удаление, статистика 24ч"""
+    conn = get_conn()
+    cur = conn.cursor()
+    params = event.get('queryStringParameters') or {}
+    try:
+        if method == 'GET':
+            if params.get('stats'):
+                cur.execute(f'''
+                    SELECT
+                      COUNT(*) FILTER (WHERE kind = 'face') AS faces,
+                      COUNT(*) FILTER (WHERE kind = 'plate') AS plates
+                    FROM {SCHEMA}.ord_recognitions
+                    WHERE recognized_at >= NOW() - INTERVAL '24 hours'
+                ''')
+                row = cur.fetchone()
+                return json_response(200, {'faces24h': row['faces'], 'plates24h': row['plates']})
+
+            where = []
+            vals = []
+            kind = params.get('kind')
+            if kind in ('face', 'plate'):
+                where.append('r.kind = %s')
+                vals.append(kind)
+            plate = (params.get('plate') or '').strip().upper()
+            if plate:
+                where.append('r.plate ILIKE %s')
+                vals.append(f'%{plate}%')
+            if params.get('date_from'):
+                where.append('r.recognized_at >= %s')
+                vals.append(params['date_from'])
+            if params.get('date_to'):
+                where.append('r.recognized_at <= %s')
+                vals.append(params['date_to'])
+            camera_ids = [c for c in (params.get('camera_ids') or '').split(',') if c.strip().isdigit()]
+            if camera_ids:
+                where.append('r.camera_id = ANY(%s)')
+                vals.append([int(c) for c in camera_ids])
+            limit = min(int(params.get('limit') or 200), 1000)
+            where_sql = ('WHERE ' + ' AND '.join(where)) if where else ''
+            cur.execute(f'''
+                SELECT r.id, r.kind, r.camera_id, r.recognized_at, r.match_percent, r.plate,
+                       r.image_url, r.car_image_url, r.video_url,
+                       c.name AS camera_name, c.address, c.latitude, c.longitude
+                FROM {SCHEMA}.ord_recognitions r
+                LEFT JOIN {SCHEMA}.cameras_registry c ON c.id = r.camera_id
+                {where_sql}
+                ORDER BY r.recognized_at DESC, r.id DESC
+                LIMIT {limit}
+            ''', vals)
+            return json_response(200, [serialize_recognition(r) for r in cur.fetchall()])
+
+        body = json.loads(event.get('body') or '{}')
+
+        if method == 'POST':
+            kind = body.get('kind')
+            if kind not in ('face', 'plate'):
+                return json_response(400, {'error': 'Укажите тип: лицо или ГРЗ'})
+            plate = (body.get('plate') or '').strip().upper() or None
+            if kind == 'plate' and not plate:
+                return json_response(400, {'error': 'Укажите номер ГРЗ'})
+            cur.execute(f'''
+                INSERT INTO {SCHEMA}.ord_recognitions
+                (kind, camera_id, recognized_at, match_percent, plate, image_url, car_image_url, video_url)
+                VALUES (%s, %s, COALESCE(%s, NOW()), %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (
+                kind, body.get('camera_id') or None, body.get('recognized_at') or None,
+                body.get('match'), plate, body.get('image_url') or None,
+                body.get('car_image_url') or None, body.get('video_url') or None
+            ))
+            new_id = cur.fetchone()['id']
+            conn.commit()
+            return json_response(201, {'id': new_id})
+
+        if method == 'DELETE':
+            cur.execute(f'DELETE FROM {SCHEMA}.ord_recognitions WHERE id = %s', (body.get('id'),))
+            conn.commit()
+            return json_response(200, {'message': 'Deleted'})
+
+        return json_response(405, {'error': 'Method not allowed'})
+    except Exception as e:
+        conn.rollback()
+        return json_response(500, {'error': str(e)})
+    finally:
+        cur.close()
+        conn.close()
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Объединённый сервис камер и справочников
     Args: event - dict с httpMethod, body, queryStringParameters
           (resource=registry|camera-groups|camera-owners|camera-tags|tags|
-                    territorial-divisions|models|groups|stats|photo-archive|drone-detections)
+                    territorial-divisions|models|groups|stats|photo-archive|drone-detections|ord-recognitions)
           context - объект с request_id
     Returns: HTTP response dict
     """
@@ -1170,6 +1277,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'stats': handle_stats,
         'photo-archive': handle_photo_archive,
         'drone-detections': handle_drone_detections,
+        'ord-recognitions': handle_ord_recognitions,
     }
 
     fn = handlers.get(resource)

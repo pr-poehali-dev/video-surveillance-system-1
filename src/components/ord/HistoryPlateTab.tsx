@@ -1,21 +1,12 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { PlateHistoryResults } from '@/components/ord/PlateHistoryResults';
+import type { Recognition } from '@/components/ord/ordApi';
 import { CameraMultiSelect, CameraOption } from '@/components/ord/CameraMultiSelect';
-
-interface SearchResult {
-  id: number;
-  type: 'face' | 'plate';
-  match: number;
-  time: string;
-  camera: string;
-  address: string;
-  image: string;
-  plate?: string;
-}
 
 interface HistoryPlateTabProps {
   cameras: CameraOption[];
@@ -25,8 +16,10 @@ interface HistoryPlateTabProps {
   onResetPlateCameras: () => void;
   plateSearch: string;
   setPlateSearch: (v: string) => void;
-  handlePlateSearch: () => void;
-  mockResults: SearchResult[];
+  results: Recognition[];
+  searched: boolean;
+  loading: boolean;
+  onSearch: (params: { dateFrom: string; dateTo: string }) => void;
 }
 
 export const HistoryPlateTab = ({
@@ -37,9 +30,14 @@ export const HistoryPlateTab = ({
   onResetPlateCameras,
   plateSearch,
   setPlateSearch,
-  handlePlateSearch,
-  mockResults,
+  results,
+  searched,
+  loading,
+  onSearch,
 }: HistoryPlateTabProps) => {
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
   return (
     <div className="space-y-6">
       <Card>
@@ -69,11 +67,11 @@ export const HistoryPlateTab = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="history-date-from">Период от</Label>
-              <Input id="history-date-from" type="datetime-local" />
+              <Input id="history-date-from" type="datetime-local" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="history-date-to">Период до</Label>
-              <Input id="history-date-to" type="datetime-local" />
+              <Input id="history-date-to" type="datetime-local" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
             </div>
           </div>
 
@@ -85,14 +83,14 @@ export const HistoryPlateTab = ({
             onReset={onResetPlateCameras}
           />
 
-          <Button className="w-full" onClick={handlePlateSearch}>
+          <Button className="w-full" onClick={() => onSearch({ dateFrom, dateTo })} disabled={loading}>
             <Icon name="Search" size={16} className="mr-2" />
             Найти в истории
           </Button>
         </CardContent>
       </Card>
 
-      <PlateHistoryResults plate={plateSearch} />
+      <PlateHistoryResults results={results} searched={searched} loading={loading} />
     </div>
   );
 };

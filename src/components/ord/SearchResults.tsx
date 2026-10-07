@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -13,12 +13,18 @@ import { PlateRouteDialog } from './PlateRouteDialog';
 interface SearchResultsProps {
   results: SearchResult[];
   readonly?: boolean;
+  title?: string;
+  onDelete?: (id: number) => Promise<boolean>;
 }
 
-export const SearchResults = ({ results, readonly }: SearchResultsProps) => {
+export const SearchResults = ({ results, readonly, title = 'Результаты мониторинга', onDelete }: SearchResultsProps) => {
   const [selected, setSelected] = useState<SearchResult | null>(null);
   const [routeTarget, setRouteTarget] = useState<SearchResult | null>(null);
   const [localResults, setLocalResults] = useState<SearchResult[]>(results);
+
+  useEffect(() => {
+    setLocalResults(results);
+  }, [results]);
 
   // edit state
   const [editTarget, setEditTarget] = useState<SearchResult | null>(null);
@@ -50,17 +56,25 @@ export const SearchResults = ({ results, readonly }: SearchResultsProps) => {
     setDeleteConfirmId(id);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    if (deleteConfirmId === null) return;
+    if (onDelete) {
+      const ok = await onDelete(deleteConfirmId);
+      if (!ok) {
+        toast.error('Не удалось удалить запись');
+        return;
+      }
+    }
     setLocalResults((prev) => prev.filter((r) => r.id !== deleteConfirmId));
     setDeleteConfirmId(null);
-    toast.success('Карточка удалена');
+    toast.success('Запись удалена');
   };
 
   return (
     <>
       <Card className="flex flex-col h-full">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">Результаты мониторинга лиц</CardTitle>
+          <CardTitle className="flex items-center gap-2">{title}</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-hidden">
           <ScrollArea className="h-full pr-4">
@@ -80,7 +94,7 @@ export const SearchResults = ({ results, readonly }: SearchResultsProps) => {
               {localResults.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <Icon name="Search" size={48} className="mx-auto mb-4 opacity-50" />
-                  <p>Результаты поиска появятся здесь</p>
+                  <p>Записей пока нет. Добавьте распознавание кнопкой выше.</p>
                 </div>
               )}
             </div>
@@ -123,10 +137,10 @@ export const SearchResults = ({ results, readonly }: SearchResultsProps) => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <Icon name="Trash2" size={18} />
-              Удалить карточку?
+              Удалить запись?
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">Карточка искомого лица будет удалена безвозвратно.</p>
+          <p className="text-sm text-muted-foreground">Запись будет удалена из базы безвозвратно.</p>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Отмена</Button>
             <Button variant="destructive" onClick={confirmDelete}>

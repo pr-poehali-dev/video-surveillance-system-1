@@ -1,28 +1,33 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
-import { MOCK_DETECTIONS } from './DetectionsDialog';
 import { YandexMap } from './YandexMap';
+import { Recognition, toMapPoints } from './ordApi';
+import { RecognitionVideoDialog } from './RecognitionVideoDialog';
 
 interface PlateHistoryResultsProps {
-  plate: string;
+  results: Recognition[];
+  searched: boolean;
+  loading: boolean;
 }
 
-export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
+export const PlateHistoryResults = ({ results, searched, loading }: PlateHistoryResultsProps) => {
   const [mapDetIndex, setMapDetIndex] = useState<number | null>(null);
   const [videoOpen, setVideoOpen] = useState(false);
   const [videoDetIndex, setVideoDetIndex] = useState(0);
+
+  const mapPoints = useMemo(
+    () => (mapDetIndex !== null && results[mapDetIndex] ? toMapPoints([results[mapDetIndex]]) : []),
+    [mapDetIndex, results]
+  );
 
   const openVideo = useCallback((index: number) => {
     setVideoDetIndex(index);
     setVideoOpen(true);
   }, []);
-
-  const displayPlate = plate || 'А123ВС159';
 
   return (
     <>
@@ -31,26 +36,34 @@ export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
           <CardTitle className="flex items-center gap-2">
             <Icon name="Hash" size={20} />
             Результаты поиска
-            <Badge variant="secondary" className="ml-1">{MOCK_DETECTIONS.length} совпадений</Badge>
+            <Badge variant="secondary" className="ml-1">{results.length} совпадений</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {mapDetIndex !== null && (
             <div className="mx-4 mb-4 rounded-xl overflow-hidden border" style={{ height: 200 }}>
-              <YandexMap
-                cameras={MOCK_DETECTIONS.map((d, i) => ({ id: i, lat: d.lat, lng: d.lng, name: d.label, address: d.address, status: 'online' as const }))}
-                selectedCamera={mapDetIndex}
-                onCameraSelect={() => {}}
-              />
+              {mapPoints.length > 0 ? (
+                <YandexMap points={mapPoints} />
+              ) : (
+                <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                  У камеры не указаны координаты
+                </div>
+              )}
+            </div>
+          )}
+          {results.length === 0 && (
+            <div className="text-center py-10 text-muted-foreground">
+              <Icon name="Search" size={40} className="mx-auto mb-3 opacity-50" />
+              <p>{loading ? 'Загрузка...' : searched ? 'Совпадений не найдено' : 'Введите номер и нажмите «Найти в истории»'}</p>
             </div>
           )}
           <ScrollArea className="max-h-[480px]">
             <div className="divide-y">
-              {MOCK_DETECTIONS.map((det, index) => (
-                <div key={index} className="flex items-start gap-4 px-4 py-3">
+              {results.map((det, index) => (
+                <div key={det.id} className="flex items-start gap-4 px-4 py-3">
                   <div className="flex-shrink-0 w-48 h-32 rounded-lg overflow-hidden bg-muted border">
-                    {det.carImage ? (
-                      <img src={det.carImage} alt="Фото автомобиля" className="w-full h-full object-cover" />
+                    {(det.carImage ?? det.image) ? (
+                      <img src={(det.carImage ?? det.image)} alt="Фото автомобиля" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Icon name="Car" size={32} className="text-muted-foreground" />
@@ -60,7 +73,7 @@ export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
                   <div className="flex-1 min-w-0 space-y-1.5 py-0.5">
                     <div className="flex items-center gap-2 flex-wrap">
                       <div className="bg-white border-2 border-black rounded px-2 py-0.5 font-mono font-bold text-sm tracking-widest text-black">
-                        {displayPlate}
+                        {det.plate}
                       </div>
                       <Badge
                         className="text-xs px-1.5"
@@ -69,7 +82,7 @@ export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
                         {det.match}%
                       </Badge>
                     </div>
-                    <p className="text-sm font-medium truncate">{det.label}</p>
+                    <p className="text-sm font-medium truncate">{det.camera}</p>
                     <p className="text-xs text-muted-foreground truncate">{det.address} · {det.time}</p>
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
@@ -99,45 +112,13 @@ export const PlateHistoryResults = ({ plate }: PlateHistoryResultsProps) => {
         </CardContent>
       </Card>
 
-      <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
-        <DialogContent className="max-w-3xl flex flex-col overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Icon name="Video" size={18} />
-              {MOCK_DETECTIONS[videoDetIndex]?.label} — видеозапись
-              <DialogClose asChild className="ml-auto">
-                <Button size="icon" variant="secondary" title="Закрыть">
-                  <Icon name="X" size={18} />
-                </Button>
-              </DialogClose>
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-xs text-muted-foreground">{MOCK_DETECTIONS[videoDetIndex]?.address} · {MOCK_DETECTIONS[videoDetIndex]?.time}</p>
-          <div className="rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center relative mt-2">
-            <Icon name="Video" size={56} className="text-white/20" />
-            <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-              <Button size="sm" variant="secondary" className="h-7 text-xs">
-                <Icon name="Play" size={12} className="mr-1" />Воспроизвести
-              </Button>
-              <Button size="sm" variant="secondary" className="h-7 text-xs">
-                <Icon name="Download" size={12} className="mr-1" />Скачать
-              </Button>
-            </div>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 mt-2">
-            {MOCK_DETECTIONS.map((det, i) => (
-              <button
-                key={i}
-                onClick={() => setVideoDetIndex(i)}
-                className={`flex-shrink-0 rounded-lg border p-2 text-left transition-colors ${videoDetIndex === i ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
-              >
-                <p className="text-xs font-medium">{det.label}</p>
-                <p className="text-xs text-muted-foreground">{det.time.split(' ')[1]}</p>
-              </button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <RecognitionVideoDialog
+        open={videoOpen}
+        onOpenChange={setVideoOpen}
+        items={results}
+        index={videoDetIndex}
+        onIndexChange={setVideoDetIndex}
+      />
     </>
   );
 };
