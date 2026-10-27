@@ -208,12 +208,12 @@ const UsersTab = ({ searchQuery, setSearchQuery }: UsersTabProps) => {
                   <UserCard
                     key={user.id}
                     user={user}
-                    onEdit={handleEditClick}
-                    onDelete={(user) => {
+                    onEdit={() => handleEditClick(user)}
+                    onDelete={() => {
                       setUserToDelete(user);
                       setIsDeleteDialogOpen(true);
                     }}
-                    onLoginHistory={setLoginHistoryUser}
+                    onLoginHistory={() => setLoginHistoryUser(user)}
                   />
                 ))}
               </div>

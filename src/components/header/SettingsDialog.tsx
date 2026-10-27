@@ -18,7 +18,7 @@ export interface SettingsForm {
   notifySound: boolean;
   theme: 'light' | 'dark';
   compactTables: boolean;
-  defaultPage: '/dashboard' | '/monitoring' | '/camera-registry';
+  defaultPage: '/dashboard' | '/monitoring' | '/camera-registry' | '/ord' | '/layouts' | '/reports';
   mapTile: MapTile;
 }
 

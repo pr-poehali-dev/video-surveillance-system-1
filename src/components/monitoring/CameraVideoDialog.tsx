@@ -115,8 +115,8 @@ const CameraVideoDialog = ({
               )}
             </div>
             <div className="flex items-center gap-2 mx-auto">
-              <div className={`w-3 h-3 ${getStatusColor(camera?.status)} rounded-full`} />
-              <span className="text-sm font-normal">{getStatusLabel(camera?.status)}</span>
+              <div className={`w-3 h-3 ${getStatusColor(camera?.status ?? '')} rounded-full`} />
+              <span className="text-sm font-normal">{getStatusLabel(camera?.status ?? '')}</span>
             </div>
             <div className="ml-auto flex items-center gap-1">
               <Button size="icon" variant="secondary" title="Распознать лица">

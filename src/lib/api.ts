@@ -19,6 +19,10 @@ export interface Camera {
   hls_url?: string;
   created_at?: string;
   updated_at?: string;
+  territorial_division?: string;
+  tags?: string[];
+  face_recognition?: boolean;
+  grz_recognition?: boolean;
 }
 
 export interface CameraStats {

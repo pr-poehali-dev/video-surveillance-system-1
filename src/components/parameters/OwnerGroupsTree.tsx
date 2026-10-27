@@ -244,7 +244,7 @@ export const OwnerGroupsTree = () => {
 
   const renderGroupTree = (group: OwnerGroup, level: number): React.ReactNode => {
     const isExpanded = expandedGroups.has(group.id);
-    const hasChildren = group.children && group.children.length > 0;
+    const hasChildren = !!group.children && group.children.length > 0;
 
     return (
       <OwnerGroupTreeItem
@@ -304,7 +304,7 @@ export const OwnerGroupsTree = () => {
             <Button
               onClick={() => {
                 setNewGroupParentId(null);
-                setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '' });
+                setFormData({ name: '', description: '', responsible_full_name: '', responsible_phone: '', responsible_email: '', responsible_position: '', head_full_name: '', head_position: '', head_phone: '', head_email: '', show_on_dashboard: false });
                 setIsAddDialogOpen(true);
               }}
             >

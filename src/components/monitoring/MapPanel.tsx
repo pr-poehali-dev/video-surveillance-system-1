@@ -35,7 +35,7 @@ const CameraPreview = ({
   onClose: (id: number) => void;
   onBringToFront: (id: number) => void;
   zIndex: number;
-  containerRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }) => {
   const [pos, setPos] = useState({ x: item.x, y: item.y });
   const dragging = useRef(false);
@@ -183,9 +183,10 @@ const MapPanel = ({
     });
   }, []);
 
-  const handleCameraClickFromMap = useCallback((camera: Camera) => {
-    onCameraClick(camera);
-  }, [onCameraClick]);
+  const handleCameraClickFromMap = useCallback((clicked: { id: number }) => {
+    const camera = cameras.find(c => c.id === clicked.id);
+    if (camera) onCameraClick(camera);
+  }, [cameras, onCameraClick]);
 
   if (previewCamera) {
     const alreadyOpen = previews.find(p => p.camera.id === previewCamera.id);

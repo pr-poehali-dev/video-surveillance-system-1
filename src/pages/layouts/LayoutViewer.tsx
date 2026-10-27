@@ -12,7 +12,7 @@ interface LayoutViewerProps {
   onFullscreen: () => void;
   onOpenSettings: () => void;
   onCreateLayout: () => void;
-  layoutContainerRef: React.RefObject<HTMLDivElement>;
+  layoutContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const LayoutViewer = ({

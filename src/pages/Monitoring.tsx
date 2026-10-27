@@ -111,8 +111,8 @@ const Monitoring = () => {
     const matchesStatus = statusFilter.length === 0 || statusFilter.includes(camera.status);
     const matchesOwner = ownerFilter.length === 0 || ownerFilter.includes(camera.owner);
     const matchesGroup = groupFilter.length === 0 || groupFilter.includes(camera.group);
-    const matchesDivision = divisionFilter.length === 0 || divisionFilter.includes(camera.territorial_division);
-    const matchesTag = tagFilter.length === 0 || (camera.tags && tagFilter.some(t => camera.tags.includes(t)));
+    const matchesDivision = divisionFilter.length === 0 || (camera.territorial_division !== undefined && divisionFilter.includes(camera.territorial_division));
+    const matchesTag = tagFilter.length === 0 || (camera.tags !== undefined && tagFilter.some(t => camera.tags?.includes(t)));
     const matchesAnalytics = analyticsFilter.length === 0 || (
       (analyticsFilter.includes('face') && camera.face_recognition) ||
       (analyticsFilter.includes('grz') && camera.grz_recognition)

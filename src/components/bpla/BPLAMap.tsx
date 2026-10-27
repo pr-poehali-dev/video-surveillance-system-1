@@ -102,7 +102,7 @@ const BPLAMap = ({ detections }: BPLAMapProps) => {
 
     markersLayerRef.current = L.layerGroup().addTo(map);
 
-    const legend = L.control({ position: 'bottomleft' });
+    const legend = new L.Control({ position: 'bottomleft' });
     legend.onAdd = () => {
       const div = L.DomUtil.create('div');
       div.innerHTML = `<div style="background:rgba(0,0,0,0.75);color:#e2e8f0;padding:8px 10px;border-radius:6px;font-size:11px;font-family:monospace;line-height:1.8"><div style="margin-bottom:4px;font-weight:bold;color:#94a3b8">БПЛА / УГРОЗА</div><div><span style="color:#ef4444">●</span> Высокая</div><div><span style="color:#eab308">●</span> Средняя</div><div><span style="color:#22c55e">●</span> Низкая</div></div>`;

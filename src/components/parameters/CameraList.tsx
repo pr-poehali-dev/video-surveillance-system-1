@@ -271,7 +271,7 @@ export const CameraList = ({ refreshTrigger, selectedOwners = [], selectedDivisi
         owners={owners}
         divisions={divisions}
         onOpenChange={setIsEditDialogOpen}
-        onFormDataChange={setFormData}
+        onFormDataChange={(d) => setFormData({ ...d, ptz_ip: d.ptz_ip ?? '', ptz_port: d.ptz_port ?? '', ptz_login: d.ptz_login ?? '', ptz_password: d.ptz_password ?? '', resolution: d.resolution ?? '', fps: d.fps ?? '', traffic: d.traffic ?? '' })}
         onSubmit={handleUpdate}
       />
 
