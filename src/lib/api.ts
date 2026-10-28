@@ -49,7 +49,7 @@ export const api = {
     if (filters?.owner && filters.owner !== 'all') params.append('owner', filters.owner);
     if (filters?.search) params.append('search', filters.search);
     const cameraGroupId = typeof window !== 'undefined' ? localStorage.getItem('cameraGroupId') : null;
-    if (cameraGroupId) params.append('camera_group_id', cameraGroupId);
+    params.append('camera_group_id', cameraGroupId || '0');
 
     const url = `${CAMERAS_API}${params.toString() ? '&' + params.toString() : ''}`;
     const response = await fetch(url);
