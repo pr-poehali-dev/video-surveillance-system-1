@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Camera } from '@/lib/api';
+import { usePermissions } from '@/hooks/usePermissions';
 import { DetectionSettings } from '@/components/monitoring/CameraSettingsSheet';
 
 interface CameraVideoDialogProps {
@@ -83,6 +84,9 @@ const CameraVideoDialog = ({
   const hasDetection = detectionSettings.faceDetection || detectionSettings.plateDetection || detectionSettings.carDetection;
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
+  const { can } = usePermissions();
+  const canArchive = can('viewArchive');
+  const canPtz = can('ptzControl');
   const [ptzVisible, setPtzVisible] = useState(false);
   const [isDialogFullscreen, setIsDialogFullscreen] = useState(false);
 
@@ -220,7 +224,7 @@ const CameraVideoDialog = ({
                 )}
               </div>
 
-              {ptzVisible && (
+              {ptzVisible && canPtz && (
                 <div className="flex-shrink-0 flex items-center justify-center border rounded-lg p-3 bg-muted/30">
                   <PTZControl onCommand={handlePTZCommand} />
                 </div>
@@ -228,22 +232,28 @@ const CameraVideoDialog = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <Button className="flex-1">
-                <Icon name="Archive" size={18} className="mr-2" />
-                Видеоархив
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <Icon name="Download" size={18} className="mr-2" />
-                Скачать фрагмент
-              </Button>
-              <Button
-                variant={ptzVisible ? 'secondary' : 'outline'}
-                className="flex-1"
-                onClick={() => setPtzVisible(!ptzVisible)}
-              >
-                <Icon name="Gamepad2" size={18} className="mr-2" />
-                Управление PTZ
-              </Button>
+              {canArchive && (
+                <Button className="flex-1">
+                  <Icon name="Archive" size={18} className="mr-2" />
+                  Видеоархив
+                </Button>
+              )}
+              {canArchive && (
+                <Button variant="outline" className="flex-1">
+                  <Icon name="Download" size={18} className="mr-2" />
+                  Скачать фрагмент
+                </Button>
+              )}
+              {canPtz && (
+                <Button
+                  variant={ptzVisible ? 'secondary' : 'outline'}
+                  className="flex-1"
+                  onClick={() => setPtzVisible(!ptzVisible)}
+                >
+                  <Icon name="Gamepad2" size={18} className="mr-2" />
+                  Управление PTZ
+                </Button>
+              )}
               <Button variant={isDialogFullscreen ? 'secondary' : 'outline'} className="flex-1" onClick={handleFullscreen}>
                 <Icon name={isDialogFullscreen ? 'Minimize' : 'Maximize'} size={18} className="mr-2" />
                 {isDialogFullscreen ? 'Свернуть' : 'На весь экран'}

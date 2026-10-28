@@ -4,6 +4,10 @@ import { USERS_SERVICE_API } from '@/lib/backendUrls';
 interface Permissions {
   home?: boolean;
   monitoring?: boolean;
+  viewOnline?: boolean;
+  viewArchive?: boolean;
+  ptzControl?: boolean;
+  bpla?: boolean;
   ord?: boolean;
   layouts?: boolean;
   photoArchive?: boolean;
@@ -17,6 +21,7 @@ const PATH_PERMISSION: Record<string, keyof Permissions> = {
   '/dashboard': 'home',
   '/monitoring': 'monitoring',
   '/ord': 'ord',
+  '/bpla': 'bpla',
   '/layouts': 'layouts',
   '/photo-archive': 'photoArchive',
   '/reports': 'reports',
@@ -29,6 +34,7 @@ const ORDERED_PATHS = [
   '/dashboard',
   '/monitoring',
   '/ord',
+  '/bpla',
   '/layouts',
   '/photo-archive',
   '/reports',
@@ -39,7 +45,8 @@ const ORDERED_PATHS = [
 
 interface RawPermissions {
   home?: { view?: boolean };
-  monitoring?: { view?: boolean };
+  monitoring?: { view?: boolean; view_online?: boolean; view_archive?: boolean; ptz_control?: boolean };
+  bpla?: { view?: boolean };
   ord?: { view?: boolean };
   layouts?: { view?: boolean };
   photo_archive?: { view?: boolean };
@@ -77,6 +84,10 @@ export const usePermissions = () => {
         setPermissions({
           home: raw.home?.view === true,
           monitoring: raw.monitoring?.view === true,
+          viewOnline: raw.monitoring?.view_online === true,
+          viewArchive: raw.monitoring?.view_archive === true,
+          ptzControl: raw.monitoring?.ptz_control === true,
+          bpla: raw.bpla?.view === true,
           ord: raw.ord?.view === true,
           layouts: raw.layouts?.view === true,
           photoArchive: raw.photo_archive?.view === true,
@@ -106,7 +117,12 @@ export const usePermissions = () => {
     [hasRole, permissions]
   );
 
+  const can = useCallback(
+    (key: keyof Permissions) => !hasRole || permissions[key] === true,
+    [hasRole, permissions]
+  );
+
   const firstAllowedPath = ORDERED_PATHS.find((p) => canAccess(p)) ?? null;
 
-  return { permissions, loading, hasRole, canAccess, firstAllowedPath };
+  return { permissions, loading, hasRole, canAccess, can, firstAllowedPath };
 };

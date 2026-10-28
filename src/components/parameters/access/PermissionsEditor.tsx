@@ -28,15 +28,18 @@ export const PermissionsEditor = ({ permissions, onChange }: PermissionsEditorPr
   };
 
   const updatePermission = (path: string[], value: boolean) => {
-    const newPermissions = { ...permissions };
+    const newPermissions: any = JSON.parse(JSON.stringify(permissions));
     let current: any = newPermissions;
-    
+
     for (let i = 0; i < path.length - 1; i++) {
+      if (current[path[i]] == null || typeof current[path[i]] !== 'object') {
+        current[path[i]] = {};
+      }
       current = current[path[i]];
     }
-    
+
     current[path[path.length - 1]] = value;
-    onChange(newPermissions);
+    onChange(newPermissions as RolePermissions);
   };
 
   const PermissionCheckbox = ({ label, path }: { label: string; path: string[] }) => {
