@@ -29,27 +29,30 @@ const Login = () => {
   useEffect(() => {
     const impersonateKey = searchParams.get('impersonate');
     if (impersonateKey) {
-      const impersonateDataStr = sessionStorage.getItem(impersonateKey);
+      const impersonateDataStr = localStorage.getItem(impersonateKey);
       if (impersonateDataStr) {
         try {
           const impersonateData = JSON.parse(impersonateDataStr);
-          // Проверяем, что данные не устарели (не старше 30 секунд)
-          if (Date.now() - impersonateData.timestamp < 30000) {
+          // Проверяем, что данные не устарели (не старше минуты)
+          if (Date.now() - impersonateData.timestamp < 60000) {
             // Сохраняем информацию о входе в localStorage
             localStorage.setItem("isAuthenticated", "true");
             localStorage.setItem("userLogin", impersonateData.login);
             localStorage.setItem("userFullName", impersonateData.fullName);
             localStorage.setItem("userId", impersonateData.userId.toString());
-            
-            // Удаляем данные из sessionStorage
-            sessionStorage.removeItem(impersonateKey);
+            ["userRoleId", "userGroupId", "cameraGroupId"].forEach((k) => localStorage.removeItem(k));
+            if (impersonateData.roleId) localStorage.setItem("userRoleId", String(impersonateData.roleId));
+            if (impersonateData.userGroupId) localStorage.setItem("userGroupId", String(impersonateData.userGroupId));
+            if (impersonateData.cameraGroupId) localStorage.setItem("cameraGroupId", String(impersonateData.cameraGroupId));
+
+            localStorage.removeItem(impersonateKey);
             
             // Показываем уведомление и перенаправляем
             toast.success(`Вход выполнен как ${impersonateData.fullName}`);
             const impersonateSettings = JSON.parse(localStorage.getItem('portalSettings') || '{}');
             navigate(impersonateSettings.defaultPage || "/dashboard");
           } else {
-            sessionStorage.removeItem(impersonateKey);
+            localStorage.removeItem(impersonateKey);
             toast.error('Ссылка для входа устарела');
           }
         } catch (e) {

@@ -42,11 +42,14 @@ const UserCard = ({ user, onEdit, onDelete, onLoginHistory }: UserCardProps) => 
         login: data.login,
         passwordHash: data.password_hash,
         fullName: data.full_name,
+        roleId: data.role_id,
+        userGroupId: data.user_group_id,
+        cameraGroupId: data.camera_group_id,
         timestamp: Date.now()
       };
       
       const impersonateKey = `impersonate_${Date.now()}`;
-      sessionStorage.setItem(impersonateKey, JSON.stringify(impersonateData));
+      localStorage.setItem(impersonateKey, JSON.stringify(impersonateData));
       
       const newWindow = window.open(`/login?impersonate=${impersonateKey}`, '_blank');
       
@@ -54,7 +57,7 @@ const UserCard = ({ user, onEdit, onDelete, onLoginHistory }: UserCardProps) => 
         toast.success(`Открыта новая вкладка для входа как ${user.full_name}`);
       } else {
         toast.error('Не удалось открыть новую вкладку. Разрешите всплывающие окна.');
-        sessionStorage.removeItem(impersonateKey);
+        localStorage.removeItem(impersonateKey);
       }
     } catch (error) {
       console.error('Impersonate error:', error);

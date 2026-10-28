@@ -251,7 +251,10 @@ def handle_impersonate(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     return json_response(200, {
         'login': row[0],
         'password_hash': row[1],
-        'full_name': row[2]
+        'full_name': row[2],
+        'role_id': row[3],
+        'user_group_id': row[4],
+        'camera_group_id': row[5]
     })
 
 
