@@ -1243,12 +1243,53 @@ def handle_ord_recognitions(event: Dict[str, Any], method: str) -> Dict[str, Any
         conn.close()
 
 
+def handle_dashboard_owners(event: Dict[str, Any], method: str) -> Dict[str, Any]:
+    """Собственники камер, выбранные пользователем для блока на дашборде"""
+    params = event.get('queryStringParameters') or {}
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        if method == 'GET':
+            user_id = params.get('user_id')
+            if not user_id or not user_id.isdigit():
+                return json_response(400, {'error': 'Не указан пользователь'})
+            cur.execute(
+                f"SELECT owner_id FROM {SCHEMA}.user_dashboard_owners WHERE user_id = %s AND block = 'gov' ORDER BY position, owner_id",
+                (int(user_id),)
+            )
+            return json_response(200, {'owner_ids': [r['owner_id'] for r in cur.fetchall()]})
+
+        if method == 'PUT':
+            body = json.loads(event.get('body') or '{}')
+            user_id = body.get('user_id')
+            owner_ids = body.get('owner_ids') or []
+            if not isinstance(user_id, int) or not isinstance(owner_ids, list):
+                return json_response(400, {'error': 'Неверные данные'})
+            cur.execute(f"DELETE FROM {SCHEMA}.user_dashboard_owners WHERE user_id = %s AND block = 'gov'", (user_id,))
+            for pos, oid in enumerate([o for o in owner_ids if isinstance(o, int)]):
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.user_dashboard_owners (user_id, owner_id, block, position) "
+                    f"SELECT %s, id, 'gov', %s FROM {SCHEMA}.camera_owners WHERE id = %s ON CONFLICT DO NOTHING",
+                    (user_id, pos, oid)
+                )
+            conn.commit()
+            return json_response(200, {'message': 'Saved'})
+
+        return json_response(405, {'error': 'Method not allowed'})
+    except Exception as e:
+        conn.rollback()
+        return json_response(500, {'error': str(e)})
+    finally:
+        cur.close()
+        conn.close()
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Объединённый сервис камер и справочников
     Args: event - dict с httpMethod, body, queryStringParameters
           (resource=registry|camera-groups|camera-owners|camera-tags|tags|
-                    territorial-divisions|models|groups|stats|photo-archive|drone-detections|ord-recognitions)
+                    territorial-divisions|models|groups|stats|photo-archive|drone-detections|ord-recognitions|dashboard-owners)
           context - объект с request_id
     Returns: HTTP response dict
     """
@@ -1278,6 +1319,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'photo-archive': handle_photo_archive,
         'drone-detections': handle_drone_detections,
         'ord-recognitions': handle_ord_recognitions,
+        'dashboard-owners': handle_dashboard_owners,
     }
 
     fn = handlers.get(resource)

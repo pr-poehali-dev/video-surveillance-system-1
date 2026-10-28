@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
+import OwnersSelectDialog from '@/components/dashboard/OwnersSelectDialog';
+import { toast } from 'sonner';
 
 interface OwnerNode {
   id: number;
@@ -63,10 +65,73 @@ const buildOrgStats = (tree: OwnerNode[], rootNamePrefix: string): OrgStat[] => 
     });
 };
 
+const buildStatsByIds = (tree: OwnerNode[], ids: number[]): OrgStat[] => {
+  const collect = (id: number): OwnerNode[] => {
+    const self = tree.find((o) => o.id === id);
+    const children = tree.filter((o) => o.parent_id === id).flatMap((c) => collect(c.id));
+    return self ? [self, ...children] : children;
+  };
+  return ids
+    .map((id) => tree.find((o) => o.id === id))
+    .filter((o): o is OwnerNode => !!o)
+    .map((org) => {
+      const nodes = collect(org.id);
+      const sum = (key: 'total' | 'active' | 'inactive' | 'problem') =>
+        nodes.reduce((acc, n) => acc + Number(n[key]), 0);
+      return {
+        id: org.id,
+        name: org.name,
+        total: sum('total'),
+        active: sum('active'),
+        inactive: sum('inactive'),
+        problem: sum('problem'),
+      };
+    });
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [data, setData] = useState<DashboardStats | null>(null);
+  const [selectedOwnerIds, setSelectedOwnerIds] = useState<number[]>([]);
+  const [ownersDialogOpen, setOwnersDialogOpen] = useState(false);
+  const [savingOwners, setSavingOwners] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const id = localStorage.getItem('userId');
+    if (!id) return;
+    const uid = parseInt(id);
+    setUserId(uid);
+    fetch(`${CAMERAS_SERVICE_API}?resource=dashboard-owners&user_id=${uid}`)
+      .then((r) => r.json())
+      .then((d) => setSelectedOwnerIds(Array.isArray(d.owner_ids) ? d.owner_ids : []))
+      .catch(() => setSelectedOwnerIds([]));
+  }, []);
+
+  const saveOwners = async (ids: number[]) => {
+    if (userId === null) {
+      toast.error('Не удалось определить пользователя');
+      return;
+    }
+    setSavingOwners(true);
+    try {
+      const res = await fetch(`${CAMERAS_SERVICE_API}?resource=dashboard-owners`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, owner_ids: ids }),
+      });
+      if (!res.ok) {
+        toast.error('Не удалось сохранить выбор');
+        return;
+      }
+      setSelectedOwnerIds(ids);
+      setOwnersDialogOpen(false);
+      toast.success('Выбор собственников сохранён');
+    } finally {
+      setSavingOwners(false);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -90,7 +155,10 @@ const Dashboard = () => {
     new30d: data?.new_30d ?? 0,
   };
 
-  const MINISTRY_STATS = buildOrgStats(data?.owners_tree ?? [], 'Органы государственной власти');
+  const MINISTRY_STATS =
+    selectedOwnerIds.length > 0
+      ? buildStatsByIds(data?.owners_tree ?? [], selectedOwnerIds)
+      : buildOrgStats(data?.owners_tree ?? [], 'Органы государственной власти');
   const OMSU_STATS = buildOrgStats(data?.owners_tree ?? [], 'Органы местного самоуправления');
 
   return (
@@ -222,6 +290,15 @@ const Dashboard = () => {
             <CardTitle className="flex items-center gap-2">
               <Icon name="Building2" size={20} />
               Органы государственной власти
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto"
+                onClick={() => setOwnersDialogOpen(true)}
+              >
+                <Icon name="SlidersHorizontal" size={14} className="mr-2" />
+                Выбрать собственников
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -249,6 +326,11 @@ const Dashboard = () => {
                   </div>
                 </div>
               ))}
+              {MINISTRY_STATS.length === 0 && (
+                <p className="text-sm text-muted-foreground col-span-full text-center py-6">
+                  Нет собственников для отображения. Нажмите «Выбрать собственников».
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -288,6 +370,15 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+      <OwnersSelectDialog
+        open={ownersDialogOpen}
+        onOpenChange={setOwnersDialogOpen}
+        owners={data?.owners_tree ?? []}
+        selectedIds={selectedOwnerIds}
+        saving={savingOwners}
+        onSave={saveOwners}
+      />
     </div>
   );
 };

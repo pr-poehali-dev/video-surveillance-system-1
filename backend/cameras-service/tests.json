@@ -65,6 +65,12 @@
       "method": "GET",
       "path": "/?resource=ord-recognitions&stats=1",
       "expectedStatus": 200
+    },
+    {
+      "name": "Собственники дашборда",
+      "method": "GET",
+      "path": "/?resource=dashboard-owners&user_id=1",
+      "expectedStatus": 200
     }
   ]
 }
