@@ -95,6 +95,7 @@ const Login = () => {
         localStorage.setItem("userLogin", data.user.login);
         localStorage.setItem("userFullName", data.user.full_name || login);
         localStorage.setItem("userId", data.user.id.toString());
+        ["userRoleId", "userGroupId", "cameraGroupId"].forEach((k) => localStorage.removeItem(k));
         
         if (data.user.role_id) {
           localStorage.setItem("userRoleId", data.user.role_id.toString());

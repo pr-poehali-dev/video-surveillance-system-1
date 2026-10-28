@@ -235,7 +235,7 @@ def handle_impersonate(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     cur = conn.cursor()
 
     cur.execute('''
-        SELECT login, password_hash, full_name
+        SELECT login, password_hash, full_name, role_id, user_group_id, camera_group_id
         FROM t_p76735805_video_surveillance_s.system_users
         WHERE id = %s
     ''', (user_id,))
