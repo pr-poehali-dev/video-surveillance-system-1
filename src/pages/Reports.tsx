@@ -9,6 +9,7 @@ import { ReportCameraActivity } from '@/components/reports/ReportCameraActivity'
 import { ReportEventLog } from '@/components/reports/ReportEventLog';
 import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 import { ReportCamera } from '@/components/reports/reportTypes';
+import { getScopedCamerasUrl } from '@/lib/cameraScope';
 
 const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30');
@@ -20,7 +21,7 @@ const Reports = () => {
   const [activeCount, setActiveCount] = useState(0);
 
   useEffect(() => {
-    fetch(`${CAMERAS_SERVICE_API}?resource=registry`)
+    fetch(getScopedCamerasUrl())
       .then((r) => r.json())
       .then((d) => setCameras(Array.isArray(d) ? d : []))
       .catch(() => setCameras([]));

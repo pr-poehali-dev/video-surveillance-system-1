@@ -5,6 +5,7 @@ import StatsCards from '@/components/photo-archive/StatsCards';
 import TasksList from '@/components/photo-archive/TasksList';
 import ArchiveDialog from '@/components/photo-archive/ArchiveDialog';
 import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
+import { getScopedCamerasUrl } from '@/lib/cameraScope';
 
 const PHOTO_API = `${CAMERAS_SERVICE_API}?resource=photo-archive`;
 
@@ -43,7 +44,7 @@ const PhotoArchive = () => {
 
   useEffect(() => {
     loadTasks();
-    fetch(`${CAMERAS_SERVICE_API}?resource=registry`)
+    fetch(getScopedCamerasUrl())
       .then((r) => r.json())
       .then((d) =>
         setCameras(Array.isArray(d) ? d.map((c: { id: number; name: string }) => ({ id: String(c.id), name: c.name })) : [])

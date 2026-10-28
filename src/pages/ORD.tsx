@@ -11,7 +11,7 @@ import { CameraOption } from '@/components/ord/CameraMultiSelect';
 import { Button } from '@/components/ui/button';
 import AddRecognitionDialog from '@/components/ord/AddRecognitionDialog';
 import { Recognition, fetchRecognitions, fetchOrdStats, deleteRecognition } from '@/components/ord/ordApi';
-import { CAMERAS_API } from '@/components/parameters/camera-list/CameraListTypes';
+import { getScopedCamerasUrl } from '@/lib/cameraScope';
 
 const ORD = () => {
   const [plateSearch, setPlateSearch] = useState('');
@@ -110,7 +110,7 @@ const ORD = () => {
   };
 
   useEffect(() => {
-    fetch(CAMERAS_API)
+    fetch(getScopedCamerasUrl())
       .then(r => r.json())
       .then(data => setCameras(Array.isArray(data) ? data : []))
       .catch(() => setCameras([]));
