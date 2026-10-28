@@ -159,7 +159,6 @@ const Dashboard = () => {
     selectedOwnerIds.length > 0
       ? buildStatsByIds(data?.owners_tree ?? [], selectedOwnerIds)
       : buildOrgStats(data?.owners_tree ?? [], 'Органы государственной власти');
-  const OMSU_STATS = buildOrgStats(data?.owners_tree ?? [], 'Органы местного самоуправления');
 
   return (
     <div className="bg-background">
@@ -331,42 +330,6 @@ const Dashboard = () => {
                   Нет собственников для отображения. Нажмите «Выбрать собственников».
                 </p>
               )}
-            </div>
-          </CardContent>
-        </Card>
-
-      <Card className="border-border/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="Landmark" size={20} />
-              Органы местного самоуправления
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {OMSU_STATS.map((omsu) => (
-                <div key={omsu.id} className="border border-border rounded-xl p-4 space-y-3">
-                  <p className="font-semibold text-sm leading-tight">{omsu.name}</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-muted/50 rounded-lg p-2 text-center">
-                      <p className="text-xs text-muted-foreground">Всего</p>
-                      <p className="text-lg font-bold">{omsu.total}</p>
-                    </div>
-                    <div className="bg-green-500/10 rounded-lg p-2 text-center">
-                      <p className="text-xs text-green-600">Активных</p>
-                      <p className="text-lg font-bold text-green-600">{omsu.active}</p>
-                    </div>
-                    <div className="bg-red-500/10 rounded-lg p-2 text-center">
-                      <p className="text-xs text-red-500">Неактивных</p>
-                      <p className="text-lg font-bold text-red-500">{omsu.inactive}</p>
-                    </div>
-                    <div className="bg-yellow-500/10 rounded-lg p-2 text-center">
-                      <p className="text-xs text-yellow-600">Проблемных</p>
-                      <p className="text-lg font-bold text-yellow-600">{omsu.problem}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </CardContent>
         </Card>
