@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { USERS_SERVICE_API } from '@/lib/backendUrls';
 
 interface Permissions {
+  home?: boolean;
   monitoring?: boolean;
   ord?: boolean;
   layouts?: boolean;
@@ -11,60 +13,81 @@ interface Permissions {
   cameraRegistry?: boolean;
 }
 
+const PATH_PERMISSION: Record<string, keyof Permissions> = {
+  '/dashboard': 'home',
+  '/monitoring': 'monitoring',
+  '/ord': 'ord',
+  '/layouts': 'layouts',
+  '/photo-archive': 'photoArchive',
+  '/reports': 'reports',
+  '/parameters': 'parameters',
+  '/viss': 'viss',
+  '/camera-registry': 'cameraRegistry',
+};
+
+const ORDERED_PATHS = [
+  '/dashboard',
+  '/monitoring',
+  '/ord',
+  '/layouts',
+  '/photo-archive',
+  '/reports',
+  '/parameters',
+  '/viss',
+  '/camera-registry',
+];
+
+interface RawPermissions {
+  home?: { view?: boolean };
+  monitoring?: { view?: boolean };
+  ord?: { view?: boolean };
+  layouts?: { view?: boolean };
+  photo_archive?: { view?: boolean };
+  reports?: { view?: boolean };
+  parameters?: {
+    view?: boolean;
+    vvs?: { view?: boolean };
+    camera_sources?: { view?: boolean };
+  };
+}
+
 export const usePermissions = () => {
   const [permissions, setPermissions] = useState<Permissions>({});
+  const [hasRole, setHasRole] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const userStr = localStorage.getItem('user');
-        console.log('usePermissions: userStr from localStorage:', userStr);
-        
-        if (!userStr) {
-          console.log('usePermissions: No user in localStorage');
-          setLoading(false);
-          return;
-        }
-
-        const user = JSON.parse(userStr);
-        console.log('usePermissions: Parsed user:', user);
-        const roleId = user.role_id;
-        console.log('usePermissions: roleId:', roleId);
-
+        const roleId = localStorage.getItem('userRoleId');
         if (!roleId) {
-          console.log('usePermissions: No roleId, setting empty permissions');
-          setPermissions({});
-          setLoading(false);
+          setHasRole(false);
           return;
         }
+        setHasRole(true);
 
-        const response = await fetch(`https://functions.poehali.dev/3cded7ed-a0ac-4076-8dcd-56e3c02e6d8e?id=${roleId}`);
-        
-        if (response.ok) {
-          const role = await response.json();
-          console.log('Role data:', role);
-          const rawPermissions = role.permissions || {};
-          console.log('Raw permissions:', rawPermissions);
-          
-          const mappedPermissions: Permissions = {
-            monitoring: rawPermissions.monitoring?.view === true,
-            ord: rawPermissions.ord?.view === true,
-            layouts: rawPermissions.layouts?.view === true,
-            photoArchive: rawPermissions.photo_archive?.view === true,
-            reports: rawPermissions.reports?.view === true,
-            parameters: rawPermissions.parameters?.view === true,
-            viss: rawPermissions.parameters?.vvs?.view === true,
-            cameraRegistry: rawPermissions.parameters?.camera_sources?.view === true,
-          };
-          
-          console.log('Mapped permissions:', mappedPermissions);
-          setPermissions(mappedPermissions);
-        } else {
-          console.error('Failed to fetch role, status:', response.status);
+        const response = await fetch(`${USERS_SERVICE_API}?resource=roles&id=${roleId}`);
+        if (!response.ok) {
+          setPermissions({});
+          return;
         }
+        const role = await response.json();
+        const raw: RawPermissions = role.permissions || {};
+
+        setPermissions({
+          home: raw.home?.view === true,
+          monitoring: raw.monitoring?.view === true,
+          ord: raw.ord?.view === true,
+          layouts: raw.layouts?.view === true,
+          photoArchive: raw.photo_archive?.view === true,
+          reports: raw.reports?.view === true,
+          parameters: raw.parameters?.view === true,
+          viss: raw.parameters?.vvs?.view === true,
+          cameraRegistry: raw.parameters?.camera_sources?.view === true,
+        });
       } catch (error) {
         console.error('Error fetching permissions:', error);
+        setPermissions({});
       } finally {
         setLoading(false);
       }
@@ -73,5 +96,17 @@ export const usePermissions = () => {
     fetchPermissions();
   }, []);
 
-  return { permissions, loading };
+  const canAccess = useCallback(
+    (path: string) => {
+      if (!hasRole) return true;
+      const key = PATH_PERMISSION[path];
+      if (!key) return true;
+      return permissions[key] === true;
+    },
+    [hasRole, permissions]
+  );
+
+  const firstAllowedPath = ORDERED_PATHS.find((p) => canAccess(p)) ?? null;
+
+  return { permissions, loading, hasRole, canAccess, firstAllowedPath };
 };

@@ -8,7 +8,11 @@ interface NavItem {
   icon: string;
 }
 
-const Navigation = () => {
+interface NavigationProps {
+  canAccess?: (path: string) => boolean;
+}
+
+const Navigation = ({ canAccess }: NavigationProps) => {
   const location = useLocation();
 
   const navItems: NavItem[] = [
@@ -27,7 +31,7 @@ const Navigation = () => {
     <nav className="bg-card border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-1 overflow-x-auto py-2">
-          {navItems.map((item) => {
+          {navItems.filter((item) => !canAccess || canAccess(item.path)).map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
