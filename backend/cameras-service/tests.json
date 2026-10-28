@@ -7,70 +7,73 @@
       "expectedStatus": 200
     },
     {
-      "name": "Реестр камер",
+      "name": "Реестр камер без токена закрыты",
       "method": "GET",
       "path": "/?resource=registry",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Группы камер",
+      "name": "Группы камер без токена закрыты",
       "method": "GET",
       "path": "/?resource=camera-groups",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Владельцы камер",
+      "name": "Владельцы камер без токена закрыты",
       "method": "GET",
       "path": "/?resource=camera-owners",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Теги камер",
+      "name": "Теги камер без токена закрыты",
       "method": "GET",
       "path": "/?resource=camera-tags",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Территориальные деления",
+      "name": "Территориальные деления без токена закрыты",
       "method": "GET",
       "path": "/?resource=territorial-divisions",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Модели камер",
+      "name": "Модели камер без токена закрыты",
       "method": "GET",
       "path": "/?resource=models",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Статистика камер",
+      "name": "Статистика камер без токена закрыты",
       "method": "GET",
       "path": "/?resource=stats",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Обнаружения БПЛА",
+      "name": "Обнаружения БПЛА без токена закрыты",
       "method": "GET",
       "path": "/?resource=drone-detections",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Распознавания ОРД",
+      "name": "Распознавания ОРД без токена закрыты",
       "method": "GET",
       "path": "/?resource=ord-recognitions",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Статистика ОРД за 24ч",
+      "name": "Фотоархив без токена закрыты",
       "method": "GET",
-      "path": "/?resource=ord-recognitions&stats=1",
-      "expectedStatus": 200
+      "path": "/?resource=photo-archive",
+      "expectedStatus": 401
     },
     {
-      "name": "Собственники дашборда",
-      "method": "GET",
-      "path": "/?resource=dashboard-owners&user_id=1",
-      "expectedStatus": 200
+      "name": "Удаление ОРД без токена закрыто",
+      "method": "DELETE",
+      "path": "/?resource=ord-recognitions",
+      "body": {
+        "id": 1
+      },
+      "expectedStatus": 401
     }
   ]
 }

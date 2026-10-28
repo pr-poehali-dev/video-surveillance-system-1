@@ -41,6 +41,7 @@ const UserCard = ({ user, onEdit, onDelete, onLoginHistory }: UserCardProps) => 
         userId: user.id,
         login: data.login,
         fullName: data.full_name,
+        token: data.token,
         roleId: data.role_id,
         userGroupId: data.user_group_id,
         cameraGroupId: data.camera_group_id,

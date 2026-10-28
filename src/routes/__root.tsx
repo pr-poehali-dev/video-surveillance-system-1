@@ -5,9 +5,12 @@ import {Toaster as Sonner} from "@/components/ui/sonner";
 import {TooltipProvider} from "@/components/ui/tooltip";
 import {PLATFORM_META, PLATFORM_SCRIPTS} from "@/platform/scripts.gen";
 import {HMR_CLIENT} from "@/platform/dev-hmr";
+import {installAuthFetch} from "@/lib/authFetch";
 import appCss from "@/index.css?url";
 
 import NotFound from "@/pages/NotFound";
+
+installAuthFetch();
 
 const TITLE = "ЕСВН ПК";
 const DESCRIPTION = "Единая система видеонаблюдения";

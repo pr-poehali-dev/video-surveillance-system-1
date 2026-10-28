@@ -37,10 +37,11 @@ const Login = () => {
           if (Date.now() - impersonateData.timestamp < 60000) {
             // Сохраняем информацию о входе в localStorage
             localStorage.setItem("isAuthenticated", "true");
+            if (impersonateData.token) localStorage.setItem("authToken", impersonateData.token);
             localStorage.setItem("userLogin", impersonateData.login);
             localStorage.setItem("userFullName", impersonateData.fullName);
             localStorage.setItem("userId", impersonateData.userId.toString());
-            ["userRoleId", "userGroupId", "cameraGroupId"].forEach((k) => localStorage.removeItem(k));
+            ["userRoleId", "userGroupId", "cameraGroupId", "sessionToken"].forEach((k) => localStorage.removeItem(k));
             if (impersonateData.roleId) localStorage.setItem("userRoleId", String(impersonateData.roleId));
             if (impersonateData.userGroupId) localStorage.setItem("userGroupId", String(impersonateData.userGroupId));
             if (impersonateData.cameraGroupId) localStorage.setItem("cameraGroupId", String(impersonateData.cameraGroupId));
@@ -92,6 +93,7 @@ const Login = () => {
       if (response.ok && data.success) {
         // Сохраняем данные пользователя
         localStorage.setItem("isAuthenticated", "true");
+        if (data.token) localStorage.setItem("authToken", data.token);
         localStorage.setItem("userLogin", data.user.login);
         localStorage.setItem("userFullName", data.user.full_name || login);
         localStorage.setItem("userId", data.user.id.toString());

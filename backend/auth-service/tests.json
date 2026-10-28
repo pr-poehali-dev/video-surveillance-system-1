@@ -35,20 +35,16 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "Сессии - список активных",
+      "name": "Сессии без токена закрыты",
       "method": "GET",
       "path": "/?resource=sessions",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Имперсонация без user_id",
+      "name": "Имперсонация без токена закрыта",
       "method": "GET",
-      "path": "/?resource=impersonate",
-      "expectedStatus": 400,
-      "expectedBody": {
-        "error": "string"
-      },
-      "bodyMatcher": "partial"
+      "path": "/?resource=impersonate&user_id=1",
+      "expectedStatus": 401
     }
   ]
 }

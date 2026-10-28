@@ -41,7 +41,7 @@ const HeaderBar = ({ currentTime, notifications, userRole, onChangePassword, onO
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userLogin');
-    ['userFullName', 'userId', 'userRoleId', 'userGroupId', 'cameraGroupId'].forEach((k) => localStorage.removeItem(k));
+    ['userFullName', 'userId', 'userRoleId', 'userGroupId', 'cameraGroupId', 'authToken', 'sessionToken'].forEach((k) => localStorage.removeItem(k));
     toast.success('Вы вышли из системы');
     navigate('/login');
   };

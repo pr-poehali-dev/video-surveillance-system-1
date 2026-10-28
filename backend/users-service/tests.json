@@ -7,33 +7,29 @@
       "expectedStatus": 200
     },
     {
-      "name": "Список пользователей",
+      "name": "Список пользователей без токена закрыт",
       "method": "GET",
       "path": "/?resource=users",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Список ролей",
+      "name": "Список ролей без токена закрыт",
       "method": "GET",
       "path": "/?resource=roles",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Список групп пользователей",
+      "name": "Группы пользователей без токена закрыты",
       "method": "GET",
       "path": "/?resource=user-groups",
-      "expectedStatus": 200
+      "expectedStatus": 401
     },
     {
-      "name": "Создание пользователя без обязательных полей",
+      "name": "Создание пользователя без токена закрыто",
       "method": "POST",
       "path": "/?resource=users",
       "body": {},
-      "expectedStatus": 400,
-      "expectedBody": {
-        "error": "string"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 401
     }
   ]
 }

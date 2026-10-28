@@ -11,6 +11,10 @@ from typing import Dict, Any
 from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from auth_security import (
+    load_context, has_perm, perms_subset, sanitize_permissions,
+    get_role_permissions, get_user_role_permissions, unauthorized, forbidden, reply
+)
 
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -607,6 +611,98 @@ def handle_user_groups(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
+AM = 'parameters.access_management.'
+ACTION = {'POST': 'create', 'PUT': 'edit', 'DELETE': 'delete'}
+MIN_PASSWORD = 6
+
+
+def authorize(event: Dict[str, Any], resource: str, method: str, ctx: Dict[str, Any]):
+    """Проверка прав на сервере. Возвращает ответ с ошибкой или None, если действие разрешено"""
+    qp = event.get('queryStringParameters') or {}
+    uid = str(ctx['uid'])
+    my_perms = ctx['perms']
+
+    if method == 'GET':
+        if resource == 'users' and qp.get('id') and str(qp.get('id')) != uid:
+            if not has_perm(ctx, AM + 'users.view'):
+                return forbidden()
+        return None
+
+    action = ACTION.get(method)
+    if not action:
+        return reply(405, 'Method not allowed')
+
+    if resource == 'roles':
+        if not has_perm(ctx, AM + f'roles.{action}'):
+            return forbidden()
+        if method in ('POST', 'PUT'):
+            body = parse_body(event)
+            if 'permissions' in body:
+                if not isinstance(body['permissions'], dict):
+                    return reply(400, 'Некорректные права роли')
+                body['permissions'] = sanitize_permissions(body['permissions'])
+                if not perms_subset(body['permissions'], my_perms):
+                    return forbidden('Нельзя выдать права, которых нет у вас')
+                event['body'] = json.dumps(body)
+        if method in ('PUT', 'DELETE'):
+            existing = get_role_permissions(qp.get('id'))
+            if existing is not None and not perms_subset(existing, my_perms):
+                return forbidden('Нельзя изменять роль с более широкими правами')
+        return None
+
+    if resource == 'user-groups':
+        if not has_perm(ctx, AM + f'user_groups.{action}'):
+            return forbidden()
+        return None
+
+    if resource == 'users':
+        body = parse_body(event) if method != 'DELETE' else {}
+        target_id = qp.get('id')
+
+        if method == 'PUT' and str(target_id) == uid and not has_perm(ctx, AM + 'users.edit'):
+            if set(body.keys()) - {'password', 'current_password'} or not body.get('current_password'):
+                return forbidden()
+        else:
+            if not has_perm(ctx, AM + f'users.{action}'):
+                return forbidden()
+
+        if method == 'PUT' and str(target_id) == uid and body.get('password') and not body.get('current_password'):
+            return reply(400, 'Укажите текущий пароль')
+
+        if body.get('password') and len(str(body['password'])) < MIN_PASSWORD:
+            return reply(400, f'Пароль должен быть не короче {MIN_PASSWORD} символов')
+
+        if method in ('POST', 'PUT') and body.get('role_id') is not None:
+            role_perms = get_role_permissions(body.get('role_id'))
+            if role_perms is None:
+                return reply(400, 'Роль не найдена')
+            if not perms_subset(role_perms, my_perms):
+                return forbidden('Нельзя назначить роль с более широкими правами')
+
+        if method in ('PUT', 'DELETE') and target_id and str(target_id) != uid:
+            target_perms = get_user_role_permissions(target_id)
+            if target_perms is not None and not perms_subset(target_perms, my_perms):
+                return forbidden('Нельзя изменять пользователя с более широкими правами')
+
+        if method == 'DELETE' and str(target_id) == uid:
+            return reply(400, 'Нельзя удалить самого себя')
+    return None
+
+
+MINIMAL_USER_FIELDS = ('id', 'login', 'full_name')
+
+
+def minimize_users_response(resp: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        data = json.loads(resp['body'])
+    except Exception:
+        return resp
+    if isinstance(data, list):
+        data = [{k: u.get(k) for k in MINIMAL_USER_FIELDS} for u in data]
+        return json_response(resp['statusCode'], data)
+    return resp
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Объединённый сервис: пользователи, роли, группы пользователей
@@ -628,14 +724,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     resource = query_params.get('resource', 'users')
 
     try:
-        if resource == 'users':
-            return handle_users(event, method)
-        elif resource == 'roles':
-            return handle_roles(event, method)
-        elif resource == 'user-groups':
-            return handle_user_groups(event, method)
-        else:
+        if resource not in ('users', 'roles', 'user-groups'):
             return json_response(400, {'error': f'Unknown resource: {resource}'})
+
+        ctx = load_context(event)
+        if not ctx:
+            return unauthorized()
+        denied = authorize(event, resource, method, ctx)
+        if denied:
+            return denied
+
+        if resource == 'users':
+            resp = handle_users(event, method)
+            if method == 'GET' and not (query_params.get('id')) and not has_perm(ctx, AM + 'users.view'):
+                resp = minimize_users_response(resp)
+            return resp
+        elif resource == 'roles':
+            resp = handle_roles(event, method)
+            if method == 'GET' and not query_params.get('id') and not has_perm(ctx, AM + 'roles.view'):
+                try:
+                    roles = json.loads(resp['body'])
+                    roles = [r for r in roles if r.get('id') == ctx['role_id']]
+                    resp = json_response(200, roles)
+                except Exception:
+                    pass
+            elif method == 'GET' and query_params.get('id') and str(query_params.get('id')) != str(ctx['role_id']) and not has_perm(ctx, AM + 'roles.view'):
+                return forbidden()
+            return resp
+        else:
+            return handle_user_groups(event, method)
     except Exception as e:
         print(f'users-service error: {e}')
         return json_response(500, {'error': 'Внутренняя ошибка сервера'})

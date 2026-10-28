@@ -12,6 +12,7 @@ import os
 from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from auth_security import load_context, has_perm, camera_in_group, unauthorized, forbidden, reply
 
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -1300,6 +1301,115 @@ def handle_dashboard_owners(event: Dict[str, Any], method: str) -> Dict[str, Any
         conn.close()
 
 
+CS = 'parameters.camera_sources.'
+ACTION = {'POST': 'create', 'PUT': 'edit', 'DELETE': 'delete'}
+SECRET_FIELDS = ('rtsp_login', 'rtsp_password', 'ptz_login', 'ptz_password')
+
+WRITE_PERMS = {
+    'registry': CS + 'cameras.',
+    'camera-groups': CS + 'camera_groups.',
+    'groups': CS + 'camera_groups.',
+    'camera-owners': CS + 'owners_registry.',
+    'camera-tags': CS + 'tags.',
+    'tags': CS + 'tags.',
+    'territorial-divisions': 'parameters.territorial_divisions.',
+    'models': CS + 'camera_models.',
+    'photo-archive': 'photo_archive.',
+}
+
+
+def group_camera_ids(group_id: Any) -> list:
+    if group_id is None:
+        return []
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(f'SELECT camera_ids FROM {SCHEMA}.camera_groups WHERE id = %s', (group_id,))
+        row = cur.fetchone()
+        cur.close()
+    finally:
+        conn.close()
+    return list(row['camera_ids'] or []) if row else []
+
+
+def authorize(event: Dict[str, Any], resource: str, method: str, ctx: Dict[str, Any]):
+    """Проверка прав на сервере. Возвращает ответ с ошибкой или None, если разрешено"""
+    params = event.get('queryStringParameters')
+    if params is None:
+        params = {}
+        event['queryStringParameters'] = params
+    uid = ctx['uid']
+
+    if resource == 'dashboard-owners':
+        if method == 'GET':
+            if str(params.get('user_id')) != str(uid):
+                return forbidden()
+        elif method == 'PUT':
+            try:
+                body = json.loads(event.get('body') or '{}')
+            except json.JSONDecodeError:
+                return reply(400, 'Неверные данные')
+            if body.get('user_id') != uid:
+                return forbidden()
+        return None
+
+    if resource == 'drone-detections':
+        return None if has_perm(ctx, 'bpla.view') else forbidden()
+
+    if resource == 'ord-recognitions':
+        if method == 'GET':
+            if params.get('stats'):
+                return None
+            if not has_perm(ctx, 'ord.view'):
+                return forbidden()
+            if not has_perm(ctx, CS + 'cameras.view'):
+                allowed = group_camera_ids(ctx['camera_group_id'])
+                asked = [int(c) for c in (params.get('camera_ids') or '').split(',') if c.strip().isdigit()]
+                final = [c for c in asked if c in allowed] if asked else allowed
+                params['camera_ids'] = ','.join(str(c) for c in final) if final else '0'
+            return None
+        action = ACTION.get(method)
+        if not action:
+            return reply(405, 'Method not allowed')
+        if has_perm(ctx, f'ord.online_search.{action}') or has_perm(ctx, f'ord.online_search_license_plate.{action}'):
+            return None
+        return forbidden()
+
+    if method == 'GET':
+        if resource == 'photo-archive':
+            return None if has_perm(ctx, 'photo_archive.view') else forbidden()
+        if resource == 'registry':
+            if params.get('id'):
+                if not has_perm(ctx, CS + 'cameras.view') and not camera_in_group(params['id'], ctx['camera_group_id']):
+                    return forbidden()
+            elif 'camera_group_id' in params:
+                params['camera_group_id'] = str(ctx['camera_group_id'] or 0)
+            elif not has_perm(ctx, CS + 'cameras.view'):
+                params['camera_group_id'] = str(ctx['camera_group_id'] or 0)
+        return None
+
+    prefix = WRITE_PERMS.get(resource)
+    action = ACTION.get(method)
+    if not prefix or not action:
+        return reply(405, 'Method not allowed')
+    if resource == 'registry' and method == 'POST' and not has_perm(ctx, prefix + 'create'):
+        return forbidden()
+    return None if has_perm(ctx, prefix + action) else forbidden()
+
+
+def strip_secrets(resp: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        data = json.loads(resp['body'])
+    except Exception:
+        return resp
+    items = data if isinstance(data, list) else [data]
+    for item in items:
+        if isinstance(item, dict):
+            for key in SECRET_FIELDS:
+                item.pop(key, None)
+    return json_response(resp['statusCode'], data)
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Объединённый сервис камер и справочников
@@ -1343,6 +1453,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return json_response(400, {'error': f'Unknown resource: {resource}'})
 
     try:
-        return fn(event, method)
+        ctx = load_context(event)
+        if not ctx:
+            return unauthorized()
+        denied = authorize(event, resource, method, ctx)
+        if denied:
+            return denied
+        resp = fn(event, method)
+        if resource == 'registry' and method == 'GET' and not has_perm(ctx, CS + 'cameras.edit'):
+            resp = strip_secrets(resp)
+        return resp
     except Exception as e:
-        return json_response(500, {'error': f'Ошибка сервера: {str(e)}'})
+        print(f'cameras-service error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
