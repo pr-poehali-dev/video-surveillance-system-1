@@ -40,7 +40,6 @@ const UserCard = ({ user, onEdit, onDelete, onLoginHistory }: UserCardProps) => 
       const impersonateData = {
         userId: user.id,
         login: data.login,
-        passwordHash: data.password_hash,
         fullName: data.full_name,
         roleId: data.role_id,
         userGroupId: data.user_group_id,

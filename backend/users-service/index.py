@@ -6,6 +6,7 @@
 import json
 import os
 import hashlib
+import hmac
 from typing import Dict, Any
 from datetime import datetime
 import psycopg2
@@ -20,7 +21,18 @@ CORS_HEADERS = {
 
 
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    salt = os.urandom(16).hex()
+    digest = hashlib.pbkdf2_hmac('sha256', password.encode(), bytes.fromhex(salt), 200000).hex()
+    return f'pbkdf2${salt}${digest}'
+
+
+def verify_password(password: str, stored: str) -> bool:
+    if stored and stored.startswith('pbkdf2$'):
+        _, salt, digest = stored.split('$')
+        calc = hashlib.pbkdf2_hmac('sha256', password.encode(), bytes.fromhex(salt), 200000).hex()
+        return hmac.compare_digest(calc, digest)
+    legacy = hashlib.sha256(password.encode()).hexdigest()
+    return hmac.compare_digest(legacy, stored or '')
 
 
 def json_response(status: int, body: Any) -> Dict[str, Any]:
@@ -213,7 +225,7 @@ def handle_users(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 if 'current_password' in body:
                     cur.execute('SELECT password_hash FROM system_users WHERE id = %s', (user_id,))
                     row = cur.fetchone()
-                    if not row or row[0] != hash_password(body['current_password']):
+                    if not row or not verify_password(body['current_password'], row[0]):
                         cur.close()
                         conn.close()
                         return json_response(400, {'error': 'Текущий пароль указан неверно'})
@@ -294,7 +306,8 @@ def handle_users(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     except Exception as e:
         cur.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_roles(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -473,7 +486,8 @@ def handle_roles(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     except Exception as e:
         cur.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_user_groups(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -589,7 +603,8 @@ def handle_user_groups(event: Dict[str, Any], method: str) -> Dict[str, Any]:
 
     except Exception as e:
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -622,4 +637,5 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         else:
             return json_response(400, {'error': f'Unknown resource: {resource}'})
     except Exception as e:
-        return json_response(500, {'error': f'Ошибка сервера: {str(e)}'})
+        print(f'users-service error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})

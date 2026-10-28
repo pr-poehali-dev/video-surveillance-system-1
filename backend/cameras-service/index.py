@@ -262,7 +262,8 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     except Exception as e:
         cursor.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_camera_groups(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -350,7 +351,8 @@ def handle_camera_groups(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     except Exception as e:
         cursor.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_camera_owners(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -468,7 +470,8 @@ def handle_camera_owners(event: Dict[str, Any], method: str) -> Dict[str, Any]:
 
     except Exception as e:
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_camera_tags(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -602,7 +605,8 @@ def handle_tags(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         conn.rollback()
         cur.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_territorial_divisions(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -810,7 +814,8 @@ def handle_models(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         conn.rollback()
         cur.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_groups(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -869,7 +874,8 @@ def handle_groups(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         conn.rollback()
         cur.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_stats(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -958,7 +964,8 @@ def handle_stats(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     except Exception as e:
         cur.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_photo_archive(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -1046,7 +1053,8 @@ def handle_photo_archive(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         conn.rollback()
         cur.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def serialize_drone(r: Dict[str, Any]) -> Dict[str, Any]:
@@ -1135,7 +1143,8 @@ def handle_drone_detections(event: Dict[str, Any], method: str) -> Dict[str, Any
         return json_response(405, {'error': 'Method not allowed'})
     except Exception as e:
         conn.rollback()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
     finally:
         cur.close()
         conn.close()
@@ -1242,7 +1251,8 @@ def handle_ord_recognitions(event: Dict[str, Any], method: str) -> Dict[str, Any
         return json_response(405, {'error': 'Method not allowed'})
     except Exception as e:
         conn.rollback()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
     finally:
         cur.close()
         conn.close()
@@ -1283,7 +1293,8 @@ def handle_dashboard_owners(event: Dict[str, Any], method: str) -> Dict[str, Any
         return json_response(405, {'error': 'Method not allowed'})
     except Exception as e:
         conn.rollback()
-        return json_response(500, {'error': str(e)})
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
     finally:
         cur.close()
         conn.close()

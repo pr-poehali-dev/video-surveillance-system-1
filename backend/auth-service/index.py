@@ -6,6 +6,7 @@
 import json
 import os
 import hashlib
+import hmac
 from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -19,7 +20,18 @@ CORS_HEADERS = {
 
 
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    salt = os.urandom(16).hex()
+    digest = hashlib.pbkdf2_hmac('sha256', password.encode(), bytes.fromhex(salt), 200000).hex()
+    return f'pbkdf2${salt}${digest}'
+
+
+def verify_password(password: str, stored: str) -> bool:
+    if stored and stored.startswith('pbkdf2$'):
+        _, salt, digest = stored.split('$')
+        calc = hashlib.pbkdf2_hmac('sha256', password.encode(), bytes.fromhex(salt), 200000).hex()
+        return hmac.compare_digest(calc, digest)
+    legacy = hashlib.sha256(password.encode()).hexdigest()
+    return hmac.compare_digest(legacy, stored or '')
 
 
 def json_response(status: int, body: Dict[str, Any]) -> Dict[str, Any]:
@@ -43,39 +55,40 @@ def handle_auth(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     if not login or not password:
         return json_response(400, {'error': 'Логин и пароль обязательны'})
 
-    password_hash = hash_password(password)
-    login_escaped = login.replace("'", "''")
-    password_hash_escaped = password_hash.replace("'", "''")
-
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    query = f"""
+    cur.execute("""
         SELECT id, full_name, email, login, role_id, user_group_id,
-               camera_group_id, company, position
+               camera_group_id, company, position, password_hash
         FROM t_p76735805_video_surveillance_s.system_users
-        WHERE login = '{login_escaped}' AND password_hash = '{password_hash_escaped}'
-    """
-    cur.execute(query)
+        WHERE login = %s
+    """, (login,))
     user = cur.fetchone()
+    if user and not verify_password(password, user['password_hash']):
+        user = None
 
     if not user:
         cur.close()
         conn.close()
         return json_response(401, {'error': 'Некорректный логин и/или пароль'})
 
-    update_query = f"""
+    cur.execute("""
         UPDATE t_p76735805_video_surveillance_s.system_users
         SET last_login = NOW(), is_online = true
-        WHERE id = {user['id']}
-    """
-    cur.execute(update_query)
+        WHERE id = %s
+    """, (user['id'],))
+    if not user['password_hash'].startswith('pbkdf2$'):
+        cur.execute("""
+            UPDATE t_p76735805_video_surveillance_s.system_users SET password_hash = %s WHERE id = %s
+        """, (hash_password(password), user['id']))
     conn.commit()
 
     cur.close()
     conn.close()
 
-    return json_response(200, {'success': True, 'user': dict(user)})
+    safe_user = {k: v for k, v in user.items() if k != 'password_hash'}
+    return json_response(200, {'success': True, 'user': safe_user})
 
 
 def handle_sessions(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -144,39 +157,37 @@ def handle_sessions(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 conn.close()
                 return json_response(400, {'error': 'user_id и session_token обязательны'})
 
-            session_token_escaped = session_token.replace("'", "''")
-            ip_escaped = ip_address.replace("'", "''") if ip_address else ''
-            user_agent_escaped = user_agent.replace("'", "''") if user_agent else ''
-            route_escaped = current_route.replace("'", "''") if current_route else '/'
+            try:
+                user_id = int(user_id)
+            except (TypeError, ValueError):
+                cur.close()
+                conn.close()
+                return json_response(400, {'error': 'Некорректный user_id'})
 
-            check_query = f"""
+            cur.execute("""
                 SELECT id FROM t_p76735805_video_surveillance_s.user_sessions
-                WHERE session_token = '{session_token_escaped}'
-            """
-            cur.execute(check_query)
+                WHERE session_token = %s
+            """, (session_token,))
             existing = cur.fetchone()
 
             if existing:
-                update_query = f"""
+                cur.execute("""
                     UPDATE t_p76735805_video_surveillance_s.user_sessions
-                    SET current_route = '{route_escaped}',
+                    SET current_route = %s,
                         last_activity = NOW(),
                         expires_at = NOW() + INTERVAL '24 hours'
-                    WHERE session_token = '{session_token_escaped}'
+                    WHERE session_token = %s
                     RETURNING id
-                """
-                cur.execute(update_query)
+                """, (current_route or '/', session_token))
                 conn.commit()
                 session_id = cur.fetchone()['id']
             else:
-                insert_query = f"""
+                cur.execute("""
                     INSERT INTO t_p76735805_video_surveillance_s.user_sessions
                     (user_id, session_token, ip_address, user_agent, current_route, expires_at)
-                    VALUES ({user_id}, '{session_token_escaped}', '{ip_escaped}',
-                            '{user_agent_escaped}', '{route_escaped}', NOW() + INTERVAL '24 hours')
+                    VALUES (%s, %s, %s, %s, %s, NOW() + INTERVAL '24 hours')
                     RETURNING id
-                """
-                cur.execute(insert_query)
+                """, (user_id, session_token, ip_address or '', user_agent or '', current_route or '/'))
                 conn.commit()
                 session_id = cur.fetchone()['id']
 
@@ -194,14 +205,11 @@ def handle_sessions(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 conn.close()
                 return json_response(400, {'error': 'session_token обязателен'})
 
-            token_escaped = session_token.replace("'", "''")
-
-            delete_query = f"""
+            cur.execute("""
                 UPDATE t_p76735805_video_surveillance_s.user_sessions
                 SET expires_at = NOW() - INTERVAL '1 hour'
-                WHERE session_token = '{token_escaped}'
-            """
-            cur.execute(delete_query)
+                WHERE session_token = %s
+            """, (session_token,))
             conn.commit()
 
             cur.close()
@@ -217,7 +225,8 @@ def handle_sessions(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     except Exception as e:
         cur.close()
         conn.close()
-        return json_response(500, {'error': str(e)})
+        print(f'sessions error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
 def handle_impersonate(event: Dict[str, Any], method: str) -> Dict[str, Any]:
@@ -235,7 +244,7 @@ def handle_impersonate(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     cur = conn.cursor()
 
     cur.execute('''
-        SELECT login, password_hash, full_name, role_id, user_group_id, camera_group_id
+        SELECT login, full_name, role_id, user_group_id, camera_group_id
         FROM t_p76735805_video_surveillance_s.system_users
         WHERE id = %s
     ''', (user_id,))
@@ -250,11 +259,10 @@ def handle_impersonate(event: Dict[str, Any], method: str) -> Dict[str, Any]:
 
     return json_response(200, {
         'login': row[0],
-        'password_hash': row[1],
-        'full_name': row[2],
-        'role_id': row[3],
-        'user_group_id': row[4],
-        'camera_group_id': row[5]
+        'full_name': row[1],
+        'role_id': row[2],
+        'user_group_id': row[3],
+        'camera_group_id': row[4]
     })
 
 
@@ -288,4 +296,5 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         else:
             return json_response(400, {'error': f'Unknown resource: {resource}'})
     except Exception as e:
-        return json_response(500, {'error': f'Ошибка сервера: {str(e)}'})
+        print(f'auth error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
