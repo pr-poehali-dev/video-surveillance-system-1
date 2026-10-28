@@ -113,6 +113,11 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 like_value = f'%{search_filter}%'
                 query_values.extend([like_value, like_value, like_value])
 
+            group_filter = params.get('camera_group_id')
+            if group_filter:
+                query += f' AND id = ANY(COALESCE((SELECT camera_ids FROM {SCHEMA}.camera_groups WHERE id = %s), ARRAY[]::integer[]))'
+                query_values.append(int(group_filter))
+
             query += ' ORDER BY created_at DESC'
 
             cursor.execute(query, query_values)
