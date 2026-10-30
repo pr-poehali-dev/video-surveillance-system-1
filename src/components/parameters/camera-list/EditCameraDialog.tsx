@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { Camera, CameraModel, Owner, TerritorialDivision } from './CameraListTypes';
 import { useState } from 'react';
+import CameraTagPicker from '../CameraTagPicker';
 
 interface EditCameraDialogProps {
   open: boolean;
@@ -200,6 +201,8 @@ export const EditCameraDialog = ({
               </div>
             </div>
           </div>
+
+          {camera && <CameraTagPicker cameraId={camera.id} active={open} />}
 
           <div className="space-y-2">
             <Label>Собственник камеры <span className="text-red-500">*</span></Label>

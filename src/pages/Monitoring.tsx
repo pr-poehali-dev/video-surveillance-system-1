@@ -23,6 +23,18 @@ const Monitoring = () => {
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [analyticsFilter, setAnalyticsFilter] = useState<string[]>([]);
   const [groupCameraIds, setGroupCameraIds] = useState<Record<string, number[]>>({});
+  const [cameraTagNames, setCameraTagNames] = useState<Record<number, string[]>>({});
+
+  useEffect(() => {
+    fetch(`${CAMERAS_SERVICE_API}?resource=camera-tag-links`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        const map: Record<number, string[]> = {};
+        if (Array.isArray(data)) data.forEach((l: { camera_id: number; tag_name: string }) => { (map[l.camera_id] ||= []).push(l.tag_name); });
+        setCameraTagNames(map);
+      })
+      .catch(() => setCameraTagNames({}));
+  }, []);
 
   useEffect(() => {
     fetch(`${CAMERAS_SERVICE_API}?resource=camera-groups`)
@@ -125,7 +137,7 @@ const Monitoring = () => {
     const matchesOwner = ownerFilter.length === 0 || ownerFilter.includes(camera.owner);
     const matchesGroup = groupFilter.length === 0 || groupFilter.some((g) => (groupCameraIds[g] || []).includes(camera.id));
     const matchesDivision = divisionFilter.length === 0 || divisionFilter.includes(camera.territorial_division || camera.group);
-    const matchesTag = tagFilter.length === 0 || (camera.tags !== undefined && tagFilter.some(t => camera.tags?.includes(t)));
+    const matchesTag = tagFilter.length === 0 || tagFilter.some((t) => (cameraTagNames[camera.id] || []).includes(t));
     const matchesAnalytics = analyticsFilter.length === 0 || (
       (analyticsFilter.includes('face') && camera.face_recognition) ||
       (analyticsFilter.includes('grz') && camera.grz_recognition)

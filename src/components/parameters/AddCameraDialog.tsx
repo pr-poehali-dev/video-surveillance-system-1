@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import CameraTagPicker from './CameraTagPicker';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,6 +41,7 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
   const [divisions, setDivisions] = useState<TerritorialDivision[]>([]);
   const [ownerSearch, setOwnerSearch] = useState('');
   const [divisionSearch, setDivisionSearch] = useState('');
+  const [tagIds, setTagIds] = useState<number[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -138,6 +140,7 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
         resolution: formData.resolution || null,
         fps: formData.fps ? parseInt(formData.fps) : null,
         traffic: formData.traffic ? parseFloat(formData.traffic) : null,
+        tag_ids: tagIds,
       };
 
       const response = await fetch(CAMERAS_API, {
@@ -149,6 +152,7 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
       if (!response.ok) throw new Error('Failed to create camera');
 
       toast.success('Камера добавлена');
+      setTagIds([]);
       
       setOpen(false);
       setFormData({
@@ -304,6 +308,8 @@ export const AddCameraDialog = ({ onSuccess }: AddCameraDialogProps) => {
               </div>
             </div>
           </div>
+
+          <CameraTagPicker value={tagIds} onChange={setTagIds} active={open} />
 
           <div className="space-y-2">
             <Label>Собственник камеры <span className="text-red-500">*</span></Label>

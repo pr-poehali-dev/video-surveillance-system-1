@@ -187,6 +187,8 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
             ))
 
             camera_id = cursor.fetchone()['id']
+            if isinstance(body_data.get('tag_ids'), list):
+                set_camera_tags(cursor, camera_id, body_data['tag_ids'])
             conn.commit()
             cursor.close()
             conn.close()
@@ -250,6 +252,7 @@ def handle_registry(event: Dict[str, Any], method: str) -> Dict[str, Any]:
                 conn.close()
                 return json_response(400, {'error': 'Camera ID required'})
 
+            cursor.execute(f'DELETE FROM {SCHEMA}.camera_tag_links WHERE camera_id = %s', (camera_id,))
             cursor.execute(f'DELETE FROM {SCHEMA}.cameras_registry WHERE id = %s', (camera_id,))
             conn.commit()
             cursor.close()
@@ -1259,6 +1262,50 @@ def handle_ord_recognitions(event: Dict[str, Any], method: str) -> Dict[str, Any
         conn.close()
 
 
+def set_camera_tags(cur, camera_id: int, tag_ids: Any) -> None:
+    ids = sorted({int(t) for t in (tag_ids or []) if str(t).isdigit()})
+    cur.execute(f'DELETE FROM {SCHEMA}.camera_tag_links WHERE camera_id = %s', (camera_id,))
+    for tid in ids:
+        cur.execute(
+            f'INSERT INTO {SCHEMA}.camera_tag_links (camera_id, tag_id) '
+            f'SELECT %s, id FROM {SCHEMA}.camera_tags WHERE id = %s ON CONFLICT DO NOTHING',
+            (camera_id, tid)
+        )
+
+
+def handle_camera_tag_links(event: Dict[str, Any], method: str) -> Dict[str, Any]:
+    """Привязка тегов к камерам: список связей и замена набора тегов камеры"""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        if method == 'GET':
+            cur.execute(f'''
+                SELECT l.camera_id, l.tag_id, t.name AS tag_name
+                FROM {SCHEMA}.camera_tag_links l
+                JOIN {SCHEMA}.camera_tags t ON t.id = l.tag_id
+                ORDER BY l.camera_id, t.name
+            ''')
+            return json_response(200, [dict(r) for r in cur.fetchall()])
+
+        if method == 'PUT':
+            body = json.loads(event.get('body') or '{}')
+            camera_id = body.get('camera_id')
+            if not isinstance(camera_id, int) or not isinstance(body.get('tag_ids'), list):
+                return json_response(400, {'error': 'Неверные данные'})
+            set_camera_tags(cur, camera_id, body['tag_ids'])
+            conn.commit()
+            return json_response(200, {'message': 'Saved'})
+
+        return json_response(405, {'error': 'Method not allowed'})
+    except Exception as e:
+        conn.rollback()
+        print(f'error: {e}')
+        return json_response(500, {'error': 'Внутренняя ошибка сервера'})
+    finally:
+        cur.close()
+        conn.close()
+
+
 def handle_dashboard_owners(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     """Собственники камер, выбранные пользователем для блока на дашборде"""
     params = event.get('queryStringParameters') or {}
@@ -1311,6 +1358,7 @@ WRITE_PERMS = {
     'groups': CS + 'camera_groups.',
     'camera-owners': CS + 'owners_registry.',
     'camera-tags': CS + 'tags.',
+    'camera-tag-links': CS + 'cameras.',
     'tags': CS + 'tags.',
     'territorial-divisions': 'parameters.territorial_divisions.',
     'models': CS + 'camera_models.',
@@ -1437,6 +1485,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'camera-groups': handle_camera_groups,
         'camera-owners': handle_camera_owners,
         'camera-tags': handle_camera_tags,
+        'camera-tag-links': handle_camera_tag_links,
         'tags': handle_tags,
         'territorial-divisions': handle_territorial_divisions,
         'models': handle_models,
