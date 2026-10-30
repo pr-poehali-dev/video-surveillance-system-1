@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { api, Camera, CameraStats } from '@/lib/api';
-import CameraList from '@/components/monitoring/CameraList';
+import CameraList, { FilterOptions } from '@/components/monitoring/CameraList';
 import MapPanel from '@/components/monitoring/MapPanel';
 import CameraVideoDialog from '@/components/monitoring/CameraVideoDialog';
 import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
@@ -24,27 +24,27 @@ const Monitoring = () => {
   const [analyticsFilter, setAnalyticsFilter] = useState<string[]>([]);
   const [groupCameraIds, setGroupCameraIds] = useState<Record<string, number[]>>({});
   const [cameraTagNames, setCameraTagNames] = useState<Record<number, string[]>>({});
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({ owners: [], groups: [], divisions: [], tags: [] });
 
   useEffect(() => {
-    fetch(`${CAMERAS_SERVICE_API}?resource=camera-tag-links`)
-      .then((r) => (r.ok ? r.json() : []))
+    fetch(`${CAMERAS_SERVICE_API}?resource=filter-options`)
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        const map: Record<number, string[]> = {};
-        if (Array.isArray(data)) data.forEach((l: { camera_id: number; tag_name: string }) => { (map[l.camera_id] ||= []).push(l.tag_name); });
-        setCameraTagNames(map);
+        if (!data) return;
+        const groupMap: Record<string, number[]> = {};
+        (data.groups || []).forEach((g: { name: string; camera_ids?: number[] }) => { groupMap[g.name] = g.camera_ids || []; });
+        const tagMap: Record<number, string[]> = {};
+        (data.tag_links || []).forEach((l: { camera_id: number; tag_name: string }) => { (tagMap[l.camera_id] ||= []).push(l.tag_name); });
+        setGroupCameraIds(groupMap);
+        setCameraTagNames(tagMap);
+        setFilterOptions({
+          owners: data.owners || [],
+          groups: (data.groups || []).map((g: { name: string }) => g.name),
+          divisions: data.divisions || [],
+          tags: data.tags || [],
+        });
       })
-      .catch(() => setCameraTagNames({}));
-  }, []);
-
-  useEffect(() => {
-    fetch(`${CAMERAS_SERVICE_API}?resource=camera-groups`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => {
-        const map: Record<string, number[]> = {};
-        if (Array.isArray(data)) data.forEach((g: { name: string; camera_ids?: number[] }) => { map[g.name] = g.camera_ids || []; });
-        setGroupCameraIds(map);
-      })
-      .catch(() => setGroupCameraIds({}));
+      .catch(() => undefined);
   }, []);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [detectionSettings, setDetectionSettings] = useState<DetectionSettings>({
@@ -174,6 +174,7 @@ const Monitoring = () => {
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         ownerFilter={ownerFilter}
+        filterOptions={filterOptions}
         onOwnerFilterChange={setOwnerFilter}
         groupFilter={groupFilter}
         onGroupFilterChange={setGroupFilter}

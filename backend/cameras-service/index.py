@@ -1306,6 +1306,35 @@ def handle_camera_tag_links(event: Dict[str, Any], method: str) -> Dict[str, Any
         conn.close()
 
 
+def handle_filter_options(event: Dict[str, Any], method: str) -> Dict[str, Any]:
+    """Все справочники для фильтров мониторинга одним ответом"""
+    if method != 'GET':
+        return json_response(405, {'error': 'Method not allowed'})
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute(f'SELECT name FROM {SCHEMA}.camera_owners ORDER BY name')
+        owners = [r['name'] for r in cur.fetchall()]
+        cur.execute(f'SELECT name, camera_ids FROM {SCHEMA}.camera_groups ORDER BY name')
+        groups = [{'name': r['name'], 'camera_ids': list(r['camera_ids'] or [])} for r in cur.fetchall()]
+        cur.execute(f'SELECT name FROM {SCHEMA}.territorial_divisions ORDER BY name')
+        divisions = [r['name'] for r in cur.fetchall()]
+        cur.execute(f'SELECT name FROM {SCHEMA}.camera_tags ORDER BY name')
+        tags = [r['name'] for r in cur.fetchall()]
+        cur.execute(
+            f'SELECT l.camera_id, t.name AS tag_name FROM {SCHEMA}.camera_tag_links l '
+            f'JOIN {SCHEMA}.camera_tags t ON t.id = l.tag_id'
+        )
+        tag_links = [{'camera_id': r['camera_id'], 'tag_name': r['tag_name']} for r in cur.fetchall()]
+        return json_response(200, {
+            'owners': owners, 'groups': groups, 'divisions': divisions,
+            'tags': tags, 'tag_links': tag_links
+        })
+    finally:
+        cur.close()
+        conn.close()
+
+
 def handle_dashboard_owners(event: Dict[str, Any], method: str) -> Dict[str, Any]:
     """Собственники камер, выбранные пользователем для блока на дашборде"""
     params = event.get('queryStringParameters') or {}
@@ -1486,6 +1515,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'camera-owners': handle_camera_owners,
         'camera-tags': handle_camera_tags,
         'camera-tag-links': handle_camera_tag_links,
+        'filter-options': handle_filter_options,
         'tags': handle_tags,
         'territorial-divisions': handle_territorial_divisions,
         'models': handle_models,

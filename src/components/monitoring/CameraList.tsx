@@ -14,24 +14,19 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
-import { useEffect, useState } from 'react';
 import { Camera } from '@/lib/api';
-import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 
-type Option = { value: string; label: string };
+export interface FilterOptions {
+  owners: string[];
+  groups: string[];
+  divisions: string[];
+  tags: string[];
+}
 
-const loadNames = async (resource: string): Promise<Option[]> => {
-  try {
-    const res = await fetch(`${CAMERAS_SERVICE_API}?resource=${resource}`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (!Array.isArray(data)) return [];
-    const names: string[] = data.map((i: { name?: string }) => (i.name || '').trim()).filter(Boolean);
-    return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b, 'ru')).map((n) => ({ value: n, label: n }));
-  } catch {
-    return [];
-  }
-};
+const toOptions = (names: string[]) =>
+  Array.from(new Set(names.map((n) => n.trim()).filter(Boolean)))
+    .sort((a, b) => a.localeCompare(b, 'ru'))
+    .map((n) => ({ value: n, label: n }));
 
 interface CameraListProps {
   cameras: Camera[];
@@ -39,6 +34,7 @@ interface CameraListProps {
   onSearchChange: (value: string) => void;
   statusFilter: string[];
   onStatusFilterChange: (value: string[]) => void;
+  filterOptions: FilterOptions;
   ownerFilter: string[];
   onOwnerFilterChange: (value: string[]) => void;
   groupFilter: string[];
@@ -60,6 +56,7 @@ interface CameraListProps {
 
 const CameraList = ({
   cameras,
+  filterOptions,
   searchQuery,
   onSearchChange,
   statusFilter,
@@ -82,17 +79,10 @@ const CameraList = ({
   onPreviewCamera,
   onFocusCamera,
 }: CameraListProps) => {
-  const [ownerOptions, setOwnerOptions] = useState<Option[]>([]);
-  const [groupOptions, setGroupOptions] = useState<Option[]>([]);
-  const [divisionOptions, setDivisionOptions] = useState<Option[]>([]);
-  const [tagOptions, setTagOptions] = useState<Option[]>([]);
-
-  useEffect(() => {
-    loadNames('camera-owners').then(setOwnerOptions);
-    loadNames('camera-groups').then(setGroupOptions);
-    loadNames('territorial-divisions').then(setDivisionOptions);
-    loadNames('camera-tags').then(setTagOptions);
-  }, []);
+  const ownerOptions = toOptions(filterOptions.owners);
+  const groupOptions = toOptions(filterOptions.groups);
+  const divisionOptions = toOptions(filterOptions.divisions);
+  const tagOptions = toOptions(filterOptions.tags);
 
 
   return (
