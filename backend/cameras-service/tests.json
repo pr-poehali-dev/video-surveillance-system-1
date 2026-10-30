@@ -74,6 +74,12 @@
         "id": 1
       },
       "expectedStatus": 401
+    },
+    {
+      "name": "События аналитики без токена закрыты",
+      "method": "GET",
+      "path": "/?resource=incident-events&category=security",
+      "expectedStatus": 401
     }
   ]
 }

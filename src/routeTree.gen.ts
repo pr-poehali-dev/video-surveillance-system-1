@@ -14,6 +14,8 @@ import { Route as BplaRouteImport } from './routes/bpla'
 import { Route as CameraRegistryRouteImport } from './routes/camera-registry'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as EmergencyRouteImport } from './routes/emergency'
+import { Route as ImprovementRouteImport } from './routes/improvement'
 import { Route as LayoutsRouteImport } from './routes/layouts'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MonitoringRouteImport } from './routes/monitoring'
@@ -22,6 +24,7 @@ import { Route as OrdRouteImport } from './routes/ord'
 import { Route as ParametersRouteImport } from './routes/parameters'
 import { Route as PhotoArchiveRouteImport } from './routes/photo-archive'
 import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as SecurityRouteImport } from './routes/security'
 import { Route as VissRouteImport } from './routes/viss'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +50,16 @@ const ChangelogRoute = ChangelogRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmergencyRoute = EmergencyRouteImport.update({
+  id: '/emergency',
+  path: '/emergency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImprovementRoute = ImprovementRouteImport.update({
+  id: '/improvement',
+  path: '/improvement',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LayoutsRoute = LayoutsRouteImport.update({
@@ -89,6 +102,11 @@ const ReportsRoute = ReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VissRoute = VissRouteImport.update({
   id: '/viss',
   path: '/viss',
@@ -101,6 +119,8 @@ export interface FileRoutesByFullPath {
   '/camera-registry': typeof CameraRegistryRoute
   '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
+  '/emergency': typeof EmergencyRoute
+  '/improvement': typeof ImprovementRoute
   '/layouts': typeof LayoutsRoute
   '/login': typeof LoginRoute
   '/monitoring': typeof MonitoringRoute
@@ -109,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/parameters': typeof ParametersRoute
   '/photo-archive': typeof PhotoArchiveRoute
   '/reports': typeof ReportsRoute
+  '/security': typeof SecurityRoute
   '/viss': typeof VissRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +138,8 @@ export interface FileRoutesByTo {
   '/camera-registry': typeof CameraRegistryRoute
   '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
+  '/emergency': typeof EmergencyRoute
+  '/improvement': typeof ImprovementRoute
   '/layouts': typeof LayoutsRoute
   '/login': typeof LoginRoute
   '/monitoring': typeof MonitoringRoute
@@ -125,6 +148,7 @@ export interface FileRoutesByTo {
   '/parameters': typeof ParametersRoute
   '/photo-archive': typeof PhotoArchiveRoute
   '/reports': typeof ReportsRoute
+  '/security': typeof SecurityRoute
   '/viss': typeof VissRoute
 }
 export interface FileRoutesById {
@@ -134,6 +158,8 @@ export interface FileRoutesById {
   '/camera-registry': typeof CameraRegistryRoute
   '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
+  '/emergency': typeof EmergencyRoute
+  '/improvement': typeof ImprovementRoute
   '/layouts': typeof LayoutsRoute
   '/login': typeof LoginRoute
   '/monitoring': typeof MonitoringRoute
@@ -142,6 +168,7 @@ export interface FileRoutesById {
   '/parameters': typeof ParametersRoute
   '/photo-archive': typeof PhotoArchiveRoute
   '/reports': typeof ReportsRoute
+  '/security': typeof SecurityRoute
   '/viss': typeof VissRoute
 }
 export interface FileRouteTypes {
@@ -152,6 +179,8 @@ export interface FileRouteTypes {
     | '/camera-registry'
     | '/changelog'
     | '/dashboard'
+    | '/emergency'
+    | '/improvement'
     | '/layouts'
     | '/login'
     | '/monitoring'
@@ -160,6 +189,7 @@ export interface FileRouteTypes {
     | '/parameters'
     | '/photo-archive'
     | '/reports'
+    | '/security'
     | '/viss'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -168,6 +198,8 @@ export interface FileRouteTypes {
     | '/camera-registry'
     | '/changelog'
     | '/dashboard'
+    | '/emergency'
+    | '/improvement'
     | '/layouts'
     | '/login'
     | '/monitoring'
@@ -176,6 +208,7 @@ export interface FileRouteTypes {
     | '/parameters'
     | '/photo-archive'
     | '/reports'
+    | '/security'
     | '/viss'
   id:
     | '__root__'
@@ -184,6 +217,8 @@ export interface FileRouteTypes {
     | '/camera-registry'
     | '/changelog'
     | '/dashboard'
+    | '/emergency'
+    | '/improvement'
     | '/layouts'
     | '/login'
     | '/monitoring'
@@ -192,6 +227,7 @@ export interface FileRouteTypes {
     | '/parameters'
     | '/photo-archive'
     | '/reports'
+    | '/security'
     | '/viss'
   fileRoutesById: FileRoutesById
 }
@@ -201,6 +237,8 @@ export interface RootRouteChildren {
   CameraRegistryRoute: typeof CameraRegistryRoute
   ChangelogRoute: typeof ChangelogRoute
   DashboardRoute: typeof DashboardRoute
+  EmergencyRoute: typeof EmergencyRoute
+  ImprovementRoute: typeof ImprovementRoute
   LayoutsRoute: typeof LayoutsRoute
   LoginRoute: typeof LoginRoute
   MonitoringRoute: typeof MonitoringRoute
@@ -209,6 +247,7 @@ export interface RootRouteChildren {
   ParametersRoute: typeof ParametersRoute
   PhotoArchiveRoute: typeof PhotoArchiveRoute
   ReportsRoute: typeof ReportsRoute
+  SecurityRoute: typeof SecurityRoute
   VissRoute: typeof VissRoute
 }
 
@@ -247,6 +286,20 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/emergency': {
+      id: '/emergency'
+      path: '/emergency'
+      fullPath: '/emergency'
+      preLoaderRoute: typeof EmergencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/improvement': {
+      id: '/improvement'
+      path: '/improvement'
+      fullPath: '/improvement'
+      preLoaderRoute: typeof ImprovementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/layouts': {
@@ -305,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/viss': {
       id: '/viss'
       path: '/viss'
@@ -321,6 +381,8 @@ const rootRouteChildren: RootRouteChildren = {
   CameraRegistryRoute: CameraRegistryRoute,
   ChangelogRoute: ChangelogRoute,
   DashboardRoute: DashboardRoute,
+  EmergencyRoute: EmergencyRoute,
+  ImprovementRoute: ImprovementRoute,
   LayoutsRoute: LayoutsRoute,
   LoginRoute: LoginRoute,
   MonitoringRoute: MonitoringRoute,
@@ -329,6 +391,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParametersRoute: ParametersRoute,
   PhotoArchiveRoute: PhotoArchiveRoute,
   ReportsRoute: ReportsRoute,
+  SecurityRoute: SecurityRoute,
   VissRoute: VissRoute,
 }
 export const routeTree = rootRouteImport

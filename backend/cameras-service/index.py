@@ -9,7 +9,7 @@
 
 import json
 import os
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from auth_security import load_context, has_perm, camera_in_group, unauthorized, forbidden, reply
@@ -1061,6 +1061,135 @@ def handle_photo_archive(event: Dict[str, Any], method: str) -> Dict[str, Any]:
         return json_response(500, {'error': 'Внутренняя ошибка сервера'})
 
 
+INCIDENT_TYPES = {
+    'security': ('fight', 'crowd', 'abandoned_object'),
+    'emergency': ('smoke_fire',),
+    'improvement': ('graffiti',),
+}
+INCIDENT_PRIORITIES = ('high', 'medium', 'low')
+INCIDENT_STATUSES = ('new', 'confirmed', 'rejected', 'resolved')
+
+
+def serialize_incident(r: Dict[str, Any]) -> Dict[str, Any]:
+    dt = r['detected_at']
+    return {
+        'id': r['id'],
+        'category': r['category'],
+        'event_type': r['event_type'],
+        'date': dt.strftime('%d.%m.%Y'),
+        'time': dt.strftime('%H:%M:%S'),
+        'camera_id': r['camera_id'],
+        'camera_name': r['camera_name'] or '',
+        'address': r['address'] or '',
+        'priority': r['priority'],
+        'status': r['status'],
+        'confidence': r['confidence'],
+        'photo_url': r['photo_url'],
+        'description': r['description'] or '',
+    }
+
+
+def handle_incident_events(event: Dict[str, Any], method: str) -> Dict[str, Any]:
+    """События видеоаналитики: список по разделу, добавление, смена статуса, удаление"""
+    params = event.get('queryStringParameters') or {}
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        if method == 'GET':
+            category = params.get('category')
+            if category not in INCIDENT_TYPES:
+                return json_response(400, {'error': 'Неверный раздел'})
+            cur.execute(f'''
+                SELECT id, category, event_type, detected_at, camera_id, camera_name, address,
+                       priority, status, confidence, photo_url, description
+                FROM {SCHEMA}.incident_events
+                WHERE category = %s
+                ORDER BY detected_at DESC, id DESC
+                LIMIT 500
+            ''', (category,))
+            return json_response(200, [serialize_incident(r) for r in cur.fetchall()])
+
+        body = json.loads(event.get('body') or '{}')
+
+        if method == 'POST':
+            category = body.get('category')
+            event_type = body.get('event_type')
+            if category not in INCIDENT_TYPES or event_type not in INCIDENT_TYPES[category]:
+                return json_response(400, {'error': 'Неверный раздел или тип события'})
+            priority = body.get('priority', 'medium')
+            if priority not in INCIDENT_PRIORITIES:
+                return json_response(400, {'error': 'Неверный приоритет'})
+            cur.execute(f'''
+                INSERT INTO {SCHEMA}.incident_events
+                (category, event_type, detected_at, camera_id, camera_name, address,
+                 priority, confidence, photo_url, description)
+                VALUES (%s, %s, COALESCE(%s, NOW()), %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            ''', (
+                category, event_type, body.get('detected_at') or None, body.get('camera_id'),
+                body.get('camera_name'), body.get('address'), priority, body.get('confidence'),
+                body.get('photo_url'), body.get('description')
+            ))
+            new_id = cur.fetchone()['id']
+            conn.commit()
+            return json_response(201, {'id': new_id})
+
+        if method == 'PUT':
+            ev_id = body.get('id')
+            if not ev_id:
+                return json_response(400, {'error': 'Не указан id'})
+            sets = []
+            vals = []
+            if 'status' in body:
+                if body['status'] not in INCIDENT_STATUSES:
+                    return json_response(400, {'error': 'Неверный статус'})
+                sets.append('status = %s')
+                vals.append(body['status'])
+            if 'priority' in body:
+                if body['priority'] not in INCIDENT_PRIORITIES:
+                    return json_response(400, {'error': 'Неверный приоритет'})
+                sets.append('priority = %s')
+                vals.append(body['priority'])
+            if not sets:
+                return json_response(400, {'error': 'Нет данных для обновления'})
+            vals.append(ev_id)
+            cur.execute(f'UPDATE {SCHEMA}.incident_events SET {", ".join(sets)} WHERE id = %s', vals)
+            conn.commit()
+            return json_response(200, {'message': 'Updated'})
+
+        if method == 'DELETE':
+            cur.execute(f'DELETE FROM {SCHEMA}.incident_events WHERE id = %s', (body.get('id'),))
+            conn.commit()
+            return json_response(200, {'message': 'Deleted'})
+
+        return json_response(405, {'error': 'Method not allowed'})
+    finally:
+        cur.close()
+        conn.close()
+
+
+def incident_category_of(event: Dict[str, Any], method: str) -> Optional[str]:
+    if method == 'GET':
+        return (event.get('queryStringParameters') or {}).get('category')
+    try:
+        body = json.loads(event.get('body') or '{}')
+    except json.JSONDecodeError:
+        return None
+    if method == 'POST':
+        return body.get('category')
+    if not body.get('id'):
+        return None
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(f'SELECT category FROM {SCHEMA}.incident_events WHERE id = %s', (body['id'],))
+        row = cur.fetchone()
+        cur.close()
+    finally:
+        conn.close()
+    return row['category'] if row else None
+
+
 def serialize_drone(r: Dict[str, Any]) -> Dict[str, Any]:
     dt = r['detected_at']
     return {
@@ -1433,6 +1562,15 @@ def authorize(event: Dict[str, Any], resource: str, method: str, ctx: Dict[str, 
     if resource == 'drone-detections':
         return None if has_perm(ctx, 'bpla.view') else forbidden()
 
+    if resource == 'incident-events':
+        category = incident_category_of(event, method)
+        if category not in INCIDENT_TYPES:
+            return reply(400, 'Неверный раздел')
+        action = 'view' if method == 'GET' else ACTION.get(method)
+        if not action:
+            return reply(405, 'Method not allowed')
+        return None if has_perm(ctx, f'{category}.{action}') else forbidden()
+
     if resource == 'ord-recognitions':
         if method == 'GET':
             if params.get('stats'):
@@ -1523,6 +1661,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'stats': handle_stats,
         'photo-archive': handle_photo_archive,
         'drone-detections': handle_drone_detections,
+        'incident-events': handle_incident_events,
         'ord-recognitions': handle_ord_recognitions,
         'dashboard-owners': handle_dashboard_owners,
     }

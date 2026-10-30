@@ -5,6 +5,13 @@ export interface Permission {
   actions: PermissionAction[];
 }
 
+export interface CrudPermission {
+  view: boolean;
+  create: boolean;
+  edit: boolean;
+  delete: boolean;
+}
+
 export interface RolePermissions {
   home: {
     view: boolean;
@@ -39,6 +46,9 @@ export interface RolePermissions {
   bpla: {
     view: boolean;
   };
+  security: CrudPermission;
+  emergency: CrudPermission;
+  improvement: CrudPermission;
   layouts: {
     view: boolean;
     create: boolean;
@@ -158,6 +168,9 @@ export const DEFAULT_PERMISSIONS: RolePermissions = {
     historical_search_license_plates: { view: false },
   },
   bpla: { view: false },
+  security: { view: false, create: false, edit: false, delete: false },
+  emergency: { view: false, create: false, edit: false, delete: false },
+  improvement: { view: false, create: false, edit: false, delete: false },
   layouts: {
     view: false,
     create: false,

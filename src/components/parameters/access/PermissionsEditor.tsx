@@ -17,6 +17,9 @@ export const PermissionsEditor = ({ permissions, onChange }: PermissionsEditorPr
     monitoring: true,
     ord: true,
     bpla: true,
+    security: true,
+    emergency: true,
+    improvement: true,
     layouts: true,
     reports: true,
     photo_archive: true,
@@ -126,6 +129,27 @@ export const PermissionsEditor = ({ permissions, onChange }: PermissionsEditorPr
 
         <Section title="4. БПЛА" section="bpla">
           <PermissionCheckbox label="Просмотр" path={['bpla', 'view']} />
+        </Section>
+
+        <Section title="4.1. Безопасность" section="security">
+          <PermissionCheckbox label="Просмотр" path={['security', 'view']} />
+          <PermissionCheckbox label="Создание" path={['security', 'create']} />
+          <PermissionCheckbox label="Редактирование" path={['security', 'edit']} />
+          <PermissionCheckbox label="Удаление" path={['security', 'delete']} />
+        </Section>
+
+        <Section title="4.2. ЧС" section="emergency">
+          <PermissionCheckbox label="Просмотр" path={['emergency', 'view']} />
+          <PermissionCheckbox label="Создание" path={['emergency', 'create']} />
+          <PermissionCheckbox label="Редактирование" path={['emergency', 'edit']} />
+          <PermissionCheckbox label="Удаление" path={['emergency', 'delete']} />
+        </Section>
+
+        <Section title="4.3. Благоустройство" section="improvement">
+          <PermissionCheckbox label="Просмотр" path={['improvement', 'view']} />
+          <PermissionCheckbox label="Создание" path={['improvement', 'create']} />
+          <PermissionCheckbox label="Редактирование" path={['improvement', 'edit']} />
+          <PermissionCheckbox label="Удаление" path={['improvement', 'delete']} />
         </Section>
 
         <Section title="5. Раскладки" section="layouts">

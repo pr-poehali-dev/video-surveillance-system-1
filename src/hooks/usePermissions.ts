@@ -8,6 +8,18 @@ interface Permissions {
   viewArchive?: boolean;
   ptzControl?: boolean;
   bpla?: boolean;
+  security?: boolean;
+  securityCreate?: boolean;
+  securityEdit?: boolean;
+  securityDelete?: boolean;
+  emergency?: boolean;
+  emergencyCreate?: boolean;
+  emergencyEdit?: boolean;
+  emergencyDelete?: boolean;
+  improvement?: boolean;
+  improvementCreate?: boolean;
+  improvementEdit?: boolean;
+  improvementDelete?: boolean;
   ord?: boolean;
   layouts?: boolean;
   photoArchive?: boolean;
@@ -22,6 +34,9 @@ const PATH_PERMISSION: Record<string, keyof Permissions> = {
   '/monitoring': 'monitoring',
   '/ord': 'ord',
   '/bpla': 'bpla',
+  '/security': 'security',
+  '/emergency': 'emergency',
+  '/improvement': 'improvement',
   '/layouts': 'layouts',
   '/photo-archive': 'photoArchive',
   '/reports': 'reports',
@@ -35,6 +50,9 @@ const ORDERED_PATHS = [
   '/monitoring',
   '/ord',
   '/bpla',
+  '/security',
+  '/emergency',
+  '/improvement',
   '/layouts',
   '/photo-archive',
   '/reports',
@@ -43,10 +61,20 @@ const ORDERED_PATHS = [
   '/camera-registry',
 ];
 
+interface CrudRaw {
+  view?: boolean;
+  create?: boolean;
+  edit?: boolean;
+  delete?: boolean;
+}
+
 interface RawPermissions {
   home?: { view?: boolean };
   monitoring?: { view?: boolean; view_online?: boolean; view_archive?: boolean; ptz_control?: boolean };
   bpla?: { view?: boolean };
+  security?: CrudRaw;
+  emergency?: CrudRaw;
+  improvement?: CrudRaw;
   ord?: { view?: boolean };
   layouts?: { view?: boolean };
   photo_archive?: { view?: boolean };
@@ -88,6 +116,18 @@ export const usePermissions = () => {
           viewArchive: raw.monitoring?.view_archive === true,
           ptzControl: raw.monitoring?.ptz_control === true,
           bpla: raw.bpla?.view === true,
+          security: raw.security?.view === true,
+          securityCreate: raw.security?.create === true,
+          securityEdit: raw.security?.edit === true,
+          securityDelete: raw.security?.delete === true,
+          emergency: raw.emergency?.view === true,
+          emergencyCreate: raw.emergency?.create === true,
+          emergencyEdit: raw.emergency?.edit === true,
+          emergencyDelete: raw.emergency?.delete === true,
+          improvement: raw.improvement?.view === true,
+          improvementCreate: raw.improvement?.create === true,
+          improvementEdit: raw.improvement?.edit === true,
+          improvementDelete: raw.improvement?.delete === true,
           ord: raw.ord?.view === true,
           layouts: raw.layouts?.view === true,
           photoArchive: raw.photo_archive?.view === true,
