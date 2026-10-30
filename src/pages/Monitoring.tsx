@@ -5,6 +5,7 @@ import { api, Camera, CameraStats } from '@/lib/api';
 import CameraList from '@/components/monitoring/CameraList';
 import MapPanel from '@/components/monitoring/MapPanel';
 import CameraVideoDialog from '@/components/monitoring/CameraVideoDialog';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
 import CameraSettingsSheet, { DetectionSettings } from '@/components/monitoring/CameraSettingsSheet';
 
 const Monitoring = () => {
@@ -21,6 +22,18 @@ const Monitoring = () => {
   const [divisionFilter, setDivisionFilter] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [analyticsFilter, setAnalyticsFilter] = useState<string[]>([]);
+  const [groupCameraIds, setGroupCameraIds] = useState<Record<string, number[]>>({});
+
+  useEffect(() => {
+    fetch(`${CAMERAS_SERVICE_API}?resource=camera-groups`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        const map: Record<string, number[]> = {};
+        if (Array.isArray(data)) data.forEach((g: { name: string; camera_ids?: number[] }) => { map[g.name] = g.camera_ids || []; });
+        setGroupCameraIds(map);
+      })
+      .catch(() => setGroupCameraIds({}));
+  }, []);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [detectionSettings, setDetectionSettings] = useState<DetectionSettings>({
     faceDetection: false,
@@ -110,8 +123,8 @@ const Monitoring = () => {
       camera.address.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter.length === 0 || statusFilter.includes(camera.status);
     const matchesOwner = ownerFilter.length === 0 || ownerFilter.includes(camera.owner);
-    const matchesGroup = groupFilter.length === 0 || groupFilter.includes(camera.group);
-    const matchesDivision = divisionFilter.length === 0 || (camera.territorial_division !== undefined && divisionFilter.includes(camera.territorial_division));
+    const matchesGroup = groupFilter.length === 0 || groupFilter.some((g) => (groupCameraIds[g] || []).includes(camera.id));
+    const matchesDivision = divisionFilter.length === 0 || divisionFilter.includes(camera.territorial_division || camera.group);
     const matchesTag = tagFilter.length === 0 || (camera.tags !== undefined && tagFilter.some(t => camera.tags?.includes(t)));
     const matchesAnalytics = analyticsFilter.length === 0 || (
       (analyticsFilter.includes('face') && camera.face_recognition) ||

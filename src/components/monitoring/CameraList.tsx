@@ -14,7 +14,24 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
+import { useEffect, useState } from 'react';
 import { Camera } from '@/lib/api';
+import { CAMERAS_SERVICE_API } from '@/lib/backendUrls';
+
+type Option = { value: string; label: string };
+
+const loadNames = async (resource: string): Promise<Option[]> => {
+  try {
+    const res = await fetch(`${CAMERAS_SERVICE_API}?resource=${resource}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
+    const names: string[] = data.map((i: { name?: string }) => (i.name || '').trim()).filter(Boolean);
+    return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b, 'ru')).map((n) => ({ value: n, label: n }));
+  } catch {
+    return [];
+  }
+};
 
 interface CameraListProps {
   cameras: Camera[];
@@ -65,6 +82,18 @@ const CameraList = ({
   onPreviewCamera,
   onFocusCamera,
 }: CameraListProps) => {
+  const [ownerOptions, setOwnerOptions] = useState<Option[]>([]);
+  const [groupOptions, setGroupOptions] = useState<Option[]>([]);
+  const [divisionOptions, setDivisionOptions] = useState<Option[]>([]);
+  const [tagOptions, setTagOptions] = useState<Option[]>([]);
+
+  useEffect(() => {
+    loadNames('camera-owners').then(setOwnerOptions);
+    loadNames('camera-groups').then(setGroupOptions);
+    loadNames('territorial-divisions').then(setDivisionOptions);
+    loadNames('camera-tags').then(setTagOptions);
+  }, []);
+
 
   return (
     <div className="w-80 flex-shrink-0 flex flex-col h-full overflow-hidden">
@@ -131,10 +160,7 @@ const CameraList = ({
                   <div className="space-y-2">
                     <Label>Собственник</Label>
                     <MultiSelectCombobox
-                      options={[
-                        { value: 'МВД', label: 'МВД' },
-                        { value: 'Администрация', label: 'Администрация' },
-                      ]}
+                      options={ownerOptions}
                       selected={ownerFilter}
                       onChange={onOwnerFilterChange}
                       placeholder="Выберите собственника"
@@ -145,15 +171,7 @@ const CameraList = ({
                   <div className="space-y-2">
                     <Label>Группа камер</Label>
                     <MultiSelectCombobox
-                      options={[
-                        { value: 'Центральный район', label: 'Центральный район' },
-                        { value: 'Дзержинский район', label: 'Дзержинский район' },
-                        { value: 'Индустриальный район', label: 'Индустриальный район' },
-                        { value: 'Ленинский район', label: 'Ленинский район' },
-                        { value: 'Мотовилихинский район', label: 'Мотовилихинский район' },
-                        { value: 'Свердловский район', label: 'Свердловский район' },
-                        { value: 'Кировский район', label: 'Кировский район' },
-                      ]}
+                      options={groupOptions}
                       selected={groupFilter}
                       onChange={onGroupFilterChange}
                       placeholder="Выберите группу"
@@ -164,15 +182,7 @@ const CameraList = ({
                   <div className="space-y-2">
                     <Label>Территориальное деление</Label>
                     <MultiSelectCombobox
-                      options={[
-                        { value: 'Центральный район', label: 'Центральный район' },
-                        { value: 'Дзержинский район', label: 'Дзержинский район' },
-                        { value: 'Индустриальный район', label: 'Индустриальный район' },
-                        { value: 'Ленинский район', label: 'Ленинский район' },
-                        { value: 'Мотовилихинский район', label: 'Мотовилихинский район' },
-                        { value: 'Свердловский район', label: 'Свердловский район' },
-                        { value: 'Кировский район', label: 'Кировский район' },
-                      ]}
+                      options={divisionOptions}
                       selected={divisionFilter}
                       onChange={onDivisionFilterChange}
                       placeholder="Выберите территорию"
@@ -183,12 +193,7 @@ const CameraList = ({
                   <div className="space-y-2">
                     <Label>Теги</Label>
                     <MultiSelectCombobox
-                      options={[
-                        { value: 'Важная', label: 'Важная' },
-                        { value: 'Проблемная', label: 'Проблемная' },
-                        { value: 'Новая', label: 'Новая' },
-                        { value: 'На проверке', label: 'На проверке' },
-                      ]}
+                      options={tagOptions}
                       selected={tagFilter}
                       onChange={onTagFilterChange}
                       placeholder="Выберите тег"
