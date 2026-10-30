@@ -64,10 +64,26 @@ def _connect():
     return psycopg2.connect(os.environ['DATABASE_URL'], cursor_factory=RealDictCursor)
 
 
+_CTX_CACHE: Dict[int, Any] = {}
+CTX_TTL = 20
+
+
 def load_context(event: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     uid = verify_token(_read_token(event))
     if not uid:
         return None
+    hit = _CTX_CACHE.get(uid)
+    if hit and time.time() - hit[0] < CTX_TTL:
+        return hit[1]
+    ctx = _load_context_db(uid)
+    if ctx:
+        if len(_CTX_CACHE) > 500:
+            _CTX_CACHE.clear()
+        _CTX_CACHE[uid] = (time.time(), ctx)
+    return ctx
+
+
+def _load_context_db(uid: int) -> Optional[Dict[str, Any]]:
     conn = _connect()
     try:
         cur = conn.cursor()

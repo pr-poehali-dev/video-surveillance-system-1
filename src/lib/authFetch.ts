@@ -19,6 +19,9 @@ export const clearAuthStorage = () => {
   SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
 };
 
+const READ_TTL_MS = 5000;
+const readCache = new Map<string, { time: number; promise: Promise<Response> }>();
+
 let installed = false;
 
 export const installAuthFetch = () => {
@@ -34,7 +37,26 @@ export const installAuthFetch = () => {
     const token = localStorage.getItem(TOKEN_KEY);
     const headers = new Headers(init?.headers || (typeof input !== 'string' && !(input instanceof URL) ? input.headers : undefined));
     if (token) headers.set('X-Auth-Token', token);
-    const response = await originalFetch(input, { ...init, headers });
+
+    const method = (init?.method || (typeof input !== 'string' && !(input instanceof URL) ? input.method : 'GET') || 'GET').toUpperCase();
+    const isRead = method === 'GET';
+    const cacheKey = `${token || ''}|${url}`;
+
+    if (isRead) {
+      const hit = readCache.get(cacheKey);
+      if (hit && Date.now() - hit.time < READ_TTL_MS) {
+        return hit.promise.then((r) => r.clone());
+      }
+    } else {
+      readCache.clear();
+    }
+
+    const request = originalFetch(input, { ...init, headers });
+    if (isRead) {
+      readCache.set(cacheKey, { time: Date.now(), promise: request.then((r) => r.clone()) });
+      request.then((r) => { if (!r.ok) readCache.delete(cacheKey); }).catch(() => readCache.delete(cacheKey));
+    }
+    const response = await request;
 
     if (response.status === 401 && !isAuthAttempt(url)) {
       const onLogin = window.location.pathname.startsWith('/login');
